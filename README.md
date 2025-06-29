@@ -17,6 +17,13 @@ This project is very much a work in progress and a learning experience for me. D
 
 This repository serves as the central hub for managing my NixOS systems and Home Manager user environments. By leveraging the power of Nix, I aim to achieve a highly consistent, portable, and declarative configuration across all my machines.
 
+This project is focused on utilizing Hyprland and declaring all necessary components and stylings within the declarative nature of NixOS but I've left my KDE config in here for the sake of posterity. I LOVE this declarative approach but it's also taking something hard (Hyprland) configuration and turns the difficulty up a notch with NixOS. I will attempt to document the hows and whys of the configurations within files themselves but at first, here's a few key highlights.
+
+1. Hyprland configurations are located:
+    - System level: hosts/shared/workstation/window-managers/hyprland. This is where system level packages and settings are defined. Base things that enable Hyprland to work for all users.
+    - User level: home/shared/window-managers/hyprland. This is where user level settings are defined through Home Manager.
+2. Theming is controlled by [Stylix](https://github.com/nix-community/stylix). There is probably a better way to do this but I only managed to get these settings down to two locations. One for Home Manager (modules/workstation/stylix.nix) and one for system level (hosts/shared/workstation/stylix/stylix.nix). You can choose your own base16 scheme and must change both places and run a `nixos-config rebuild switch` and `home-manager switch` with the appropriate options for your system for the new theme to take effect. I like to use [this theme preview page](https://tinted-theming.github.io/tinted-gallery/) to find good themes to try out but you can also create your own following Stylix documentation.
+
 ## Repository Structure
 
 [TODO]

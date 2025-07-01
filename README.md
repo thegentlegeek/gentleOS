@@ -24,6 +24,14 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
     - User level: home/shared/window-managers/hyprland. This is where user level settings are defined through Home Manager.
 2. Theming is controlled by [Stylix](https://github.com/nix-community/stylix). There is probably a better way to do this but I only managed to get these settings down to two locations. One for Home Manager (modules/workstation/stylix.nix) and one for system level (hosts/shared/workstation/stylix/stylix.nix). You can choose your own base16 scheme and must change both places and run a `nixos-config rebuild switch` and `home-manager switch` with the appropriate options for your system for the new theme to take effect. I like to use [this theme preview page](https://tinted-theming.github.io/tinted-gallery/) to find good themes to try out but you can also create your own following Stylix documentation.
 
+### Screenshots
+
+![screenshot1](media/screenshots/screenshot1.png)
+
+![screenshot2](media/screenshots/screenshot2.png)
+
+![screenshot3](media/screenshots/screenshot3png)
+
 ## Repository Structure
 
 [TODO]

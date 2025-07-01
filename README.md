@@ -30,7 +30,7 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
 
 ![screenshot2](media/screenshots/screenshot2.png)
 
-![screenshot3](media/screenshots/screenshot3png)
+![screenshot3](media/screenshots/screenshot3.png)
 
 ## Repository Structure
 

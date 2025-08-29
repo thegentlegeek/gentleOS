@@ -7,7 +7,7 @@
   stylix = {
     enable = true;
     polarity = "dark";
-    image = ./wallpapers/everforest-wallpaper.png;
+    image = ./wallpapers/everforest_wallpaper.png;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/papercolor-dark.yaml";
     
     cursor = {

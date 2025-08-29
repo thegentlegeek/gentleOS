@@ -34,7 +34,7 @@
         "$directory"
         "[](bg:${stylix08} fg:${stylix0D})"
         "$git_branch$git_status"
-        "[](bg:${stylix03} fg:${stylix08})"
+        "[](bg:${stylix02} fg:${stylix08})"
         "$time"
         "[](${stylix02})"
         "$line_break"

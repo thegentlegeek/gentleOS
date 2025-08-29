@@ -42,8 +42,8 @@
       ];
       right_format = "$cmd_duration";
       username = {
-        style_user = "bg:${stylix03} fg:${stylix05} bold";
-        style_root = "bg:${stylix03} fg:${stylix08} bold";
+        style_user = "bg:${stylix02} fg:${stylix05} bold";
+        style_root = "bg:${stylix02} fg:${stylix08} bold";
         show_always = true;
         format = "[ $user ]($style)";
       };
@@ -61,11 +61,11 @@
         format = "[ $path ]($style)";
       };
       git_branch = {
-        style = "bg:${stylix0F} fg:${stylix00}";
+        style = "bg:${stylix08} fg:${stylix00}";
         format = "[ $symbol$branch ]($style)";
       };
       git_status = {
-        style = "bg:${stylix0F} fg:${stylix00}";
+        style = "bg:${stylix08} fg:${stylix00}";
         format = "[($all_status$ahead_behind )]($style)";
         ahead = "⇡\${count}";
         diverged = "⇕⇡\${ahead_count}⇣\${behind_count}";

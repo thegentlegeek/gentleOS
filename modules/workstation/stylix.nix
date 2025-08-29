@@ -7,8 +7,8 @@
   stylix = {
     enable = true;
     polarity = "dark";
-    image = ./wallpapers/nixos-wallpaper-custom.png;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
+    image = ./wallpapers/everforest-wallpaper.png;
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/papercolor-dark.yaml";
     
     cursor = {
      package = pkgs.bibata-cursors;

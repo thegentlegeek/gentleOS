@@ -7,8 +7,8 @@
   stylix = {
     enable = true;
     polarity = "dark";
-    image = ./wallpapers/nixos-wallpaper-lime.png;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/lime.yaml";
+    image = ./wallpapers/nixos-wallpaper-custom.png;
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/monokai.yaml";
     
     cursor = {
      package = pkgs.bibata-cursors;

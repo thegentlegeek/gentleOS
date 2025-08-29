@@ -27,16 +27,16 @@
     enable = true;
     settings = {
       format = lib.concatStrings [
-        "[](${stylix03})$username"
-        "[](bg:${stylix0E} fg:${stylix03})"
+        "[](${stylix02})$username"
+        "[](bg:${stylix0A} fg:${stylix03})"
         "$hostname$nix_shell"
         "[](bg:${stylix0D} fg:${stylix0E})"
         "$directory"
-        "[](bg:${stylix0F} fg:${stylix0D})"
+        "[](bg:${stylix08} fg:${stylix0D})"
         "$git_branch$git_status"
         "[](bg:${stylix03} fg:${stylix0F})"
         "$time"
-        "[](${stylix03})"
+        "[](${stylix02})"
         "$line_break"
         "$character"
       ];

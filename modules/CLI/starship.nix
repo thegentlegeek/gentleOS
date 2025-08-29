@@ -28,7 +28,7 @@
     settings = {
       format = lib.concatStrings [
         "[](${stylix02})$username"
-        "[](bg:${stylix0A} fg:${stylix03})"
+        "[](bg:${stylix0A} fg:${stylix02})"
         "$hostname$nix_shell"
         "[](bg:${stylix0D} fg:${stylix0E})"
         "$directory"
@@ -74,7 +74,7 @@
       time = {
         disabled = false;
         time_format = "%R";
-        style = "bg:${stylix03} fg:${stylix05} bold";
+        style = "bg:${stylix02} fg:${stylix05} bold";
         format = "[  $time ]($style)";
       };
       cmd_duration = {

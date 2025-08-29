@@ -8,7 +8,7 @@
     enable = true;
     polarity = "dark";
     image = ./wallpapers/nixos-wallpaper-custom.png;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/monokai.yaml";
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
     
     cursor = {
      package = pkgs.bibata-cursors;

@@ -17,6 +17,12 @@
       url = "github:danth/stylix/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Nix Wallpaper (auto colorized wallpaper that I will attempt to further automate based on Stylix theme chosen)
+    nix-wallpaper = {
+      url = "github:lunik1/nix-wallpaper";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { 
@@ -25,6 +31,7 @@
     unstable,
     home-manager,
     stylix,
+    nix-wallpaper
     ...
     } 
     @ inputs: 

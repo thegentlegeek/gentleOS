@@ -7,7 +7,7 @@
   stylix = {
     enable = true;
     polarity = "dark";
-    image = ./wallpapers/everforest_wallpaper.png;
+    image = ./wallpapers/nixos-standardized-dark;
     base16Scheme = "${pkgs.base16-schemes}/share/themes/standardized-dark.yaml";
     
     cursor = {

@@ -3,7 +3,7 @@
 }:
   let
       terminal = "kitty fish";
-      fileManager = "thunar";
+      fileManager = "yazi";
       menu = "rofi -show drun -display-drun ''";
       pbrowser = "chromium %U --profile-directory=\"Profile 2\"";
       wbrowser = "chromium %U --profile-directory=\"Profile 3\"";

@@ -11,7 +11,7 @@
       ../../../modules/workstation
       ../../shared/CLI
       ../../shared/window-managers/hyprland
-      stylix.homeManagerModules.stylix
+      stylix.homeModules.stylix
       ../../../modules/workstation/stylix.nix
     ];
 
@@ -21,6 +21,7 @@
     targets.waybar.enable = false;
     targets.rofi.enable = false;
     targets.dunst.enable = false;
+    targets.firefox.profileNames = [ "default" ];
   };
 
   home = {

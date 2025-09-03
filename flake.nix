@@ -31,7 +31,7 @@
     unstable,
     home-manager,
     stylix,
-    nix-wallpaper
+    nix-wallpaper,
     ...
     } 
     @ inputs: 

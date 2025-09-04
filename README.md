@@ -32,6 +32,12 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
 
 ![screenshot3](media/screenshots/screenshot3.png)
 
+![screenshot4](media/screenshots/screenshot4.png)
+
+![screenshot5](media/screenshots/screenshot5.png)
+
+![screenshot6](media/screenshots/screenshot6.png)
+
 ## Repository Structure
 
 [TODO]

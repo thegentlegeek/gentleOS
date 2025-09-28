@@ -1,4 +1,5 @@
 {
+  inputs,
   config,
   ...
 }:
@@ -7,10 +8,10 @@
   imports =
     [
       ./hardware-configuration.nix
+      inputs.home-manager.nixosModules.home-manager
       ../shared
       ../shared/CLI
       ../shared/server/minecraft-server.nix
-      ../shared/workstation/stylix
       ../../modules/workstation/stylix.nix
     ];
 

@@ -9,6 +9,7 @@
       ./hardware-configuration.nix
       ../shared
       ../shared/server/minecraft-server.nix
+      ../../modules/workstation/stylix.nix
     ];
 
   # Bootloader.

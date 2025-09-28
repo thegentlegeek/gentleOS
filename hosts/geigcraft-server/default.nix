@@ -7,8 +7,8 @@
   imports =
     [
       ./hardware-configuration.nix
-      ../common
-      ../common/server/minecraft-server.nix
+      ../shared
+      ../shared/server/minecraft-server.nix
     ];
 
   # Bootloader.

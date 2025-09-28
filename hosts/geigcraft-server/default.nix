@@ -13,6 +13,7 @@
       ../shared/CLI
       ../shared/server/minecraft-server.nix
       ../../modules/workstation/stylix.nix
+      ../../modules/workstation/colors.nix
     ];
 
   # Bootloader.

@@ -9,6 +9,7 @@
       ./hardware-configuration.nix
       ../shared
       ../shared/server/minecraft-server.nix
+      ../shared/workstation/stylix
       ../../modules/workstation/stylix.nix
     ];
 

@@ -4,6 +4,6 @@
 
 {
   imports = [
-    ./colors.nix
+    ./stylix.nix
   ];
 }

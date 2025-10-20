@@ -4,22 +4,7 @@
 }:
     # Bring in color definitions from stylix
   let 
-    stylix00 = config.myColors.stylix00;
-    stylix01 = config.myColors.stylix01;
-    stylix02 = config.myColors.stylix02;
-    stylix03 = config.myColors.stylix03;
-    stylix04 = config.myColors.stylix04;
-    stylix05 = config.myColors.stylix05;
-    stylix06 = config.myColors.stylix06;
-    stylix07 = config.myColors.stylix07;
-    stylix08 = config.myColors.stylix08;
-    stylix09 = config.myColors.stylix09;
-    stylix0A = config.myColors.stylix0A;
-    stylix0B = config.myColors.stylix0B;
-    stylix0C = config.myColors.stylix0C;
-    stylix0D = config.myColors.stylix0D;
-    stylix0E = config.myColors.stylix0E;
-    stylix0F = config.myColors.stylix0F;
+    colors = config.lib.stylix.colors.withHashtag;
   in
 {
 
@@ -35,20 +20,20 @@
     }
 
     tooltip {
-      background: ${stylix00};
-      color: ${stylix07};
+      background: ${colors.base00};
+      color: ${colors.base07};
       margin-top: 8px;
       margin-left: 16px;
       margin-bottom: 8px;
       border-radius: 10px;
       border: solid;
       border-width: 2px;
-      border-color: ${stylix07};
+      border-color: ${colors.base07};
       opacity: 0.9;
     }
 
     window#waybar {
-      background: ${stylix00};
+      background: ${colors.base00};
       border-radius: 0px;
       margin-top: 16px;
       margin-right: 16px;
@@ -65,25 +50,25 @@
       margin-left: 16px;
       margin-bottom: 8px;
       border-radius: 10px;
-      background: ${stylix03};
+      background: ${colors.base03};
     }
 
     #workspaces button {
       transition: none;
       border-radius: 10px;
-      color: ${stylix07};
+      color: ${colors.base07};
     }
 
     #workspaces button:active {
-      color: ${stylix0A};
-      background: ${stylix03};
+      color: ${colors.base0A};
+      background: ${colors.base03};
     }
 
     #workspaces button:hover {
       transition: none;
       box-shadow: inherit;
       text-shadow: inherit;
-      color: ${stylix07};
+      color: ${colors.base07};
     }
 
     #mpris {
@@ -93,8 +78,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix07};
-      background: ${stylix03};
+      color: ${colors.base07};
+      background: ${colors.base03};
     }
 
     #network {
@@ -104,8 +89,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix07};
-      background: ${stylix03};
+      color: ${colors.base07};
+      background: ${colors.base03};
     }
 
     #wireplumber {
@@ -115,8 +100,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix07};
-      background: ${stylix02};
+      color: ${colors.base07};
+      background: ${colors.base02};
     }
 
     #temperature {
@@ -126,8 +111,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix00};
-      background: ${stylix06};
+      color: ${colors.base00};
+      background: ${colors.base06};
     }
 
     #backlight {
@@ -137,8 +122,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix00};
-      background: ${stylix06};
+      color: ${colors.base00};
+      background: ${colors.base06};
     }
 
     #cpu {
@@ -148,8 +133,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix07};
-      background: ${stylix04};
+      color: ${colors.base07};
+      background: ${colors.base04};
     }
 
     #memory {
@@ -159,8 +144,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix00};
-      background: ${stylix05};
+      color: ${colors.base00};
+      background: ${colors.base05};
     }
 
     #clock {
@@ -171,8 +156,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix07};
-      background: ${stylix0D};
+      color: ${colors.base07};
+      background: ${colors.base0D};
     }
 
     #keyboard-state {
@@ -182,8 +167,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix00};
-      background: ${stylix05};
+      color: ${colors.base00};
+      background: ${colors.base05};
     }
 
     #battery {
@@ -193,8 +178,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix07};
-      background: ${stylix04};
+      color: ${colors.base07};
+      background: ${colors.base04};
     }
 
     #power-profiles-daemon {
@@ -204,8 +189,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix07};
-      background: ${stylix03};
+      color: ${colors.base07};
+      background: ${colors.base03};
     }
 
     #custom-power {
@@ -216,8 +201,8 @@
       margin-bottom: 8px;
       border-radius: 10px;
       transition: none;
-      color: ${stylix00};
-      background: ${stylix08};
+      color: ${colors.base00};
+      background: ${colors.base08};
     }
     '';
 }

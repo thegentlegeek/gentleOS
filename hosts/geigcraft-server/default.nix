@@ -12,7 +12,6 @@
       ../shared
       ../shared/CLI
       ../shared/server/minecraft-server.nix
-      ../../modules/workstation/stylix.nix
     ];
 
   # Bootloader.

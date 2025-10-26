@@ -72,7 +72,6 @@
         specialArgs = { inherit inputs outputs; };
         modules = [
           ./hosts/geigcraft-server
-          inputs.stylix.nixosModules.stylix
         ];
       };
     };

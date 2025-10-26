@@ -68,7 +68,7 @@
       };
 
       # Host configuration for Geigcraft server
-      geigcraft-server = nixpkgs.lib.nixosSystem {
+      geigcraft-server = unstable.lib.nixosSystem {
         specialArgs = { inherit inputs outputs; };
         modules = [
           ./hosts/geigcraft-server

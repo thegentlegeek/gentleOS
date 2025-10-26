@@ -9,8 +9,6 @@
     [
       ./hardware-configuration.nix
       inputs.home-manager.nixosModules.home-manager
-      ../shared
-      ../shared/CLI
       ../shared/server/minecraft-server.nix
     ];
 
@@ -74,7 +72,7 @@
         config.services.tailscale.port
       ];
       allowedTCPPorts = [
-	config.services.tailscale.port
+	      config.services.tailscale.port
       ];
   };
 

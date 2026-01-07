@@ -48,7 +48,6 @@
       dbeaver-bin
       libreoffice
       discord
-      en-croissant
       chessx
       sshs   # cool CLI ssh interface. Use it again if you've forgotten about it future me. - Love, past you
     ];
@@ -98,10 +97,10 @@
     hyprlock = {
       enable = true;
     };
-    git = {
+    git.settings = {
       enable = true;
-      userEmail = "justin@geigley.com";
-      userName = "thegentlegeek";
+      user.email = "justin@geigley.com";
+      user.name = "thegentlegeek";
     };
     freetube.enable = true;
     spotify-player.enable = true;

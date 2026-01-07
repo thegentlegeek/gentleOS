@@ -60,6 +60,9 @@
 
   programs = {
     home-manager.enable = true;
+    opencode = {
+      enable = true;
+    };
     vscode = {
       enable = true;
       package = pkgs.vscodium;

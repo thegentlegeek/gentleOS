@@ -123,7 +123,6 @@
       # Swipe gestures
       gesture = [
         "3, horizontal, workspace"
-        "4, up, fullscreen"
       ];
 
       # Basic keybindings

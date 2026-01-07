@@ -34,7 +34,6 @@
   # System Programs
   environment.systemPackages = with pkgs; [
     bluez
-    unigine-superposition
   ];
 
   # Keep the state version at 23.11

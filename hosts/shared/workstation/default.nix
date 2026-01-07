@@ -48,7 +48,7 @@
   services.power-profiles-daemon.enable = true;
 
   # Define power state behavior
-  services.logind = {
+  services.logind.settings.Login = {
     powerKey = "poweroff";
     lidSwitchDocked = "ignore";             # Ignore lid closure when an external display is connected
     lidSwitch = "suspend-then-hibernate";   # Suspend the system when no external display is connected

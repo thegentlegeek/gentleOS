@@ -120,10 +120,11 @@
         };
       };
 
-      # Workspace swiping
-      gestures = {
-        workspace_swipe = true;
-      };
+      # Swipe gestures
+      gesture = [
+        "3, horizontal, workspace"
+        "4, up, fullscreen"
+      ];
 
       # Basic keybindings
       bind = [

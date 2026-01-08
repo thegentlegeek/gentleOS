@@ -63,6 +63,12 @@
     opencode = {
       enable = true;
     };
+    zed-editor = {
+        enable = true;
+        extensions = [
+          "nix"
+        ];
+    };
     vscode = {
       enable = true;
       package = pkgs.vscodium;

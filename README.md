@@ -2,8 +2,6 @@
 
 This repository houses my personal NixOS and Home Manager configurations, designed for reproducible and declarative system management. It's structured to clearly separate host-specific settings from shared user configurations and common programs.
 
-This project is very much a work in progress and a learning experience for me. Do not take anything you see in the repository as being prescriptive, I am learning Nix and NixOS in addition to proper "programming" methodology and structuring projects so while this is open source, I don't recommend copying anything from this repo in its current state. You've been warned lol
-
 ## Table of Contents
 
 1. [Overview](#overview)

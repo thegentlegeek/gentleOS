@@ -2,6 +2,7 @@
   pkgs,
   lib,
   inputs,
+  config,
   ...
 }:
 
@@ -10,13 +11,13 @@
     [
       inputs.home-manager.nixosModules.home-manager
       ./hardware-configuration.nix                   # Host-specific hardware settings
-      ../../home/users/jgeigley                      # Defined users
-      ../shared
-      ../shared/cpu/intel.nix                        # Shared Intel CPU config
-      ../shared/workstation                          # Shared workstation config
-      ../shared/workstation/virtualization.nix       # Enables libvirt
-      (import ../shared/workstation/window-managers/hyprland { inherit pkgs lib inputs; })  # Hyprland configuration shared between hosts
-      ../shared/workstation/stylix
+      ../../users/jgeigley/system.nix                # User system configuration
+      ../../modules/nixos/base.nix
+      ../../modules/nixos/cpu/intel.nix              # Shared Intel CPU config
+      ../../modules/nixos/workstation                # Shared workstation config
+      ../../modules/nixos/workstation/virtualization.nix  # Enables libvirt
+      (import ../../modules/nixos/window-managers/hyprland { inherit pkgs lib inputs config; })
+      ../../modules/shared/stylix.nix
     ];
 
   # Enable Flakes

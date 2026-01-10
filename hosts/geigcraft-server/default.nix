@@ -9,7 +9,7 @@
     [
       ./hardware-configuration.nix
       inputs.home-manager.nixosModules.home-manager
-      ../shared/server/minecraft-server.nix
+      ../../modules/nixos/server/minecraft-server.nix
     ];
 
   # Bootloader.
@@ -19,10 +19,10 @@
   # Set your time zone.
   time.timeZone = "America/Indiana/Indianapolis";
 
-  # Disable CUPSgit config --global user.email "
+  # Disable CUPS
   services.printing.enable = false;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # Define a user account. Don't forget to set a password with 'passwd'.
   users.users.justin = {
     isNormalUser = true;
     home = "/home/justin";
@@ -78,10 +78,9 @@
 
   # System
   security.sudo.wheelNeedsPassword = false;
-  services.logind.lidSwitchExternalPower = "ignore"; # don't sleep or turn off with laptop lid closed
+  services.logind.settings.Login.HandleLidSwitchExternalPower = "ignore"; # don't sleep or turn off with laptop lid closed
   services.illum.enable = true; # control brightness with brightness keys?
 
   system.stateVersion = "23.11";
 
 }
-

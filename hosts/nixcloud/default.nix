@@ -8,8 +8,8 @@
   imports =
     [
       ./hardware-configuration.nix
-      ../shared
-      ../shared/server/gitea.nix
+      ../../modules/nixos/base.nix
+      ../../modules/nixos/server/gitea.nix
     ];
 
   # Use the GRUB 2 boot loader.
@@ -21,7 +21,7 @@
   # Disable CUPS
   services.printing.enable = false;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # Define a user account. Don't forget to set a password with 'passwd'.
   users.users.justin = {
     isNormalUser = true;
     home = "/home/gentlegeek";
@@ -75,9 +75,8 @@
 
   # System
   security.sudo.wheelNeedsPassword = false;
-
+  nixpkgs.config.allowUnfree = true;
 
   system.stateVersion = "23.11";
 
 }
-

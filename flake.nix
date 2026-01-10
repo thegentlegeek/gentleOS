@@ -37,59 +37,44 @@
     @ inputs: 
   let
     inherit (self) outputs;
+    lib = import ./lib { inherit inputs; };
   in {
     nixosConfigurations = {
       # Host configuration for zbook (laptop)
-      zbook = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs outputs; };
-        modules = [
-          ./hosts/zbook
-          ./modules/workstation
+      zbook = lib.mkHost {
+        hostname = "zbook";
+        extraModules = [
           inputs.stylix.nixosModules.stylix
         ];
       };
 
       # Host configuration for testing (steambox)
-      testing = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs outputs; };
-        modules = [
-          ./hosts/testing
+      testing = lib.mkHost {
+        hostname = "testing";
+        extraModules = [
           inputs.stylix.nixosModules.stylix
         ];
       };
 
       # Host configuration for Nixcloud (git server on Linode)
-      nixcloud = nixpkgs.lib.nixosSystem {
-        specialArgs = { inherit inputs outputs; };
-        modules = [
-          ./hosts/nixcloud
+      nixcloud = lib.mkHost {
+        hostname = "nixcloud";
+        extraModules = [
           inputs.stylix.nixosModules.stylix
         ];
       };
 
-      # Host configuration for Geigcraft server
-      geigcraft-server = unstable.lib.nixosSystem {
-        specialArgs = { inherit inputs outputs; };
-        modules = [
-          ./hosts/geigcraft-server
-        ];
+      # Host configuration for Geigcraft server (uses unstable for latest minecraft-server)
+      geigcraft-server = lib.mkHost {
+        hostname = "geigcraft-server";
+        nixpkgs = unstable;
       };
     };
 
     # Standalone Home Manager configuration
     homeConfigurations = {
-      "justin" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        extraSpecialArgs = { 
-          inherit inputs outputs; 
-          stylix = inputs.stylix;  
-        };
-        modules = [ 
-          ./home/users/justin 
-          ({ config, pkgs, ... }: {
-            nixpkgs.config.allowUnfree = true;
-          })
-        ];
+      "justin" = lib.mkHome {
+        username = "justin";
       };
     };
   };

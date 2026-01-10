@@ -1,5 +1,6 @@
 {
   pkgs,
+  inputs,
   stylix,
   ...
 }:
@@ -59,6 +60,7 @@
     home-manager.enable = true;
     opencode = {
       enable = true;
+      package = inputs.llm-agents.packages.x86_64-linux.opencode;
     };
     zed-editor = {
         enable = true;

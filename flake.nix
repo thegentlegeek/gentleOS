@@ -23,6 +23,12 @@
       url = "github:lunik1/nix-wallpaper";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # LLM Agents (opencode and other AI tools)
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { 
@@ -32,6 +38,7 @@
     home-manager,
     stylix,
     nix-wallpaper,
+    llm-agents,
     ...
     } 
     @ inputs: 

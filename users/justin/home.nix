@@ -10,6 +10,12 @@
     ../../modules/shared/stylix.nix
     ../../modules/home/cli
     ../../modules/home/window-managers/hyprland
+    ../../modules/home/editors/vscode.nix
+    ../../modules/home/editors/zed.nix
+    (import ../../modules/home/editors/opencode.nix {
+      opencodePackage = inputs.llm-agents.packages.x86_64-linux.opencode;
+    })
+    ../../modules/home/browsers/chromium.nix
     stylix.homeModules.stylix
   ];
 
@@ -58,53 +64,7 @@
 
   programs = {
     home-manager.enable = true;
-    opencode = {
-      enable = true;
-      package = inputs.llm-agents.packages.x86_64-linux.opencode;
-    };
-    zed-editor = {
-        enable = true;
-        extensions = [
-          "nix"
-        ];
-    };
-    vscode = {
-      enable = true;
-      package = pkgs.vscodium;
-      mutableExtensionsDir = false;
-      profiles.default = {
-        enableUpdateCheck = false;
-      	enableExtensionUpdateCheck = false;
-      	extensions = with pkgs.vscode-extensions;
-          [
-            jnoortheen.nix-ide
-            gruntfuggly.todo-tree
-          ];
-        userSettings = {            
-          "git.confirmSync" = false;
-          "git.enableSmartCommit" = true;
-        
-          "editor.inlineSuggest.enabled" = true;
-        
-          "[nix]"."editor.defaultFormatter" = "jnoortheen.nix-ide";
-        
-          "nix.enableLanguageServer" = true;
-          "nix.formatterPath" = "${pkgs.alejandra}/bin/alejandra";
-          "nix.serverPath" = "${pkgs.nil}/bin/nil";
-          "nix.serverSettings"."nil"."formatting"."command" = ["${pkgs.alejandra}/bin/alejandra"];
-        };
-      };
-    };
-    chromium = {
-      enable = true;
-      extensions = [
-        "nngceckbapebfimnlniiiahkandclblb" # Bitwarden
-        "mpdajninpobndbfcldcmbpnnbhibjmch" # SAML-Tracer
-        ];
-    };
-    hyprlock = {
-      enable = true;
-    };
+    hyprlock.enable = true;
     git.settings = {
       enable = true;
       user.email = "justin@geigley.com";

@@ -15,6 +15,7 @@
         [
           jnoortheen.nix-ide
           gruntfuggly.todo-tree
+          mechatroner.rainbow-csv
         ];
       userSettings = {
         "git.confirmSync" = false;

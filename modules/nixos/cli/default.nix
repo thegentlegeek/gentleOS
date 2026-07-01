@@ -12,5 +12,6 @@
       ./fzf.nix
       ./neovim.nix
       ./tmux.nix
+      ./duckdb.nix
     ];
 }

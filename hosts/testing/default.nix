@@ -13,6 +13,7 @@
       ./hardware-configuration.nix                   # Host-specific hardware settings
       ../../users/jgeigley/system.nix                # User system configuration
       ../../modules/nixos/base.nix
+      ../../modules/nixos/boot/silent-boot.nix
       ../../modules/nixos/cpu/intel.nix              # Shared Intel CPU config
       ../../modules/nixos/workstation                # Shared workstation config
       ../../modules/nixos/workstation/virtualization.nix  # Enables libvirt
@@ -35,7 +36,10 @@
 
   boot.loader.efi.canTouchEfiVariables = true;
   boot.supportedFilesystems = [ "ntfs" ];
-  boot.plymouth.enable = true;
+
+  # Plymouth (from silent-boot.nix) needs real KMS in the initrd, otherwise
+  # it sits out the whole boot waiting on its simpledrm DeviceTimeout.
+  boot.initrd.kernelModules = [ "i915" ];
 
   # Hardware Enablement
   hardware.bluetooth.enable = true;

@@ -12,13 +12,21 @@
   # Theming (GTK + wallpaper) is handled automatically by Stylix.
   programs.regreet.enable = true;
 
-  # Hide kernel/systemd console output and the blinking cursor on VTs so
-  # nothing flashes when cage's framebuffer is destroyed after login.
-  boot.consoleLogLevel = 0;
-  boot.kernelParams = [
-    "quiet"
-    "vt.global_cursor_state=0"
-  ];
+  # Boot-time console silencing and the Plymouth splash itself live in
+  # ../boot/silent-boot.nix.
+
+  # plymouth-quit runs at multi-user.target, roughly a second before cage
+  # has its first frame on screen. Without --retain-splash Plymouth blanks
+  # the framebuffer on exit, which is a visible black flash between the
+  # splash and the greeter; with it the last splash frame stays up until
+  # cage modesets. ExecStart is reset with "" first because this is a
+  # drop-in over the unit shipped by the plymouth package.
+  systemd.services.plymouth-quit = lib.mkIf config.boot.plymouth.enable {
+    serviceConfig.ExecStart = [
+      ""
+      "-${lib.getExe' config.boot.plymouth.package "plymouth"} quit --retain-splash"
+    ];
+  };
 
   # Keep cage/regreet log output off the greeter VT. nixpkgs sets this with
   # mkDefault, so a plain override wins; cageArgs/package are reused so the

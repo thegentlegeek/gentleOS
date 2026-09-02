@@ -67,7 +67,7 @@
     mediawriter
     libclang
     nil
-    neofetch
+    fastfetch
     dig
     python3
     usbutils

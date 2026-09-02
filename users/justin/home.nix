@@ -1,5 +1,6 @@
 {
   pkgs,
+  config,
   inputs,
   stylix,
   ...
@@ -72,6 +73,9 @@
     };
     freetube.enable = true;
     spotify-player.enable = true;
-    firefox.enable = true;
+    firefox = {
+      enable = true;
+      configPath = "${config.xdg.configHome}/mozilla/firefox";
+    };
   };
 }

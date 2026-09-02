@@ -5,10 +5,11 @@
 
 {
   environment.systemPackages = with pkgs; [
+    libva-utils # provides vainfo, for verifying VA-API hardware decode
     (chromium.override {
       enableWideVine = true; # stupid proprietary DRM from Google
       commandLineArgs = [ # these options are to enable hardware acceleration
-        "--enable-features=VaapiVideoDecodeLinuxGL"
+        "--enable-features=VaapiVideoDecoder,VaapiVideoEncoder"
         "--ignore-gpu-blocklist"
         "--enable-zero-copy"
         ];

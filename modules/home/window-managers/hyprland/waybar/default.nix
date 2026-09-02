@@ -93,8 +93,10 @@ programs.waybar = {
             format = "{}% ";
         };
         temperature = {
-            thermal-zone = 5;
-            # "hwmon-path = "/sys/class/hwmon/hwmon2/temp1_input";
+            # k10temp (Tctl) via its PCI function address, which is stable
+            # across boots — thermal-zone/hwmonN indices are not.
+            "hwmon-path-abs" = "/sys/devices/pci0000:00/0000:00:18.3/hwmon";
+            "input-filename" = "temp1_input";
             critical-threshold = 90;
             # "format-critical = "{temperatureF}°F {icon}";
             format = "{icon} {temperatureC}°C";

@@ -6,7 +6,7 @@
 {
   imports =
     [
-      ../../workstation/sddm.nix
+      ../../workstation/regreet.nix
     ];
 
   # Enable Hyprland

@@ -54,12 +54,13 @@
     imagemagick                     # image processing
 
     # Hypr
-    grimblast         # screenshot tool
+    hyprshot          # screenshot tool
     hyprpicker        # color picker
     slurp             # region select for screenshot/screenshare
     swappy            # screenshot editor
     cliphist          # clipboard manager
     hyprcursor        # cursor format, library, utilities
+    wl-clipboard      # clipboard utilities, used by cliphist watch and hyprshot
 
     # Theming
     kdePackages.qt6ct

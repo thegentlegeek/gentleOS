@@ -7,8 +7,8 @@
       menu = "rofi -show drun -display-drun ''";
       pbrowser = "chromium %U --profile-directory=\"Profile 2\"";
       wbrowser = "chromium %U --profile-directory=\"Profile 3\"";
-      scrnshotCopy = "grimblast copy area";
-      scrnshotSave = "grimblast save area - | swappy -f -";
+      scrnshotCopy = "hyprshot -m region --clipboard-only";
+      scrnshotSave = "hyprshot -m region -- swappy";
       editor = "codium";
       music = "kitty spotify_player";
       laptopDisplayOff = "eDP-1, disable";
@@ -37,9 +37,6 @@
 
       # Autostart applications
       exec-once = [
-        "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
-        "dbus-update-activation-environment --systemd --all"
-        "systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
         "dunst"
         "wl-paste --type text --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
@@ -139,7 +136,7 @@
 
         # Window management keybindings
         "$mainmod, P, pseudo"
-        "$mainmod, J, togglesplit"
+        "$mainmod, J, layoutmsg, togglesplit"
         "$mainmod, T, exec, ${scrnshotCopy}"
         "$mainmod SHIFT, T, exec, ${scrnshotSave}"
         "$mainmod, left, movefocus, l"
@@ -210,25 +207,25 @@
         ", switch:off:Lid Switch, exec, hyprctl keyword monitor ${laptopDisplayOn}"
       ];
 
-      # Window rules
-      windowrulev2 = [
-        "suppressevent maximize, class:.*"
-        "float, class:^(xdg-desktop-portal-gtk)$, title:^(Open Files)$"
-        "float, class:^(xdg-desktop-portal-gtk)$, title:^(All Files)$"
-        "float, class:^(org.gnome.Calculator)$"
-        "float, class:^(org.pulseaudio.pavucontrol)$"
-        "float, initialTitle:^(_crx_mpdajninpobndbfcldcmbpnnbhibjmch)$"
-        "float, title:^(OpenSSH Authentication Passphrase request)$"
+      # Window rules (0.53+ syntax)
+      windowrule = [
+        "suppress_event maximize, match:class .*"
+        "float on, match:class ^(xdg-desktop-portal-gtk)$, match:title ^(Open Files)$"
+        "float on, match:class ^(xdg-desktop-portal-gtk)$, match:title ^(All Files)$"
+        "float on, match:class ^(org.gnome.Calculator)$"
+        "float on, match:class ^(org.pulseaudio.pavucontrol)$"
+        "float on, match:initial_title ^(_crx_mpdajninpobndbfcldcmbpnnbhibjmch)$"
+        "float on, match:title ^(OpenSSH Authentication Passphrase request)$"
 
         # Windows to not have transparency
-        "opacity 1.0 override 1.0 override, title:^(Hulu | Watch — Mozilla Firefox)"
-        "opacity 1.0 override 1.0 override, class:^(vlc)$, initialTitle:^(VLC media player)"
-        "opacity 1.0 override 1.0 override, class:^(org.inkscape.Inkscape)$"
-        "opacity 1.0 override 1.0 override, class:^(FreeTube)$"
-        
+        "opacity 1.0 override 1.0 override, match:title ^(Hulu | Watch — Mozilla Firefox)$"
+        "opacity 1.0 override 1.0 override, match:class ^(vlc)$, match:initial_title ^(VLC media player)$"
+        "opacity 1.0 override 1.0 override, match:class ^(org.inkscape.Inkscape)$"
+        "opacity 1.0 override 1.0 override, match:class ^(FreeTube)$"
+
         # Force focus
-        "stayfocused, initialTitle:^(Commit Changes — Kate)$"
-        "stayfocused, initialTitle:^(Create New File — Dolphin)$"
+        "stay_focused on, match:initial_title ^(Commit Changes — Kate)$"
+        "stay_focused on, match:initial_title ^(Create New File — Dolphin)$"
       ];
     };
   };

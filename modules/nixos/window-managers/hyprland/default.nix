@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   ...
 }: 
 
@@ -31,8 +32,23 @@
   security.pam.services.hyprlock = {};    # required for hyprlock to use PAM for authentication
 
   
+  # A quiet variant of the uwsm Hyprland session that keeps startup
+  # messages off the text VT (greetd runs .desktop Exec without a shell,
+  # hence the wrapper script).
   # Individual System Packages
   environment.systemPackages = with pkgs; [
+    (writeTextDir "share/wayland-sessions/hyprland-quiet.desktop" (lib.generators.toINI { } {
+      "Desktop Entry" = {
+        Name = "Hyprland (quiet)";
+        Comment = "Hyprland (uwsm-managed), startup output silenced";
+        Exec = lib.getExe (writeShellScriptBin "hyprland-quiet" ''
+          exec ${lib.getExe pkgs.uwsm} start -e -D Hyprland hyprland.desktop >/dev/null 2>&1
+        '');
+        Type = "Application";
+        DesktopNames = "Hyprland";
+      };
+    }))
+
     # Apps
     kitty         # terminal
     kdePackages.ark

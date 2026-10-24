@@ -24,11 +24,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # LLM Agents (opencode and other AI tools)
-    llm-agents = {
-      url = "github:numtide/llm-agents.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # LLM Agents (opencode, claude-code, claude-desktop and other AI tools)
+    # Intentionally does NOT follow our nixpkgs: upstream only tests against its
+    # own pinned nixpkgs-unstable, and using its pin lets us hit cache.numtide.com.
+    llm-agents.url = "github:numtide/llm-agents.nix";
   };
 
   outputs = { 

@@ -14,7 +14,8 @@
     ../../modules/home/editors/vscode.nix
     ../../modules/home/editors/zed.nix
     (import ../../modules/home/editors/opencode.nix {
-      opencodePackage = inputs.llm-agents.packages.x86_64-linux.opencode;
+      opencodePackage = inputs.llm-agents.packages.x86_64-linux.opencode2;
+      opencodeDesktopPackage = inputs.llm-agents.packages.x86_64-linux.opencode2-desktop;
     })
     (import ../../modules/home/editors/claude.nix {
       claudeCodePackage = inputs.llm-agents.packages.x86_64-linux.claude-code;
@@ -30,6 +31,7 @@
     targets.waybar.enable = false;
     targets.rofi.enable = false;
     targets.dunst.enable = false;
+    targets.opencode.enable = false; # Stylix generates OpenCode 1 themes; v2 uses the "system" theme instead
     targets.firefox.profileNames = [ "default" ];
   };
 

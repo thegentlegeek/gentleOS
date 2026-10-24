@@ -16,6 +16,10 @@
     (import ../../modules/home/editors/opencode.nix {
       opencodePackage = inputs.llm-agents.packages.x86_64-linux.opencode;
     })
+    (import ../../modules/home/editors/claude.nix {
+      claudeCodePackage = inputs.llm-agents.packages.x86_64-linux.claude-code;
+      claudeDesktopPackage = inputs.llm-agents.packages.x86_64-linux.claude-desktop;
+    })
     ../../modules/home/browsers/chromium.nix
     stylix.homeModules.stylix
   ];

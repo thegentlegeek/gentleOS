@@ -9,5 +9,6 @@
       ./starship.nix
       ./fish.nix
       ./nix-index.nix
+      ./gh.nix
     ];
 }

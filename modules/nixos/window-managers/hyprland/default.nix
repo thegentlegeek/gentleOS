@@ -6,8 +6,6 @@
 }:
 let
   hyprlandPkgs = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system};
-  # The nixpkgs Hyprland was built against; Mesa must match it or rendering can break.
-  hyprlandNixpkgs = inputs.hyprland.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system};
 in
 
 {
@@ -25,11 +23,11 @@ in
     portalPackage = hyprlandPkgs.xdg-desktop-portal-hyprland;
   };
 
-  # Use Mesa from Hyprland's nixpkgs so the driver matches the compositor build.
-  hardware.graphics = {
-    package = hyprlandNixpkgs.mesa;
-    package32 = hyprlandNixpkgs.pkgsi686Linux.mesa;
-  };
+  # Mesa intentionally stays on our nixpkgs. Overriding it with the Mesa from
+  # Hyprland's nixpkgs (unstable) breaks every GL app built from our stable
+  # nixpkgs: cage/ReGreet failed EGL init ("EGL_EXT_platform_base not
+  # supported") and the greeter crash-looped. Hyprland itself runs fine on the
+  # stable driver (verified nested: EGL/GBM init OK on Mesa 26.1.8).
   
   programs.waybar.enable = true;
   programs.thunar = {

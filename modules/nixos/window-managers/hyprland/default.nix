@@ -31,11 +31,10 @@ in
   
   programs.thunar = {
     enable = true;
-    plugins = with pkgs.xfce; 
-      [ 
-      thunar-archive-plugin 
+    plugins = with pkgs; [
+      thunar-archive-plugin
       thunar-volman
-      ];
+    ];
   };
 
   programs.ssh.askPassword = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
@@ -70,7 +69,6 @@ in
     blueman       # bluetooth manager GUI gtk
     brightnessctl # screen brightness control
     hyprls        # LSP server for Hyprland config language
-    egl-wayland
     kdePackages.qtwayland
     kdePackages.qtbase
     #lxqt.lxqt-openssh-askpass

@@ -112,5 +112,14 @@
         username = "justin";
       };
     };
+
+    # `nix flake check`: validates generated configs (see checks/default.nix)
+    checks.x86_64-linux = import ./checks {
+      inherit self;
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+    };
+
+    # `nix fmt`
+    formatter.x86_64-linux = nixpkgs.legacyPackages.x86_64-linux.nixfmt;
   };
 }

@@ -37,11 +37,10 @@ hl.monitor({ output = "",         mode = "preferred",    position = "auto",     
 ---- AUTOSTART ----
 -------------------
 
-hl.on("hyprland.start", function()
-    hl.exec_cmd("dunst")
-    hl.exec_cmd("wl-paste --type text --watch cliphist store")
-    hl.exec_cmd("wl-paste --type image --watch cliphist store")
-end)
+-- Nothing is started from here: session daemons run as systemd user units under
+-- UWSM so they're restarted on crash and log to the journal. dunst is D-Bus
+-- activated (services.dunst), cliphist is services.cliphist, waybar is
+-- programs.waybar.systemd (hyprland-config.nix, dunst.nix, waybar/).
 
 
 -------------------------------

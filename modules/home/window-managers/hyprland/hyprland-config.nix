@@ -43,6 +43,13 @@ in
     export HYPRCURSOR_SIZE=${toString config.stylix.cursor.size}
   '';
 
+  # Clipboard history (text + images), as user services instead of compositor
+  # autostart so they restart on crash.
+  services.cliphist = {
+    enable = true;
+    allowImages = true;
+  };
+
   # Polkit agent (Hyprland's own). User service on graphical-session.target, which
   # UWSM provides; finds the session via logind, so no XDG_SESSION_ID needed.
   services.hyprpolkitagent.enable = true;

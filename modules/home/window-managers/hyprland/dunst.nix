@@ -12,7 +12,9 @@ in {
       settings = {
         global = {
           width = "(300,700)";
-          height = "(500,800)";
+          # (min, max) per notification since dunst 1.12; 1.11 and older read only
+          # a max, which is how "(500,800)" used to work and now forces 500px+.
+          height = "(0,300)";
           offset = "0x0";
           origin = "top-center";
           gap_size = 5;

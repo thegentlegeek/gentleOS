@@ -10,6 +10,9 @@
 
 programs.waybar = {
     enable = true;
+    # Run from HM (graphical-session.target) rather than the NixOS module, so
+    # config and service live in one place.
+    systemd.enable = true;
     settings = {
     mainBar = {
         layer = "top"; # Waybar at top layer

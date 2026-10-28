@@ -29,7 +29,6 @@ in
   # supported") and the greeter crash-looped. Hyprland itself runs fine on the
   # stable driver (verified nested: EGL/GBM init OK on Mesa 26.1.8).
   
-  programs.waybar.enable = true;
   programs.thunar = {
     enable = true;
     plugins = with pkgs.xfce; 

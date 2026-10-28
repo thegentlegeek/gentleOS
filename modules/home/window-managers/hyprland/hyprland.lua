@@ -24,9 +24,13 @@ local lock         = "hyprlock"
 ---- MONITORS ----
 ------------------
 
-hl.monitor({ output = "HDMI-A-1", mode = "3840x2160@60", position = "0x0",  scale = 1 })
--- Explicit scale: the default "auto" picks 1.5x on the laptop panel.
-hl.monitor({ output = "",         mode = "preferred",    position = "auto", scale = 1 })
+-- Explicit scales: the default "auto" picks 1.5x on the laptop panel.
+hl.monitor({ output = "HDMI-A-1", mode = "3840x2160@60", position = "0x0",              scale = 1 })
+-- Laptop panel sits below the external monitor, centered: x = (3840 - 1920) / 2,
+-- y = 2160. Fixed rather than "auto-center-down", which kept a negative offset
+-- (-960,0) after HDMI was unplugged; a positive offset alone is harmless.
+hl.monitor({ output = "eDP-1",    mode = "preferred",    position = "960x2160",         scale = 1 })
+hl.monitor({ output = "",         mode = "preferred",    position = "auto",             scale = 1 })
 
 
 -------------------
@@ -197,13 +201,30 @@ hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl s 10%+"), held)
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl s 10%-"), held)
 
 -- Lid switch. `hyprctl keyword` doesn't work with Lua configs, so update the
--- monitor rule directly. hl.monitor merges into the existing eDP-1 rule, so
--- re-enabling must clear `disabled` explicitly.
+-- monitor rule directly. hl.monitor merges into the existing eDP-1 rule (mode,
+-- position and scale come from MONITORS above), so re-enabling only has to
+-- clear `disabled`.
+--
+-- hl.monitor changes are only applied on the next rendered frame. If eDP-1 is
+-- the only active output, disabling it stops all rendering and the re-enable
+-- on lid open never applies (black screen). So only disable it when another
+-- output is active; undocked, logind suspends on lid close anyway.
+local function otherOutputActive()
+    for _, m in ipairs(hl.get_monitors()) do
+        if m.name ~= "eDP-1" and m.name ~= "FALLBACK" then
+            return true
+        end
+    end
+    return false
+end
+
 hl.bind("switch:on:Lid Switch", function()
-    hl.monitor({ output = "eDP-1", disabled = true })
+    if otherOutputActive() then
+        hl.monitor({ output = "eDP-1", disabled = true })
+    end
 end, { locked = true })
 hl.bind("switch:off:Lid Switch", function()
-    hl.monitor({ output = "eDP-1", disabled = false, mode = "1920x1200", position = "0x0", scale = 1 })
+    hl.monitor({ output = "eDP-1", disabled = false })
 end, { locked = true })
 
 

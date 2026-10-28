@@ -29,11 +29,12 @@ let
     };
     "inputbar" = {
       color = mkLiteral "${colors.base06}";
-      background-color = mkLiteral "${colors.base02}";
+      # ~85% opaque so the layer blur (hyprland.lua) shows through.
+      background-color = mkLiteral "${colors.base02}d9";
       padding = mkLiteral "8px";
     };
     "listview" = {
-      background-color = mkLiteral "${colors.base00}";
+      background-color = mkLiteral "${colors.base00}d9";
       padding = mkLiteral "8px";
     };
     "element" = {

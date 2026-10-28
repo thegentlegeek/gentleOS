@@ -70,7 +70,7 @@ hl.config({
         blur = {
             enabled           = true,
             size              = 6,
-            passes            = 3,
+            passes            = 2,
             new_optimizations = true,
             popups            = false,
             vibrancy          = 0.1696,
@@ -249,20 +249,35 @@ hl.window_rule({ name = "suppress-maximize", match = { class = ".*" }, suppress_
 hl.window_rule({ name = "idle-inhibit-fullscreen", match = { class = ".*" }, idle_inhibit = "fullscreen" })
 
 -- Floating dialogs and small utilities
-hl.window_rule({ name = "float-portal-open-files", match = { class = "^(xdg-desktop-portal-gtk)$", title = "^(Open Files)$" }, float = true })
-hl.window_rule({ name = "float-portal-all-files",  match = { class = "^(xdg-desktop-portal-gtk)$", title = "^(All Files)$" },  float = true })
-hl.window_rule({ name = "float-calculator",        match = { class = "^(org.gnome.Calculator)$" },          float = true })
-hl.window_rule({ name = "float-pavucontrol",       match = { class = "^(org.pulseaudio.pavucontrol)$" },    float = true })
-hl.window_rule({ name = "float-saml-tracer",       match = { initial_title = "^(_crx_mpdajninpobndbfcldcmbpnnbhibjmch)$" }, float = true })
-hl.window_rule({ name = "float-ssh-askpass",       match = { title = "^(OpenSSH Authentication Passphrase request)$" },     float = true })
+hl.window_rule({ name = "float-modal-dialogs", match = { modal = true },                             float = true, center = true })
+hl.window_rule({ name = "float-file-pickers",  match = { class = "^(xdg-desktop-portal-gtk)$" },       float = true, center = true })
+hl.window_rule({ name = "float-calculator",    match = { class = "^(org.gnome.Calculator)$" },         float = true })
+hl.window_rule({ name = "float-pavucontrol",   match = { class = "^(org.pulseaudio.pavucontrol)$" },   float = true })
+hl.window_rule({ name = "float-bluetooth",     match = { class = "^(\\.?blueman-manager(-wrapped)?)$" }, float = true, center = true })
+hl.window_rule({ name = "float-saml-tracer",   match = { initial_title = "^(_crx_mpdajninpobndbfcldcmbpnnbhibjmch)$" }, float = true })
+hl.window_rule({ name = "float-ssh-askpass",   match = { title = "^(OpenSSH Authentication Passphrase request)$" },     float = true })
+
+-- Polkit password prompt: never hidden behind windows or on another workspace.
+hl.window_rule({ name = "polkit-prompt", match = { class = "^(hyprpolkitagent)$" },
+                 float = true, center = true, pin = true, dim_around = true })
 
 -- Windows that should not be transparent
 local opaque = "1.0 override 1.0 override"
-hl.window_rule({ name = "opaque-hulu",     match = { title = "^(Hulu | Watch — Mozilla Firefox)$" }, opacity = opaque })
+-- Streaming tabs (window title of the active tab) in Firefox / Chromium.
+hl.window_rule({ name = "opaque-streaming",
+                 match = { class = "^(firefox|chromium-browser)$", title = "(^Hulu \\| Watch| - YouTube|^Netflix)" },
+                 opacity = opaque })
 hl.window_rule({ name = "opaque-vlc",      match = { class = "^(vlc)$", initial_title = "^(VLC media player)$" }, opacity = opaque })
 hl.window_rule({ name = "opaque-inkscape", match = { class = "^(org.inkscape.Inkscape)$" }, opacity = opaque })
 hl.window_rule({ name = "opaque-freetube", match = { class = "^(FreeTube)$" }, opacity = opaque })
 
--- Force focus
-hl.window_rule({ name = "focus-kate-commit",    match = { initial_title = "^(Commit Changes — Kate)$" },    stay_focused = true })
-hl.window_rule({ name = "focus-dolphin-newfile", match = { initial_title = "^(Create New File — Dolphin)$" }, stay_focused = true })
+
+---------------------
+---- LAYER RULES ----
+---------------------
+
+-- Blur behind the translucent overlays. ignore_alpha keeps fully transparent
+-- pixels (Waybar's margins, rofi's padding) from being blurred into a grey box.
+for _, ns in ipairs({ "waybar", "rofi", "notifications" }) do
+    hl.layer_rule({ name = "blur-" .. ns, match = { namespace = "^(" .. ns .. ")$" }, blur = true, ignore_alpha = 0.5 })
+end

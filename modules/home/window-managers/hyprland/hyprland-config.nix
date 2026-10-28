@@ -1,242 +1,135 @@
 {
+  config,
+  lib,
+  pkgs,
+  inputs,
   ...
 }:
-  let
-      terminal = "kitty fish";
-      fileManager = "kitty yazi";
-      menu = "rofi -show drun -display-drun ''";
-      pbrowser = "chromium %U --profile-directory=\"Profile 2\"";
-      wbrowser = "chromium %U --profile-directory=\"Profile 3\"";
-      scrnshotCopy = "hyprshot -m region --clipboard-only";
-      scrnshotSave = "hyprshot -m region -- swappy";
-      editor = "codium";
-      music = "kitty spotify_player";
-      laptopDisplayOff = "eDP-1, disable";
-      laptopDisplayOn = "eDP-1, 1920x1200, 0x0, 1";
-      calculator = "gnome-calculator";
-      lock = "hyprlock";
-  in
-{
-  qt = {
-    enable = true;
-    style.name = "breeze";
-    platformTheme.name = "adwaita";
-  };
+let
+  hyprlandPlugins = inputs.hyprland-plugins.packages.${pkgs.stdenv.hostPlatform.system};
 
+  exe = lib.getExe;
+  rofi = exe config.programs.rofi.finalPackage;
+  cliphist = exe pkgs.cliphist;
+  hyprshot = exe pkgs.hyprshot;
+  playerctl = exe pkgs.playerctl;
+  wpctl = "${pkgs.wireplumber}/bin/wpctl";
+  brightnessctl = exe pkgs.brightnessctl;
+  shotDir = "$HOME/Pictures/Screenshots";
+
+  clipboardPicker = pkgs.writeShellScript "clipboard-picker" ''
+    ${cliphist} list \
+      | ${rofi} -dmenu -i -p Clipboard -display-columns 2 \
+      | ${cliphist} decode \
+      | ${pkgs.wl-clipboard}/bin/wl-copy
+  '';
+
+  # Cheat sheet generated from the live binds' descriptions ("Category: text").
+  # hyprctl comes from PATH so it always matches the running compositor.
+  cheatsheet = pkgs.writeShellScript "hypr-cheatsheet" ''
+    hyprctl binds -j | ${exe pkgs.jq} -r '
+      def bit(n): ((.modmask / n) | floor) % 2 == 1;
+      def mods: [ (if bit(64) then "SUPER" else empty end),
+                  (if bit(4)  then "CTRL"  else empty end),
+                  (if bit(8)  then "ALT"   else empty end),
+                  (if bit(1)  then "SHIFT" else empty end) ];
+      def pretty: {"mouse:272": "Left drag", "mouse:273": "Right drag",
+                   "mouse_up": "Scroll up", "mouse_down": "Scroll down",
+                   "slash": "/", "Escape": "Esc", "Return": "Enter",
+                   "left": "Left", "right": "Right", "up": "Up", "down": "Down"}[.] // .
+                  | sub("^XF86"; "");
+      .[] | select(.has_description)
+      | (.description | capture("^(?<cat>[^:]+):\\s*(?<text>.*)$")
+           // {cat: "Other", text: .}) as $d
+      | [ $d.cat,
+          ((mods + [(.key | pretty)]) | join(" + "))
+            + (if .submap != "" then " [" + .submap + " mode]" else "" end),
+          $d.text ]
+      | @tsv' \
+      | ${pkgs.coreutils}/bin/sort -s -t "$(printf '\t')" -k1,1 \
+      | ${exe pkgs.gawk} -F '\t' '{ printf "%-12s %-32s %s\n", $1, $2, $3 }' \
+      | ${rofi} -dmenu -i -p Keybinds -no-custom \
+          -theme-str 'window { width: 60%; } * { font: "JetBrainsMono Nerd Font Mono 11"; }' \
+      > /dev/null
+  '';
+
+  # Commands used by binds in hyprland.lua (prepended as `local cmd = {...}`).
+  # Tools binds depend on use store paths; user apps are left to PATH.
+  cmd = {
+    terminal = "${exe pkgs.kitty} fish";
+    fileManager = "${exe pkgs.kitty} yazi";
+    menu = "${rofi} -show drun -display-drun ''";
+    browserPersonal = ''chromium --profile-directory="Profile 2"'';
+    browserWork = ''chromium --profile-directory="Profile 3"'';
+    editor = "codium";
+    music = "${exe pkgs.kitty} spotify_player";
+    calculator = "gnome-calculator";
+    # Through logind so it goes via hypridle's lock_cmd (no stacked lock screens).
+    lock = "loginctl lock-session";
+    logout = "${exe pkgs.uwsm} stop";
+    cheatsheet = "${cheatsheet}";
+    clipboard = "${clipboardPicker}";
+    colorPicker = "${exe pkgs.hyprpicker} -a";
+    shotClip = "${hyprshot} -m region --clipboard-only";
+    shotEdit = "${hyprshot} -m region --raw | ${exe pkgs.swappy} -f -";
+    shotSave = "${hyprshot} -m region -o ${shotDir}";
+    shotScreen = "${hyprshot} -m output -m active -o ${shotDir}";
+    volUp = "${wpctl} set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+";
+    volDown = "${wpctl} set-volume @DEFAULT_AUDIO_SINK@ 5%-";
+    volMute = "${wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle";
+    micMute = "${wpctl} set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
+    playPause = "${playerctl} play-pause";
+    next = "${playerctl} next";
+    prev = "${playerctl} previous";
+    brightUp = "${brightnessctl} s 10%+";
+    brightDown = "${brightnessctl} s 10%-";
+  };
+in
+
+{
   wayland.windowManager.hyprland = {
     enable = true;
-    configType = "hyprlang";
-    systemd.enable = true;
-    settings = {
-      "$mainmod" = "SUPER";
-
-      # Monitor configuration
-      monitor = [
-        "HDMI-A-1,3840x2160@60,0x0,1"
-        ", preferred, auto, 1"
-      ];
-
-      # Autostart applications
-      exec-once = [
-        "dunst"
-        "wl-paste --type text --watch cliphist store"
-        "wl-paste --type image --watch cliphist store"
-        #''
-        #spotify_player -d & while [ "$(spotify_player get key playback)" = "null" ]; do sleep 1; done; spotify_player playback volume 50; spotify_player playback play
-        #''
-      ];
-
-      # Environment variables
-      env = [
-        "XCURSOR_SIZE,24"
-        "HYPRCURSOR_SIZE,24"
-        "XDG_CURRENT_DESKTOP,Hyprland"
-        "XDG_SESSION_TYPE,wayland"
-        "XDG_SESSION_DESKTOP,Hyprland"
-        "QT_QPA_PLATFORM,wayland;xcb"
-        "QT_QPA_PLATFORMTHEME,qt6ct"
-        "QT_WAYLAND_DISABLE_WINDOWDECORATION,1"
-        "QT_AUTO_SCREEN_SCALE_FACTOR,1"
-        "MOZ_ENABLE_WAYLAND,1"
-        "GDK_SCALE,1"
-      ];
-
-      # General configuration
-      general = {
-        gaps_in = 3;
-        gaps_out = 8;
-        border_size = 2;
-        # col.active_border = 
-        resize_on_border = false;
-        allow_tearing = false;
-        layout = "dwindle";
-      };
-
-      # amdgpu (Phoenix, DCN 3.1.4): region damage tracking reuses stale
-      # buffer content, causing Waybar flicker on pointer motion (blocky
-      # trails if hardware cursors are disabled instead). Confirmed
-      # independent of blur. Force whole-monitor damage as a workaround.
-      # Revisit after the kernel bump in hosts/zbook/default.nix.
-      debug = {
-        damage_tracking = 1;
-      };
-
-      # Decorations
-      decoration = {
-        rounding = 10;
-        active_opacity = 0.93;
-        inactive_opacity = 0.8;
-        shadow = {
-          enabled = true;
-          range = 4;
-          render_power = 3;
-        };
-        blur = {
-          enabled = true;
-          size = 6;
-          passes = 3;
-          new_optimizations = true;
-          popups = false;
-          vibrancy = 0.1696;
-          ignore_opacity = true;
-          xray = false;
-        };
-      };
-
-      # Animations
-      animations = {
-        enabled = true;
-        bezier = "myBezier, 0.05, 0.9, 0.1, 1.05";
-        animation = [
-          "windows, 1, 7, myBezier"
-          "windowsOut, 1, 7, default, popin 80%"
-          "border, 1, 10, default"
-          "borderangle, 1, 8, default"
-          "fade, 1, 7, default"
-          "workspaces, 1, 6, default"
-        ];
-      };
-
-      # Input configuration
-      input = {
-        kb_layout = "us";
-        follow_mouse = 1;
-        sensitivity = 0;
-        touchpad = {
-          natural_scroll = true;
-        };
-      };
-
-      # Swipe gestures
-      gesture = [
-        "3, horizontal, workspace"
-        "4, up, fullscreen"
-      ];
-
-      # Basic keybindings
-      bind = [
-        "$mainmod, L, exec, ${lock}"
-        "$mainmod, C, exec, ${terminal}"
-        "$mainmod, Q, killactive"
-        "$mainmod, M, exec, ${music}"
-        "$mainmod, F, exec, ${fileManager}"
-        "$mainmod, V, togglefloating"
-        "$mainmod, A, exec, ${menu}"
-        "$mainmod SHIFT, C, exec, ${calculator}"
-
-        # Window management keybindings
-        "$mainmod, P, pseudo"
-        "$mainmod, J, layoutmsg, togglesplit"
-        "$mainmod, T, exec, ${scrnshotCopy}"
-        "$mainmod SHIFT, T, exec, ${scrnshotSave}"
-        "$mainmod, left, movefocus, l"
-        "$mainmod, right, movefocus, r"
-        "$mainmod, up, movefocus, u"
-        "$mainmod, down, movefocus, d"
-
-        # Browser and editor keybindings
-        "$mainmod SHIFT, B, exec, ${wbrowser}"
-        "$mainmod, B, exec, ${pbrowser}"
-        "$mainmod, E, exec, ${editor}"
-
-        # Workspace switching keybindings
-        "$mainmod, 1, workspace, 1"
-        "$mainmod, 2, workspace, 2"
-        "$mainmod, 3, workspace, 3"
-        "$mainmod, 4, workspace, 4"
-        "$mainmod, 5, workspace, 5"
-        "$mainmod, 6, workspace, 6"
-        "$mainmod, 7, workspace, 7"
-        "$mainmod, 8, workspace, 8"
-        "$mainmod, 9, workspace, 9"
-        "$mainmod, 0, workspace, 10"
-
-        # Moving windows between workspaces keybindings
-        "$mainmod SHIFT, 1, movetoworkspace, 1"
-        "$mainmod SHIFT, 2, movetoworkspace, 2"
-        "$mainmod SHIFT, 3, movetoworkspace, 3"
-        "$mainmod SHIFT, 4, movetoworkspace, 4"
-        "$mainmod SHIFT, 5, movetoworkspace, 5"
-        "$mainmod SHIFT, 6, movetoworkspace, 6"
-        "$mainmod SHIFT, 7, movetoworkspace, 7"
-        "$mainmod SHIFT, 8, movetoworkspace, 8"
-        "$mainmod SHIFT, 9, movetoworkspace, 9"
-        "$mainmod SHIFT, 0, movetoworkspace, 10"
-
-        # Special workspaces keybindings
-        "$mainmod, S, togglespecialworkspace, magic"
-        "$mainmod SHIFT, S, movetoworkspace, special:magic"
-
-        # Scroll through existing workspaces
-        "$mainmod, mouse_up, workspace, e+1"
-        "$mainmod, mouse_down, workspace, e-1"
-        "$mainmod CTRL, right, workspace, e+1"
-        "$mainmod CTRL, left, workspace, e-1"
-      ];
-
-      # Mouse bindings
-      bindm = [
-        "$mainmod, mouse:272, movewindow"
-        "$mainmod, mouse:273, resizewindow"
-      ];
-
-      bindel = [
-        # Multimedia and brightness keys
-        ", XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
-        ", XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-        ", XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-        ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
-        ", XF86MonBrightnessUp, exec, brightnessctl s 10%+"
-        ", XF86MonBrightnessDown, exec, brightnessctl s 10%-"
-      ];
-
-
-      # Monitor Management
-      bindl = [
-        ", switch:on:Lid Switch, exec, hyprctl keyword monitor ${laptopDisplayOff}"
-        ", switch:off:Lid Switch, exec, hyprctl keyword monitor ${laptopDisplayOn}"
-      ];
-
-      # Window rules (0.53+ syntax)
-      windowrule = [
-        "suppress_event maximize, match:class .*"
-        "float on, match:class ^(xdg-desktop-portal-gtk)$, match:title ^(Open Files)$"
-        "float on, match:class ^(xdg-desktop-portal-gtk)$, match:title ^(All Files)$"
-        "float on, match:class ^(org.gnome.Calculator)$"
-        "float on, match:class ^(org.pulseaudio.pavucontrol)$"
-        "float on, match:initial_title ^(_crx_mpdajninpobndbfcldcmbpnnbhibjmch)$"
-        "float on, match:title ^(OpenSSH Authentication Passphrase request)$"
-
-        # Windows to not have transparency
-        "opacity 1.0 override 1.0 override, match:title ^(Hulu | Watch — Mozilla Firefox)$"
-        "opacity 1.0 override 1.0 override, match:class ^(vlc)$, match:initial_title ^(VLC media player)$"
-        "opacity 1.0 override 1.0 override, match:class ^(org.inkscape.Inkscape)$"
-        "opacity 1.0 override 1.0 override, match:class ^(FreeTube)$"
-
-        # Force focus
-        "stay_focused on, match:initial_title ^(Commit Changes — Kate)$"
-        "stay_focused on, match:initial_title ^(Create New File — Dolphin)$"
-      ];
-    };
+    # Lua config (required from Hyprland 0.57). The config itself lives in
+    # ./hyprland.lua as native Lua; Stylix contributes colors via `settings`.
+    configType = "lua";
+    # The NixOS module (programs.hyprland) installs the compositor and portal from
+    # the upstream flake; HM only writes config so we don't pull a second Hyprland.
+    package = null;
+    portalPackage = null;
+    # UWSM owns the session: it exports WAYLAND_DISPLAY/HYPRLAND_INSTANCE_SIGNATURE
+    # to systemd and drives graphical-session.target, so HM's duplicate
+    # hyprland-session.target and activation-env exec are not needed.
+    systemd.enable = false;
+    # Built against the pinned Hyprland via `follows` in flake.nix.
+    plugins = [
+      hyprlandPlugins.hyprfocus
+    ];
+    extraConfig =
+      "local cmd = ${lib.generators.toLua { } cmd}\n\n" + builtins.readFile ./hyprland.lua;
   };
+
+  # Session environment, loaded by UWSM before the compositor starts and exported
+  # to Hyprland, the apps it launches, and systemd user units (waybar, dunst...).
+  # Sourcing hm-session-vars is what makes home.sessionVariables (NIXOS_OZONE_WL,
+  # XCURSOR_*, Qt theme) reach the session at all: no HM-managed shell loads it.
+  xdg.configFile."uwsm/env".text = ''
+    . "${config.home.profileDirectory}/etc/profile.d/hm-session-vars.sh"
+    export QT_QPA_PLATFORM="wayland;xcb"
+    export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+    export MOZ_ENABLE_WAYLAND=1
+  '';
+  xdg.configFile."uwsm/env-hyprland".text = ''
+    export HYPRCURSOR_SIZE=${toString config.stylix.cursor.size}
+  '';
+
+  # Clipboard history (text + images), as user services instead of compositor
+  # autostart so they restart on crash.
+  services.cliphist = {
+    enable = true;
+    allowImages = true;
+  };
+
+  # Polkit agent (Hyprland's own). User service on graphical-session.target, which
+  # UWSM provides; finds the session via logind, so no XDG_SESSION_ID needed.
+  services.hyprpolkitagent.enable = true;
 }

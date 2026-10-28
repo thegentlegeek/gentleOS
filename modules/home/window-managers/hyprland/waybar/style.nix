@@ -19,8 +19,12 @@
       min-height: 24px;
     }
 
+    /* Translucency goes in the background colour, not `opacity`: with a solid
+       background GTK declares the surface opaque, so Hyprland skips drawing
+       what's beneath it and the bar composites over stale/undefined pixels
+       (dark flicker on screen, alpha holes in screenshots). */
     tooltip {
-      background: ${colors.base00};
+      background: alpha(${colors.base00}, 0.9);
       color: ${colors.base07};
       margin-top: 8px;
       margin-left: 16px;
@@ -29,11 +33,10 @@
       border: solid;
       border-width: 2px;
       border-color: ${colors.base07};
-      opacity: 0.9;
     }
 
     window#waybar {
-      background: ${colors.base00};
+      background: alpha(${colors.base00}, 0.8);
       border-radius: 0px;
       margin-top: 16px;
       margin-right: 16px;
@@ -41,7 +44,6 @@
       padding-top: 8px;
       padding-left: 8px;
       padding-right: 8px;
-      opacity: 0.8;
     }
 
     #workspaces {

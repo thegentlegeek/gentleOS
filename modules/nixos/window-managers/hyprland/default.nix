@@ -1,8 +1,12 @@
 {
   pkgs,
   lib,
+  inputs,
   ...
-}: 
+}:
+let
+  hyprlandPkgs = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system};
+in
 
 {
   imports =
@@ -14,21 +18,27 @@
   programs.hyprland = {
     enable = true;
     withUWSM = true;
+    # Upstream release flake (pinned in flake.nix). The portal must match the compositor.
+    package = hyprlandPkgs.hyprland;
+    portalPackage = hyprlandPkgs.xdg-desktop-portal-hyprland;
   };
+
+  # Mesa intentionally stays on our nixpkgs. Overriding it with the Mesa from
+  # Hyprland's nixpkgs (unstable) breaks every GL app built from our stable
+  # nixpkgs: cage/ReGreet failed EGL init ("EGL_EXT_platform_base not
+  # supported") and the greeter crash-looped. Hyprland itself runs fine on the
+  # stable driver (verified nested: EGL/GBM init OK on Mesa 26.1.8).
   
-  programs.waybar.enable = true;
   programs.thunar = {
     enable = true;
-    plugins = with pkgs.xfce; 
-      [ 
-      thunar-archive-plugin 
+    plugins = with pkgs; [
+      thunar-archive-plugin
       thunar-volman
-      ];
+    ];
   };
 
   programs.ssh.askPassword = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
   services.gvfs.enable = true;      # virtual filesystem support for Thunar to manage mounts etc.
-  security.soteria.enable = true;   # GTK polkit agent, haven't figured out how to use this yet
   security.pam.services.hyprlock = {};    # required for hyprlock to use PAM for authentication
 
   
@@ -59,7 +69,6 @@
     blueman       # bluetooth manager GUI gtk
     brightnessctl # screen brightness control
     hyprls        # LSP server for Hyprland config language
-    egl-wayland
     kdePackages.qtwayland
     kdePackages.qtbase
     #lxqt.lxqt-openssh-askpass
@@ -79,8 +88,6 @@
     wl-clipboard      # clipboard utilities, used by cliphist watch and hyprshot
 
     # Theming
-    kdePackages.qt6ct
-    kdePackages.qtstyleplugin-kvantum
     kdePackages.kiconthemes
     kdePackages.breeze-icons
     spicetify-cli      # cli tool to theme spotify. Used by stylix to theme it

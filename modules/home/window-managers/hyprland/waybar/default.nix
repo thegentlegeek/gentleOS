@@ -1,15 +1,42 @@
 {
+  config,
+  lib,
+  pkgs,
   ...
 }:
 
+let
+  rofi = lib.getExe config.programs.rofi.finalPackage;
+  # Picking an entry is the confirmation; Esc cancels.
+  powerMenu = pkgs.writeShellScript "power-menu" ''
+    choice=$(printf '%s\n' "Lock" "Log out" "Suspend" "Reboot" "Shut down" \
+      | ${rofi} -dmenu -i -p Power -no-custom)
+    case "$choice" in
+      "Lock")      loginctl lock-session ;;
+      "Log out")   ${lib.getExe pkgs.uwsm} stop ;;
+      # Same action as closing the lid / hypridle's long timeout.
+      "Suspend")   systemctl suspend-then-hibernate ;;
+      "Reboot")    systemctl reboot ;;
+      "Shut down") systemctl poweroff ;;
+    esac
+  '';
+in
 {
   imports =
     [
       ./style.nix
     ];
 
+# Waybar's mpris module defaults to the playerctld proxy when no player is
+# set; without the daemon it fails ("name is not activatable") and stays hidden.
+# Also makes playerctl media keys target the most recently active player.
+services.playerctld.enable = true;
+
 programs.waybar = {
     enable = true;
+    # Run from HM (graphical-session.target) rather than the NixOS module, so
+    # config and service live in one place.
+    systemd.enable = true;
     settings = {
     mainBar = {
         layer = "top"; # Waybar at top layer
@@ -32,6 +59,8 @@ programs.waybar = {
             "keyboard-state"
             "battery"
             "power-profiles-daemon"
+            "tray" # applets (blueman etc.)
+            "idle_inhibitor" # click to pause/resume auto-lock (hypridle)
             "custom/power"
         ];
         "hyprland/workspaces" =  {
@@ -44,8 +73,9 @@ programs.waybar = {
             };
             sort-by-number = true;
         };
+        # No `player`: follows the playerctld proxy (services.playerctld below),
+        # i.e. the most recently active MPRIS player, like the media keys.
         mpris = {
-            player = "spotify_player";
             format = "{player_icon} {title} {position}/{length}";
             format-paused = "{status_icon} <i>{title} {position}/{length}</i>";
             player-icons = {
@@ -76,11 +106,13 @@ programs.waybar = {
             };
         };
         tray = {
-            # "icon-size = 21;
             spacing = 10;
         };
         clock = {
             format = "{:%A, %b %e • %I:%M}";
+            # Must stay explicit: without it Waybar's clock auto-detects the zone
+            # via libstdc++'s tzdb, which falls back to UTC on NixOS. Keep in sync
+            # with time.timeZone (modules/nixos/workstation).
             timezone = "America/Indiana/Indianapolis";
             tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
             format-alt = "{:%H:%M}";
@@ -88,9 +120,6 @@ programs.waybar = {
         cpu = {
             format = " {usage}%";
             tooltip = false;
-        };
-        memory = {
-            format = "{}% ";
         };
         temperature = {
             # k10temp (Tctl) via its PCI function address, which is stable
@@ -159,22 +188,10 @@ programs.waybar = {
             on-click = "pavucontrol";
             scroll-step = 5;
         };
-        "custom/media" = {
-            format = "{icon} {text}";
-            return-type = "json";
-            max-length = 40;
-            format-icons = {
-                spotify = "";
-                default = "🎜";
-            };
-            escape = true;
-            exec = "spotify 2> /dev/null"; # Script in resources folder
-            # "exec = "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" # Filter player based on name
-        };
         "custom/power" = {
             format = "⏻ ";
-            tooltip = false;
-            on-click = "shutdown now";
+            tooltip-format = "Power menu";
+            on-click = "${powerMenu}";
         };
         };
       };

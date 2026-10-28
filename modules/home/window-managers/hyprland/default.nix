@@ -10,5 +10,6 @@
       ./waybar
       ./rofi.nix
       ./dunst.nix
+      ./hypridle.nix
     ];
 }

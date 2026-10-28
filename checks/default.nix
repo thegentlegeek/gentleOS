@@ -16,6 +16,8 @@ in
   # login. --verify-config exits 0 even on errors, so judge it by its output.
   hyprland-config = pkgs.runCommand "hyprland-verify-config" { } ''
     export HOME=$TMPDIR XDG_RUNTIME_DIR=$TMPDIR
+    # Exercise zbook's per-host monitor rules (no /etc/hostname in the sandbox).
+    export GENTLEOS_HOST=zbook
     ${hyprland}/bin/Hyprland --verify-config \
       -c ${hm.xdg.configFile."hypr/hyprland.lua".source} > log 2>&1 || true
     if ! sed -n '/Config parsing result/,$p' log | grep -qx 'config ok'; then

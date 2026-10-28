@@ -15,13 +15,34 @@
 ---- MONITORS ----
 ------------------
 
--- Explicit scales: the default "auto" picks 1.5x on the laptop panel.
-hl.monitor({ output = "HDMI-A-1", mode = "3840x2160@60", position = "0x0",              scale = 1 })
--- Laptop panel sits below the external monitor, centered: x = (3840 - 1920) / 2,
--- y = 2160. Fixed rather than "auto-center-down", which kept a negative offset
--- (-960,0) after HDMI was unplugged; a positive offset alone is harmless.
-hl.monitor({ output = "eDP-1",    mode = "preferred",    position = "960x2160",         scale = 1 })
-hl.monitor({ output = "",         mode = "preferred",    position = "auto",             scale = 1 })
+-- Per-host layouts, picked by hostname at config load. GENTLEOS_HOST overrides
+-- it (the flake check sets it, since the build sandbox has no /etc/hostname).
+local function hostname()
+    local h = os.getenv("GENTLEOS_HOST")
+    if h and h ~= "" then return h end
+    local f = io.open("/etc/hostname", "r")
+    if not f then return "" end
+    h = f:read("l") or ""
+    f:close()
+    return h
+end
+
+local monitorLayouts = {
+    zbook = function()
+        hl.monitor({ output = "HDMI-A-1", mode = "3840x2160@60", position = "0x0",      scale = 1 })
+        -- Laptop panel sits below the external monitor, centered: x = (3840 - 1920) / 2,
+        -- y = 2160. Fixed rather than "auto-center-down", which kept a negative offset
+        -- (-960,0) after HDMI was unplugged; a positive offset alone is harmless.
+        hl.monitor({ output = "eDP-1",    mode = "preferred",    position = "960x2160", scale = 1 })
+    end,
+}
+
+local layout = monitorLayouts[hostname()]
+if layout then layout() end
+
+-- Fallback for anything not listed above. Explicit scale: the default "auto"
+-- picks 1.5x on zbook's laptop panel.
+hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
 
 
 -------------------

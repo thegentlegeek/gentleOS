@@ -17,4 +17,8 @@
     systemd.enable = true;
     extraConfig = builtins.readFile ./hyprland.lua;
   };
+
+  # Polkit agent (Hyprland's own). User service on graphical-session.target, which
+  # UWSM provides; finds the session via logind, so no XDG_SESSION_ID needed.
+  services.hyprpolkitagent.enable = true;
 }

@@ -28,7 +28,6 @@
 
   programs.ssh.askPassword = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
   services.gvfs.enable = true;      # virtual filesystem support for Thunar to manage mounts etc.
-  security.soteria.enable = true;   # GTK polkit agent, haven't figured out how to use this yet
   security.pam.services.hyprlock = {};    # required for hyprlock to use PAM for authentication
 
   

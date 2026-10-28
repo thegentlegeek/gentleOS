@@ -33,9 +33,11 @@
     # (and on hyprland-plugins below) to upgrade; `nix flake update` won't move it.
     # Intentionally does NOT follow our nixpkgs so Mesa and the build match
     # upstream's tested set and the hyprland.cachix.org cache.
-    # Not used by any host yet: the system still runs nixpkgs' Hyprland while the
-    # config is migrated to Lua (0.57+ dropped hyprlang). Kept so the 0.57 binary is
-    # available to validate the generated hyprland.lua before switching.
+    # Hyprland, pinned to an upstream RELEASE tag (not main). Bump the tag here and on
+    # hyprland-plugins below to upgrade; `nix flake update` won't move a tag.
+    # Intentionally does NOT follow our nixpkgs: the build then matches upstream's
+    # tested set and hyprland.cachix.org (Mesa is matched in the NixOS module).
+    # 0.57+ reads only Lua configs (hyprland.lua).
     hyprland.url = "github:hyprwm/Hyprland/v0.57.0";
 
     # Hyprland plugins: built against the exact same Hyprland as above via `follows`.

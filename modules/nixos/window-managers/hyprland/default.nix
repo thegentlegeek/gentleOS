@@ -1,8 +1,14 @@
 {
   pkgs,
   lib,
+  inputs,
   ...
-}: 
+}:
+let
+  hyprlandPkgs = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system};
+  # The nixpkgs Hyprland was built against; Mesa must match it or rendering can break.
+  hyprlandNixpkgs = inputs.hyprland.inputs.nixpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system};
+in
 
 {
   imports =
@@ -14,6 +20,15 @@
   programs.hyprland = {
     enable = true;
     withUWSM = true;
+    # Upstream release flake (pinned in flake.nix). The portal must match the compositor.
+    package = hyprlandPkgs.hyprland;
+    portalPackage = hyprlandPkgs.xdg-desktop-portal-hyprland;
+  };
+
+  # Use Mesa from Hyprland's nixpkgs so the driver matches the compositor build.
+  hardware.graphics = {
+    package = hyprlandNixpkgs.mesa;
+    package32 = hyprlandNixpkgs.pkgsi686Linux.mesa;
   };
   
   programs.waybar.enable = true;

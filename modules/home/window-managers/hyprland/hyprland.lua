@@ -110,6 +110,11 @@ hl.config({
         enabled = true,
     },
 
+    -- Releases are pinned in flake.nix; skip the "what's new" popup on each bump.
+    ecosystem = {
+        no_update_news = true,
+    },
+
     input = {
         kb_layout    = "us",
         follow_mouse = 1,

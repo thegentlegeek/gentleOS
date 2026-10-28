@@ -73,7 +73,7 @@ Column {
                     verticalAlignment: TextInput.AlignVCenter
                     echoMode: TextInput.Password
                     color: Style.base07
-                    font.family: Style.fontMono
+                    font.family: Style.fontShell
                     font.pointSize: Style.fontSize
                     clip: true
                     onVisibleChanged: if (visible) forceActiveFocus(); else text = ""

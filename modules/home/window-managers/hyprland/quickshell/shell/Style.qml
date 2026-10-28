@@ -26,6 +26,7 @@ Singleton {
     readonly property color base0F: Theme.colors.base0F
 
     readonly property string fontMono: Theme.fontMono
+    readonly property string fontShell: Theme.fontShell
     readonly property string fontSans: Theme.fontSans
     readonly property int fontSizeBar: Theme.fontSizeBar
     // Popup/panel text, in points (Stylix's popups size).

@@ -18,6 +18,11 @@ let
       "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "A" "B" "C" "D" "E" "F"
     ]) (name: colors.${name});
     fontMono = stylix.fonts.monospace.name;
+    # The "Propo" variant of the same Nerd Font: text glyphs are identical, but
+    # icons keep their natural size and advance width ("Mono" squeezes them to
+    # one cell; plain "Nerd Font" draws them wide but overlaps the next glyph).
+    # Used for all shell text.
+    fontShell = lib.removeSuffix " Mono" stylix.fonts.monospace.name + " Propo";
     fontSans = stylix.fonts.sansSerif.name;
     # Stylix sizes are points; the bar keeps Waybar's 15px.
     fontSizeBar = 15;

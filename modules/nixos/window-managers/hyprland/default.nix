@@ -91,8 +91,6 @@ in
     wl-clipboard      # clipboard utilities, used by cliphist watch and hyprshot
 
     # Theming
-    kdePackages.qt6ct
-    kdePackages.qtstyleplugin-kvantum
     kdePackages.kiconthemes
     kdePackages.breeze-icons
     spicetify-cli      # cli tool to theme spotify. Used by stylix to theme it

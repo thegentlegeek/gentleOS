@@ -32,6 +32,9 @@
     targets.rofi.enable = false;
     targets.dunst.enable = false;
     targets.opencode.enable = false; # Stylix generates OpenCode 1 themes; v2 uses the "system" theme instead
+    # Qt via qtct + generated Kvantum theme. Not auto-enabled for standalone HM
+    # (home-manager#6565 only affects non-NixOS hosts); matches the NixOS target's qt5ct.
+    targets.qt.enable = true;
     targets.firefox.profileNames = [ "default" ];
   };
 

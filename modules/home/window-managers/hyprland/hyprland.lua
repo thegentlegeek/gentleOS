@@ -48,17 +48,9 @@ end)
 ---- ENVIRONMENT VARIABLES ----
 -------------------------------
 
-hl.env("XCURSOR_SIZE", "24")
-hl.env("HYPRCURSOR_SIZE", "24")
-hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
-hl.env("XDG_SESSION_TYPE", "wayland")
-hl.env("XDG_SESSION_DESKTOP", "Hyprland")
-hl.env("QT_QPA_PLATFORM", "wayland;xcb")
-hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
-hl.env("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1")
-hl.env("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
-hl.env("MOZ_ENABLE_WAYLAND", "1")
-hl.env("GDK_SCALE", "1")
+-- Set in ~/.config/uwsm/env{,-hyprland} (hyprland-config.nix) instead of hl.env:
+-- UWSM exports those to systemd user units too, and sets XDG_CURRENT_DESKTOP,
+-- XDG_SESSION_TYPE and XDG_SESSION_DESKTOP itself.
 
 
 -----------------------

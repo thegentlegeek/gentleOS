@@ -27,6 +27,11 @@ in
       ./style.nix
     ];
 
+# Waybar's mpris module defaults to the playerctld proxy when no player is
+# set; without the daemon it fails ("name is not activatable") and stays hidden.
+# Also makes playerctl media keys target the most recently active player.
+services.playerctld.enable = true;
+
 programs.waybar = {
     enable = true;
     # Run from HM (graphical-session.target) rather than the NixOS module, so
@@ -68,7 +73,8 @@ programs.waybar = {
             };
             sort-by-number = true;
         };
-        # Follows whichever MPRIS player is active, like the playerctl media keys.
+        # No `player`: follows the playerctld proxy (services.playerctld below),
+        # i.e. the most recently active MPRIS player, like the media keys.
         mpris = {
             format = "{player_icon} {title} {position}/{length}";
             format-paused = "{status_icon} <i>{title} {position}/{length}</i>";
@@ -103,8 +109,11 @@ programs.waybar = {
             spacing = 10;
         };
         clock = {
-            # No timezone: follows the system's time.timeZone.
             format = "{:%A, %b %e • %I:%M}";
+            # Must stay explicit: without it Waybar's clock auto-detects the zone
+            # via libstdc++'s tzdb, which falls back to UTC on NixOS. Keep in sync
+            # with time.timeZone (modules/nixos/workstation).
+            timezone = "America/Indiana/Indianapolis";
             tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
             format-alt = "{:%H:%M}";
         };

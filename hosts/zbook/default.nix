@@ -18,7 +18,7 @@
       ../../modules/nixos/cpu/amd.nix               # Shared AMD CPU config
       ../../modules/nixos/workstation                # Shared workstation config
       ../../modules/nixos/workstation/virtualization.nix  # Enables libvirt
-      (import ../../modules/nixos/window-managers/hyprland { inherit pkgs lib inputs config; })
+      ../../modules/nixos/window-managers/hyprland
       ../../modules/shared/stylix.nix
     ];
 

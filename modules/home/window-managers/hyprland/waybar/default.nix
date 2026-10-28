@@ -1,7 +1,26 @@
 {
+  config,
+  lib,
+  pkgs,
   ...
 }:
 
+let
+  rofi = lib.getExe config.programs.rofi.finalPackage;
+  # Picking an entry is the confirmation; Esc cancels.
+  powerMenu = pkgs.writeShellScript "power-menu" ''
+    choice=$(printf '%s\n' "Lock" "Log out" "Suspend" "Reboot" "Shut down" \
+      | ${rofi} -dmenu -i -p Power -no-custom)
+    case "$choice" in
+      "Lock")      loginctl lock-session ;;
+      "Log out")   ${lib.getExe pkgs.uwsm} stop ;;
+      # Same action as closing the lid / hypridle's long timeout.
+      "Suspend")   systemctl suspend-then-hibernate ;;
+      "Reboot")    systemctl reboot ;;
+      "Shut down") systemctl poweroff ;;
+    esac
+  '';
+in
 {
   imports =
     [
@@ -35,6 +54,7 @@ programs.waybar = {
             "keyboard-state"
             "battery"
             "power-profiles-daemon"
+            "tray" # applets (blueman etc.)
             "idle_inhibitor" # click to pause/resume auto-lock (hypridle)
             "custom/power"
         ];
@@ -48,8 +68,8 @@ programs.waybar = {
             };
             sort-by-number = true;
         };
+        # Follows whichever MPRIS player is active, like the playerctl media keys.
         mpris = {
-            player = "spotify_player";
             format = "{player_icon} {title} {position}/{length}";
             format-paused = "{status_icon} <i>{title} {position}/{length}</i>";
             player-icons = {
@@ -80,21 +100,17 @@ programs.waybar = {
             };
         };
         tray = {
-            # "icon-size = 21;
             spacing = 10;
         };
         clock = {
+            # No timezone: follows the system's time.timeZone.
             format = "{:%A, %b %e • %I:%M}";
-            timezone = "America/Indiana/Indianapolis";
             tooltip-format = "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>";
             format-alt = "{:%H:%M}";
         };
         cpu = {
             format = " {usage}%";
             tooltip = false;
-        };
-        memory = {
-            format = "{}% ";
         };
         temperature = {
             # k10temp (Tctl) via its PCI function address, which is stable
@@ -163,22 +179,10 @@ programs.waybar = {
             on-click = "pavucontrol";
             scroll-step = 5;
         };
-        "custom/media" = {
-            format = "{icon} {text}";
-            return-type = "json";
-            max-length = 40;
-            format-icons = {
-                spotify = "";
-                default = "🎜";
-            };
-            escape = true;
-            exec = "spotify 2> /dev/null"; # Script in resources folder
-            # "exec = "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" # Filter player based on name
-        };
         "custom/power" = {
             format = "⏻ ";
-            tooltip = false;
-            on-click = "shutdown now";
+            tooltip-format = "Power menu";
+            on-click = "${powerMenu}";
         };
         };
       };

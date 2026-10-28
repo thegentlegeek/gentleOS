@@ -1,12 +1,14 @@
 {
   config,
+  lib,
   ...
 }:
 
 let
   colors = config.lib.stylix.colors.withHashtag;
 in {
-  services = {
+  # The Quickshell shell has its own notification server.
+  services = lib.mkIf (config.gentleOS.desktopShell == "waybar") {
     dunst = {
       enable = true;
       settings = {

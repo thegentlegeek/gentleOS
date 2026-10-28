@@ -83,7 +83,14 @@ let
     prev = "${playerctl} previous";
     brightUp = "${brightnessctl} s 10%+";
     brightDown = "${brightnessctl} s 10%-";
-  };
+  } // lib.optionalAttrs (config.gentleOS.desktopShell == "quickshell") (
+    # Panels of the Quickshell shell (quickshell/shell/shell.qml IpcHandler).
+    let shell = fn: "${exe config.programs.quickshell.package} ipc -c gentle call shell ${fn}"; in {
+      notifications = shell "toggleNotifications";
+      quickSettings = shell "toggleQuickSettings";
+      doNotDisturb = shell "toggleDnd";
+    }
+  );
 in
 
 {
@@ -128,6 +135,10 @@ in
     enable = true;
     allowImages = true;
   };
+
+  # playerctl media keys (and Waybar's mpris module, which defaults to the
+  # playerctld proxy) target the most recently active MPRIS player.
+  services.playerctld.enable = true;
 
   # Polkit agent (Hyprland's own). User service on graphical-session.target, which
   # UWSM provides; finds the session via logind, so no XDG_SESSION_ID needed.

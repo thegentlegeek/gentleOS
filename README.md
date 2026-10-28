@@ -21,7 +21,8 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
 
 1. **Hyprland configurations are located:**
     - **System level:** `modules/nixos/window-managers/hyprland/` - This is where system level packages and settings are defined. Base things that enable Hyprland to work for all users (Hyprland + its portal from the upstream flake, UWSM session, greetd/ReGreet login screen, Thunar, system packages).
-    - **User level:** `modules/home/window-managers/hyprland/` - This is where user level settings are defined through Home Manager. The Hyprland config itself is native Lua in `hyprland.lua` (keybindings, rules, per-host monitor layouts); the Nix files around it handle the session environment, Waybar, Rofi, Dunst, hypridle/hyprlock and plugins. Press `SUPER + /` for a cheat sheet of every keybinding.
+    - **User level:** `modules/home/window-managers/hyprland/` - This is where user level settings are defined through Home Manager. The Hyprland config itself is native Lua in `hyprland.lua` (keybindings, rules, per-host monitor layouts); the Nix files around it handle the session environment, the desktop shell, Rofi, hypridle/hyprlock and plugins. Press `SUPER + /` for a cheat sheet of every keybinding.
+    - **Desktop shell:** `quickshell/` is a [Quickshell](https://quickshell.outfoxxed.me) (QML) bar, quick settings panel (`SUPER + I`) and notification center (`SUPER + N`). Its colors and fonts come from Stylix, generated into `Theme.qml.json`. Set `gentleOS.desktopShell = "waybar";` to go back to Waybar + Dunst.
 
 2. **Theming is controlled by [Stylix](https://github.com/danth/stylix).** The main Stylix configuration lives in `modules/shared/stylix.nix` and is imported by both NixOS system configurations and Home Manager. You can choose your own base16 scheme by editing this file and rebuilding:
     ```bash
@@ -84,14 +85,14 @@ gentleOS/
 │   │   └── browsers/            # Browser configs (Chromium)
 │   ├── home/                    # Home Manager modules
 │   │   ├── cli/                 # User CLI (kitty, fish, starship, nix-index)
-│   │   ├── window-managers/     # WM user configs (hyprland.lua, Waybar, Rofi, Dunst, hypridle)
+│   │   ├── window-managers/     # WM user configs (hyprland.lua, Quickshell shell, Waybar, Rofi, Dunst, hypridle)
 │   │   ├── editors/             # Code editors (VSCode, Zed, opencode)
 │   │   └── browsers/            # Browser user configs
 │   └── shared/                  # Shared between NixOS & Home Manager
 │       ├── stylix.nix           # Stylix theming configuration
 │       └── wallpapers/          # Wallpaper images
 ├── checks/
-│   └── default.nix              # `nix flake check`: validates the generated Hyprland config
+│   └── default.nix              # `nix flake check`: validates the generated Hyprland and Quickshell configs
 └── media/
     └── screenshots/             # README screenshots
 ```
@@ -280,6 +281,7 @@ If you want to use Home Manager independently (e.g., on a non-NixOS system):
 | `nix flake update nixpkgs` | Update only the nixpkgs input |
 | `nix flake check` | Evaluate every host and run the checks in `checks/` |
 | `nix build .#checks.x86_64-linux.hyprland-config` | Quickly validate just the generated Hyprland config |
+| `nix build .#checks.x86_64-linux.quickshell-config` | Load the Quickshell shell in a headless compositor and fail on any QML error |
 | `nix fmt` | Format Nix files with nixfmt |
 
 ## Contributing

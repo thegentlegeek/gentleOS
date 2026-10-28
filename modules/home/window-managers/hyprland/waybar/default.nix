@@ -27,11 +27,7 @@ in
       ./style.nix
     ];
 
-# Waybar's mpris module defaults to the playerctld proxy when no player is
-# set; without the daemon it fails ("name is not activatable") and stays hidden.
-# Also makes playerctl media keys target the most recently active player.
-services.playerctld.enable = true;
-
+config = lib.mkIf (config.gentleOS.desktopShell == "waybar") {
 programs.waybar = {
     enable = true;
     # Run from HM (graphical-session.target) rather than the NixOS module, so
@@ -196,4 +192,5 @@ programs.waybar = {
         };
       };
    };
+};
 }

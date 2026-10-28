@@ -37,6 +37,7 @@ Singleton {
     readonly property string bluetoothOff: g(0xF00B2)
 
     readonly property string cpu: g(0xF2DB)
+    readonly property string memory: g(0xF035B)
     readonly property var temperature: [g(0xF2CB), g(0xF2C9), g(0xF2C7)]
     readonly property var backlight: [g(0xE38D), g(0xE3D3), g(0xE3D1), g(0xE3CF), g(0xE3CE), g(0xE3CD), g(0xE3CA), g(0xE3C8), g(0xE39B)]
     readonly property var battery: [g(0xF244), g(0xF243), g(0xF242), g(0xF241), g(0xF240)]

@@ -1,28 +1,47 @@
 import Quickshell.Hyprland
 import QtQuick
 
-// All regular workspaces (special ones have negative ids), sorted by number.
+// Regular workspaces (special ones have negative ids) as numbered chips:
+// focused = accent, shown on another monitor = raised, urgent = red.
 Pill {
-    padding: 8
+    id: root
+
+    readonly property var workspaces: Hyprland.workspaces.values.filter(w => w.id > 0).sort((a, b) => a.id - b.id)
+
+    visible: workspaces.length > 0
+    padding: 2
 
     Repeater {
-        model: Hyprland.workspaces.values.filter(w => w.id > 0).sort((a, b) => a.id - b.id)
+        model: root.workspaces
 
-        delegate: BarText {
-            id: ws
+        delegate: Rectangle {
+            id: chip
 
             required property HyprlandWorkspace modelData
 
-            leftPadding: 6
-            rightPadding: 6
-            text: modelData.name + " " + (modelData.urgent ? Icons.wsUrgent
-                : modelData.active ? Icons.wsActive
-                : Icons.wsDefault)
-            color: modelData.focused ? Style.base0A : Style.base07
+            width: Math.max(28, label.implicitWidth + 16)
+            height: 20
+            radius: Style.radius - 2
+            color: modelData.focused ? Style.base0D
+                : modelData.urgent ? Style.base08
+                : modelData.active ? Style.base03
+                : area.containsMouse ? Style.base03
+                : "transparent"
+
+            BarText {
+                id: label
+                anchors.centerIn: parent
+                text: chip.modelData.name
+                font.pixelSize: Style.fontSizeBar - 1
+                font.bold: chip.modelData.focused
+            }
 
             MouseArea {
+                id: area
                 anchors.fill: parent
-                onClicked: ws.modelData.activate()
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: chip.modelData.activate()
             }
         }
     }

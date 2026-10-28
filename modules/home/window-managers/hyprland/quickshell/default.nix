@@ -50,6 +50,13 @@ let
     tempHwmonDir = "/sys/devices/pci0000:00/0000:00:18.3/hwmon";
     tempInput = "temp1_input";
     tempCritical = 90;
+    # CPU and temperature only appear on the bar at or above these.
+    tempWarn = 80;
+    cpuWarn = 0.8;
+    # Tray items hidden from the bar, matched against the item's id/title
+    # (case-insensitive). blueman-applet keeps running as the pairing agent;
+    # Bluetooth is managed from quick settings.
+    trayHidden = [ "blueman" ];
   };
 
   shellConfig = pkgs.runCommandLocal "quickshell-gentle" { } ''

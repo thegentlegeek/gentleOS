@@ -38,6 +38,9 @@ Singleton {
     readonly property int radius: Theme.radius
 
     readonly property color panelBg: alpha(base00, popupAlpha)
+    // Bar modules share one surface; color is reserved for state.
+    readonly property color pillBg: base02
+    readonly property color muted: base04
 
     function alpha(c, a) {
         return Qt.rgba(c.r, c.g, c.b, a);

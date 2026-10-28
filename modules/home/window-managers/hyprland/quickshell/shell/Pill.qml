@@ -19,7 +19,7 @@ Rectangle {
     implicitWidth: row.implicitWidth + padding * 2
     implicitHeight: 24
     radius: Style.radius
-    color: Style.base03
+    color: Style.pillBg
 
     // Below the row, so child items with their own MouseArea get clicks first.
     MouseArea {

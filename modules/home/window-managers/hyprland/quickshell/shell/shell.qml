@@ -22,6 +22,7 @@ ShellRoot {
     NotificationCenter {}
     QuickSettings {}
     SessionMenu {}
+    Calendar {}
 
     // Keybinds in hyprland.lua: quickshell ipc -c gentle call shell <function>
     IpcHandler {
@@ -37,6 +38,14 @@ ShellRoot {
 
         function toggleSession(): void {
             ShellState.toggle("session");
+        }
+
+        function toggleCaffeine(): void {
+            ShellState.caffeine = !ShellState.caffeine;
+        }
+
+        function toggleCalendar(): void {
+            ShellState.toggle("calendar");
         }
 
         function toggleDnd(): void {

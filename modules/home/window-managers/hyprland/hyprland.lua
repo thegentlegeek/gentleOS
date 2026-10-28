@@ -172,6 +172,7 @@ if cmd.notifications then
     bind(key("N"),         hl.dsp.exec_cmd(cmd.notifications), "Session: Notification center")
     bind(key("SHIFT + N"), hl.dsp.exec_cmd(cmd.doNotDisturb),  "Session: Toggle do not disturb")
     bind(key("I"),         hl.dsp.exec_cmd(cmd.quickSettings), "Session: Quick settings")
+    bind(key("SHIFT + I"), hl.dsp.exec_cmd(cmd.keepAwake),     "Session: Toggle keep awake (pause auto-lock)")
 end
 
 -- Windows

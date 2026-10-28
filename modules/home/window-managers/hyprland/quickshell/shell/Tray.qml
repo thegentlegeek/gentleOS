@@ -5,6 +5,7 @@ import QtQuick
 
 // Status notifier items (blueman etc.). Left click activates, right click (or
 // left on menu-only items) opens the item's menu, middle click is secondary.
+// Items listed in Settings.trayHidden are left out.
 Row {
     id: root
 
@@ -13,7 +14,10 @@ Row {
     spacing: 10
 
     Repeater {
-        model: SystemTray.items.values
+        model: SystemTray.items.values.filter(i => {
+            const name = (i.id + " " + i.title).toLowerCase();
+            return !Settings.trayHidden.some(h => name.includes(h.toLowerCase()));
+        })
 
         delegate: Item {
             id: entry

@@ -89,6 +89,7 @@ let
       notifications = shell "toggleNotifications";
       quickSettings = shell "toggleQuickSettings";
       doNotDisturb = shell "toggleDnd";
+      keepAwake = shell "toggleCaffeine";
     }
   );
 in

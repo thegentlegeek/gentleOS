@@ -12,12 +12,20 @@ Singleton {
     // 0..1 across all cores.
     property real cpu: 0
     property var lastCpu: null
+    // Smoothed over a few samples so a short spike doesn't flash the bar.
+    property real cpuAvg: 0
+    readonly property bool cpuHigh: cpuAvg >= Settings.cpuWarn
 
     // °C, or -1 until the sensor is found. Path set in Settings (Nix).
     property string tempPath: ""
     property real temp: -1
     readonly property bool tempAvailable: tempPath !== "" && temp >= 0
+    readonly property bool tempHigh: tempAvailable && temp >= Settings.tempWarn
     readonly property bool tempCritical: temp >= Settings.tempCritical
+
+    // Used RAM, 0..1, and total in GiB.
+    property real mem: 0
+    property real memTotalGiB: 0
 
     // Any keyboard's Caps Lock LED.
     property var capsPaths: []
@@ -31,9 +39,24 @@ Singleton {
             const f = text().split("\n")[0].trim().split(/\s+/).slice(1).map(Number);
             const idle = f[3] + f[4];
             const total = f.reduce((a, b) => a + b, 0);
-            if (root.lastCpu && total > root.lastCpu.total)
+            if (root.lastCpu && total > root.lastCpu.total) {
                 root.cpu = 1 - (idle - root.lastCpu.idle) / (total - root.lastCpu.total);
+                root.cpuAvg = root.cpuAvg * 0.6 + root.cpu * 0.4;
+            }
             root.lastCpu = { idle, total };
+        }
+    }
+
+    FileView {
+        id: meminfo
+        path: "/proc/meminfo"
+        onLoaded: {
+            const kb = key => parseInt((text().match(new RegExp(`^${key}:\\s+(\\d+)`, "m")) ?? [0, 0])[1]);
+            const total = kb("MemTotal"), available = kb("MemAvailable");
+            if (total > 0) {
+                root.mem = 1 - available / total;
+                root.memTotalGiB = total / 1048576;
+            }
         }
     }
 
@@ -80,6 +103,7 @@ Singleton {
         interval: 2000
         onTriggered: {
             stat.reload();
+            meminfo.reload();
             if (root.tempPath !== "")
                 tempFile.reload();
         }

@@ -23,11 +23,9 @@ Singleton {
     }
 
     readonly property string icon: wiredDevice ? Icons.ethernet
-        : activeWifi ? Icons.wifi
+        : activeWifi ? strengthIcon(activeWifi)
+        : wifiDevice && !wifiEnabled ? Icons.wifiOff
         : Icons.warning
-    readonly property string label: wiredDevice ? wiredDevice.name
-        : activeWifi ? activeWifi.name
-        : "Disconnected"
 
     function setWifi(on) {
         Networking.wifiEnabled = on;

@@ -3,6 +3,8 @@ import Quickshell.Bluetooth
 import Quickshell.Services.UPower
 import QtQuick
 
+// Opened from the status pill (or SUPER+I). Grouped top to bottom: toggles,
+// sound, display, power, system, session.
 PanelFrame {
     id: root
 
@@ -20,6 +22,7 @@ PanelFrame {
     panelWidth: 420
     onOpenChanged: if (!open) section = ""
 
+    // Toggles
     Grid {
         id: tiles
 
@@ -87,12 +90,20 @@ PanelFrame {
         visible: root.section === "bluetooth"
     }
 
+    Separator {}
+
+    // Sound
     Column {
         width: parent.width
         spacing: 4
+        visible: Audio.ready
+
+        SectionHeader {
+            title: "Sound"
+            detail: Audio.sink?.description ?? ""
+        }
 
         LevelRow {
-            visible: Audio.ready
             icon: Audio.icon
             value: Audio.volume
             dimmed: Audio.muted
@@ -109,56 +120,134 @@ PanelFrame {
             onIconClicked: Audio.toggleMic()
         }
 
+        ListRow {
+            icon: Icons.cog
+            text: "Sound settings…"
+            onClicked: ShellState.run(Settings.audioSettings)
+        }
+    }
+
+    // Display
+    Column {
+        width: parent.width
+        spacing: 4
+        visible: Brightness.available
+
+        SectionHeader {
+            title: "Display"
+        }
+
         LevelRow {
-            visible: Brightness.available
             icon: Brightness.icon
             value: Brightness.level
             onMoved: v => Brightness.set(v)
         }
     }
 
-    // Power profile
-    Row {
-        id: profiles
+    Separator {}
 
-        readonly property var options: [
-            { profile: PowerProfile.PowerSaver, icon: Icons.profileSaver, label: "Saver" },
-            { profile: PowerProfile.Balanced, icon: Icons.profileBalanced, label: "Balanced" },
-            { profile: PowerProfile.Performance, icon: Icons.profilePerformance, label: "Performance" },
-        ].filter(o => o.profile !== PowerProfile.Performance || PowerProfiles.hasPerformanceProfile)
-
+    // Power
+    Column {
         width: parent.width
-        spacing: 4
+        spacing: 8
 
-        Repeater {
-            model: profiles.options
+        SectionHeader {
+            title: "Power"
+            detail: Battery.present ? `${Battery.icon} ${Battery.percent}%${Battery.status ? " · " + Battery.status : ""}` : ""
+        }
 
-            delegate: Rectangle {
-                id: option
+        Row {
+            id: profiles
 
-                required property var modelData
-                readonly property bool selected: PowerProfiles.profile === modelData.profile
+            readonly property var options: [
+                { profile: PowerProfile.PowerSaver, icon: Icons.profileSaver, label: "Saver" },
+                { profile: PowerProfile.Balanced, icon: Icons.profileBalanced, label: "Balanced" },
+                { profile: PowerProfile.Performance, icon: Icons.profilePerformance, label: "Performance" },
+            ].filter(o => o.profile !== PowerProfile.Performance || PowerProfiles.hasPerformanceProfile)
 
-                width: (profiles.width - profiles.spacing * (profiles.options.length - 1)) / profiles.options.length
-                height: 34
-                radius: Style.radius
-                color: selected ? Style.base0D : optionArea.containsMouse ? Style.base03 : Style.base02
+            width: parent.width
+            spacing: 4
 
-                PanelText {
-                    anchors.centerIn: parent
-                    text: `${option.modelData.icon}  ${option.modelData.label}`
-                }
+            Repeater {
+                model: profiles.options
 
-                MouseArea {
-                    id: optionArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: PowerProfiles.profile = option.modelData.profile
+                delegate: Rectangle {
+                    id: option
+
+                    required property var modelData
+                    readonly property bool selected: PowerProfiles.profile === modelData.profile
+
+                    width: (profiles.width - profiles.spacing * (profiles.options.length - 1)) / profiles.options.length
+                    height: 34
+                    radius: Style.radius
+                    color: selected ? Style.base0D : optionArea.containsMouse ? Style.base03 : Style.base02
+
+                    PanelText {
+                        anchors.centerIn: parent
+                        text: `${option.modelData.icon}  ${option.modelData.label}`
+                    }
+
+                    MouseArea {
+                        id: optionArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: PowerProfiles.profile = option.modelData.profile
+                    }
                 }
             }
         }
     }
+
+    // System
+    Column {
+        width: parent.width
+        spacing: 8
+
+        SectionHeader {
+            title: "System"
+        }
+
+        Row {
+            id: stats
+
+            readonly property real cellWidth: (width - spacing * 2) / 3
+
+            width: parent.width
+            spacing: 8
+
+            StatCell {
+                width: stats.cellWidth
+                icon: Icons.cpu
+                value: `${Math.round(SysStats.cpu * 100)}%`
+                label: "CPU"
+                fraction: SysStats.cpu
+                warn: SysStats.cpuHigh
+            }
+
+            StatCell {
+                width: stats.cellWidth
+                visible: SysStats.tempAvailable
+                icon: Icons.temperature[SysStats.tempCritical ? 2 : SysStats.tempHigh ? 1 : 0]
+                value: `${Math.round(SysStats.temp)}°C`
+                label: "Temperature"
+                fraction: SysStats.temp / 100
+                warn: SysStats.tempHigh
+                critical: SysStats.tempCritical
+            }
+
+            StatCell {
+                width: stats.cellWidth
+                icon: Icons.memory
+                value: `${Math.round(SysStats.mem * 100)}%`
+                label: `RAM · ${Math.round(SysStats.memTotalGiB)} GiB`
+                fraction: SysStats.mem
+                warn: SysStats.mem >= 0.9
+            }
+        }
+    }
+
+    Separator {}
 
     SessionButtons {}
 }

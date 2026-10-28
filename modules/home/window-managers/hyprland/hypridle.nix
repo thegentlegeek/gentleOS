@@ -17,7 +17,8 @@ in
   #
   # Overriding auto-lock: hypridle honours Wayland, D-Bus and systemd idle
   # inhibitors (ignore_*_inhibit default to false), so
-  #   - the bar's eye button (or Quick settings > Keep awake) toggles it,
+  #   - Quick settings > Keep awake (or SUPER+SHIFT+I) toggles it; the bar
+  #     shows an eye while it's on,
   #   - fullscreen windows inhibit it (window rule in hyprland.lua),
   #   - apps that ask (video in browsers, mpv, calls) inhibit it.
   # Inhibitors do not stop lid-close suspend; that always locks and sleeps.

@@ -17,17 +17,24 @@ This repository houses my personal NixOS and Home Manager configurations, design
 
 This repository serves as the central hub for managing my NixOS systems and Home Manager user environments. By leveraging the power of Nix, I aim to achieve a highly consistent, portable, and declarative configuration across all my machines.
 
-This project is focused on utilizing Hyprland and declaring all necessary components and stylings within the declarative nature of NixOS but I've left my KDE config in here for the sake of posterity. I LOVE this declarative approach but it's also taking something hard (Hyprland configuration from scratch) and turns the difficulty up a notch with NixOS. I will attempt to document the hows and whys of the configurations within files themselves but at first, here's a few key highlights.
+This project is focused on utilizing Hyprland and declaring all necessary components and stylings within the declarative nature of NixOS. I LOVE this declarative approach but it's also taking something hard (Hyprland configuration from scratch) and turns the difficulty up a notch with NixOS. I will attempt to document the hows and whys of the configurations within files themselves but at first, here's a few key highlights.
 
 1. **Hyprland configurations are located:**
-    - **System level:** `modules/nixos/window-managers/hyprland/` - This is where system level packages and settings are defined. Base things that enable Hyprland to work for all users (SDDM, Waybar, Thunar, system packages).
-    - **User level:** `modules/home/window-managers/hyprland/` - This is where user level settings are defined through Home Manager (keybindings, Waybar styling, Rofi, Dunst notifications).
+    - **System level:** `modules/nixos/window-managers/hyprland/` - This is where system level packages and settings are defined. Base things that enable Hyprland to work for all users (Hyprland + its portal from the upstream flake, UWSM session, greetd/ReGreet login screen, Thunar, system packages).
+    - **User level:** `modules/home/window-managers/hyprland/` - This is where user level settings are defined through Home Manager. The Hyprland config itself is native Lua in `hyprland.lua` (keybindings, rules, per-host monitor layouts); the Nix files around it handle the session environment, Waybar, Rofi, Dunst, hypridle/hyprlock and plugins. Press `SUPER + /` for a cheat sheet of every keybinding.
 
 2. **Theming is controlled by [Stylix](https://github.com/danth/stylix).** The main Stylix configuration lives in `modules/shared/stylix.nix` and is imported by both NixOS system configurations and Home Manager. You can choose your own base16 scheme by editing this file and rebuilding:
     ```bash
     sudo nixos-rebuild switch --flake .#<hostname>
     ```
     I like to use [this theme preview page](https://tinted-theming.github.io/tinted-gallery/) to find good themes to try out but you can also create your own following Stylix documentation.
+
+3. **Hyprland comes from the upstream flake, pinned to a release tag.** `flake.nix` pins `hyprland` (and `hyprland-plugins`, which builds against it) to a release tag such as `v0.57.0`, so you get new releases without waiting for nixpkgs, but never development builds: `nix flake update` won't move a tag. To upgrade, change the tag on both inputs, then validate before switching:
+    ```bash
+    nix flake lock
+    nix build .#checks.x86_64-linux.hyprland-config   # parses hyprland.lua with the new Hyprland
+    ```
+    Prebuilt binaries come from the `hyprland.cachix.org` cache (configured in `modules/nixos/base.nix`).
 
 ### Screenshots
 
@@ -63,8 +70,7 @@ gentleOS/
 │   │   ├── home.nix             # Home Manager configuration
 │   │   └── system.nix           # NixOS user definition
 │   └── jgeigley/
-│       ├── home.nix
-│       └── system.nix
+│       └── system.nix           # NixOS user definition (used by testing)
 ├── modules/
 │   ├── nixos/                   # NixOS system modules
 │   │   ├── base.nix             # Base system config (flakes, shell aliases)
@@ -72,22 +78,20 @@ gentleOS/
 │   │   ├── cli/                 # CLI tools (neovim, yazi, tmux, fzf, lazygit)
 │   │   ├── cpu/                 # CPU-specific configs (AMD, Intel)
 │   │   ├── workstation/         # Desktop essentials (sound, fonts, network, etc.)
-│   │   ├── window-managers/     # WM configs (Hyprland system-level, KDE)
+│   │   ├── window-managers/     # WM configs (Hyprland system-level)
 │   │   ├── gaming/              # Gaming (Steam, Minecraft, emulation)
 │   │   ├── server/              # Server services (Gitea, Minecraft server)
 │   │   └── browsers/            # Browser configs (Chromium)
 │   ├── home/                    # Home Manager modules
 │   │   ├── cli/                 # User CLI (kitty, fish, starship, nix-index)
-│   │   ├── window-managers/     # WM user configs (Hyprland, Waybar, Rofi, Dunst)
+│   │   ├── window-managers/     # WM user configs (hyprland.lua, Waybar, Rofi, Dunst, hypridle)
 │   │   ├── editors/             # Code editors (VSCode, Zed, opencode)
 │   │   └── browsers/            # Browser user configs
 │   └── shared/                  # Shared between NixOS & Home Manager
 │       ├── stylix.nix           # Stylix theming configuration
 │       └── wallpapers/          # Wallpaper images
-├── pkgs/
-│   └── default.nix              # Custom package definitions
-├── overlays/
-│   └── default.nix              # Nixpkgs overlays
+├── checks/
+│   └── default.nix              # `nix flake check`: validates the generated Hyprland config
 └── media/
     └── screenshots/             # README screenshots
 ```
@@ -118,12 +122,14 @@ This configuration uses the following external inputs:
 
 | Input | Version | Purpose |
 |-------|---------|---------|
-| `nixpkgs` | 25.11 | Main package repository (stable) |
+| `nixpkgs` | 26.05 | Main package repository (stable) |
 | `unstable` | nixos-unstable | Unstable packages for specific hosts |
-| `home-manager` | release-25.11 | User environment management |
-| `stylix` | release-25.11 | System-wide theming with base16 |
+| `home-manager` | release-26.05 | User environment management |
+| `stylix` | release-26.05 | System-wide theming with base16 |
+| `hyprland` | release tag (e.g. `v0.57.0`) | Hyprland compositor + portal, upstream flake |
+| `hyprland-plugins` | release tag matching `hyprland` | Hyprland plugins, built against the pinned Hyprland |
 | `nix-wallpaper` | latest | Auto-colorized wallpapers |
-| `llm-agents` | latest | AI coding tools (opencode) |
+| `llm-agents` | latest | AI coding tools (opencode, Claude Code) |
 
 ## Getting Started
 
@@ -181,7 +187,7 @@ This section explains how to adapt this configuration for your own systems.
      ];
      
      networking.hostName = "YOUR_HOSTNAME";
-     system.stateVersion = "25.11";  # Use your NixOS version
+     system.stateVersion = "26.05";  # Use your NixOS version
    }
    ```
 
@@ -270,8 +276,11 @@ If you want to use Home Manager independently (e.g., on a non-NixOS system):
 | `sudo nixos-rebuild boot --flake .#HOSTNAME` | Build and set as boot default (doesn't switch now) |
 | `sudo nixos-rebuild test --flake .#HOSTNAME` | Build and switch temporarily (reverts on reboot) |
 | `home-manager switch --flake .#USERNAME` | Switch Home Manager configuration |
-| `nix flake update` | Update all flake inputs to latest |
-| `nix flake lock --update-input nixpkgs` | Update only nixpkgs input |
+| `nix flake update` | Update all flake inputs to latest (tag-pinned inputs like `hyprland` stay put) |
+| `nix flake update nixpkgs` | Update only the nixpkgs input |
+| `nix flake check` | Evaluate every host and run the checks in `checks/` |
+| `nix build .#checks.x86_64-linux.hyprland-config` | Quickly validate just the generated Hyprland config |
+| `nix fmt` | Format Nix files with nixfmt |
 
 ## Contributing
 

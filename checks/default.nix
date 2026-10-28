@@ -4,8 +4,11 @@
 
 let
   hm = self.homeConfigurations.justin.config;
-  # The compositor actually deployed on zbook, so the check matches what runs.
-  hyprland = self.nixosConfigurations.zbook.config.programs.hyprland.package;
+  # Same package programs.hyprland deploys (modules/nixos/window-managers/hyprland),
+  # taken from the flake input directly: reading it via nixosConfigurations would
+  # evaluate the whole NixOS system just for one store path. Revisit if the
+  # NixOS module ever overrides/patches the package.
+  hyprland = self.inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
 in
 {
   # Parse the generated hyprland.lua with the deployed Hyprland. Catches unknown

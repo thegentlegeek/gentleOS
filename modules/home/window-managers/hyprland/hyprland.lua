@@ -17,7 +17,8 @@ local scrnshotSave = "hyprshot -m region -- swappy"
 local editor       = "codium"
 local music        = "kitty spotify_player"
 local calculator   = "gnome-calculator"
-local lock         = "hyprlock"
+-- Through logind so it goes via hypridle's lock_cmd (no duplicate lock screens).
+local lock         = "loginctl lock-session"
 
 
 ------------------
@@ -220,6 +221,9 @@ end, { locked = true })
 ----------------------
 
 hl.window_rule({ name = "suppress-maximize", match = { class = ".*" }, suppress_event = "maximize" })
+
+-- No auto-lock/screen-off while any window is fullscreen (videos, presentations).
+hl.window_rule({ name = "idle-inhibit-fullscreen", match = { class = ".*" }, idle_inhibit = "fullscreen" })
 
 -- Floating dialogs and small utilities
 hl.window_rule({ name = "float-portal-open-files", match = { class = "^(xdg-desktop-portal-gtk)$", title = "^(Open Files)$" }, float = true })

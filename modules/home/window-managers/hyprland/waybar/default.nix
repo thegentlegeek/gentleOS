@@ -35,6 +35,7 @@ programs.waybar = {
             "keyboard-state"
             "battery"
             "power-profiles-daemon"
+            "idle_inhibitor" # click to pause/resume auto-lock (hypridle)
             "custom/power"
         ];
         "hyprland/workspaces" =  {

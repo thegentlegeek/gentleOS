@@ -7,18 +7,8 @@
 ---- PROGRAMS ----
 ------------------
 
-local terminal     = "kitty fish"
-local fileManager  = "kitty yazi"
-local menu         = "rofi -show drun -display-drun ''"
-local pbrowser     = [[chromium %U --profile-directory="Profile 2"]]
-local wbrowser     = [[chromium %U --profile-directory="Profile 3"]]
-local scrnshotCopy = "hyprshot -m region --clipboard-only"
-local scrnshotSave = "hyprshot -m region -- swappy"
-local editor       = "codium"
-local music        = "kitty spotify_player"
-local calculator   = "gnome-calculator"
--- Through logind so it goes via hypridle's lock_cmd (no duplicate lock screens).
-local lock         = "loginctl lock-session"
+-- `cmd` (commands used by binds, with absolute store paths for the tools they
+-- rely on) is generated in hyprland-config.nix and prepended to this file.
 
 
 ------------------
@@ -133,60 +123,93 @@ hl.gesture({ fingers = 4, direction = "up",         action = "fullscreen" })
 local mainMod = "SUPER"
 local function key(k) return mainMod .. " + " .. k end
 
-hl.bind(key("L"),         hl.dsp.exec_cmd(lock))
-hl.bind(key("C"),         hl.dsp.exec_cmd(terminal))
-hl.bind(key("Q"),         hl.dsp.window.close())
-hl.bind(key("M"),         hl.dsp.exec_cmd(music))
-hl.bind(key("F"),         hl.dsp.exec_cmd(fileManager))
-hl.bind(key("V"),         hl.dsp.window.float({ action = "toggle" }))
-hl.bind(key("A"),         hl.dsp.exec_cmd(menu))
-hl.bind(key("SHIFT + C"), hl.dsp.exec_cmd(calculator))
-
--- Window management
-hl.bind(key("P"),         hl.dsp.window.pseudo())
-hl.bind(key("J"),         hl.dsp.layout("togglesplit"))
-hl.bind(key("T"),         hl.dsp.exec_cmd(scrnshotCopy))
-hl.bind(key("SHIFT + T"), hl.dsp.exec_cmd(scrnshotSave))
-hl.bind(key("left"),      hl.dsp.focus({ direction = "left" }))
-hl.bind(key("right"),     hl.dsp.focus({ direction = "right" }))
-hl.bind(key("up"),        hl.dsp.focus({ direction = "up" }))
-hl.bind(key("down"),      hl.dsp.focus({ direction = "down" }))
-
--- Browser and editor
-hl.bind(key("SHIFT + B"), hl.dsp.exec_cmd(wbrowser))
-hl.bind(key("B"),         hl.dsp.exec_cmd(pbrowser))
-hl.bind(key("E"),         hl.dsp.exec_cmd(editor))
-
--- Workspaces 1-10 (key 0 is workspace 10)
-for i = 1, 10 do
-    local k = tostring(i % 10)
-    hl.bind(key(k),              hl.dsp.focus({ workspace = i }))
-    hl.bind(key("SHIFT + " .. k), hl.dsp.window.move({ workspace = i }))
+-- Every user-facing bind gets a "Category: text" description; the cheat sheet
+-- (SUPER + /) is generated from them with `hyprctl binds -j`, so it can't drift.
+local function bind(keys, dispatcher, desc, opts)
+    local o = {}
+    for k, v in pairs(opts or {}) do o[k] = v end
+    o.desc = desc
+    return hl.bind(keys, dispatcher, o)
 end
 
--- Special workspace (scratchpad)
-hl.bind(key("S"),         hl.dsp.workspace.toggle_special("magic"))
-hl.bind(key("SHIFT + S"), hl.dsp.window.move({ workspace = "special:magic" }))
+-- Apps
+bind(key("C"),         hl.dsp.exec_cmd(cmd.terminal),        "Apps: Terminal")
+bind(key("A"),         hl.dsp.exec_cmd(cmd.menu),            "Apps: App launcher")
+bind(key("F"),         hl.dsp.exec_cmd(cmd.fileManager),     "Apps: File manager (yazi)")
+bind(key("B"),         hl.dsp.exec_cmd(cmd.browserPersonal), "Apps: Browser (personal profile)")
+bind(key("SHIFT + B"), hl.dsp.exec_cmd(cmd.browserWork),     "Apps: Browser (work profile)")
+bind(key("E"),         hl.dsp.exec_cmd(cmd.editor),          "Apps: Editor")
+bind(key("M"),         hl.dsp.exec_cmd(cmd.music),           "Apps: Music (spotify_player)")
+bind(key("SHIFT + C"), hl.dsp.exec_cmd(cmd.calculator),      "Apps: Calculator")
 
--- Scroll through existing workspaces
-hl.bind(key("mouse_up"),     hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(key("mouse_down"),   hl.dsp.focus({ workspace = "e-1" }))
-hl.bind(key("CTRL + right"), hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(key("CTRL + left"),  hl.dsp.focus({ workspace = "e-1" }))
+-- Session
+bind(key("slash"),          hl.dsp.exec_cmd(cmd.cheatsheet), "Session: Show this cheat sheet")
+bind(key("L"),              hl.dsp.exec_cmd(cmd.lock),       "Session: Lock screen")
+bind(key("SHIFT + Escape"), hl.dsp.exec_cmd(cmd.logout),     "Session: Log out")
 
--- Move/resize with mainMod + LMB/RMB. 0.55 infers mouse binds from the key;
--- 0.57+ requires the explicit flag.
-hl.bind(key("mouse:272"), hl.dsp.window.drag(),   { mouse = true })
-hl.bind(key("mouse:273"), hl.dsp.window.resize(), { mouse = true })
+-- Windows
+bind(key("Q"),         hl.dsp.window.close(),                          "Windows: Close")
+bind(key("SHIFT + F"), hl.dsp.window.fullscreen({ action = "toggle" }), "Windows: Toggle fullscreen")
+bind(key("SHIFT + V"), hl.dsp.window.float({ action = "toggle" }),      "Windows: Toggle floating")
+bind(key("P"),         hl.dsp.window.pseudo(),                          "Windows: Toggle pseudo-tiling")
+bind(key("J"),         hl.dsp.layout("togglesplit"),                    "Windows: Toggle split direction")
+for _, d in ipairs({ "left", "right", "up", "down" }) do
+    bind(key(d),             hl.dsp.focus({ direction = d }),       "Windows: Focus " .. d)
+    bind(key("SHIFT + " .. d), hl.dsp.window.move({ direction = d }), "Windows: Move " .. d)
+end
+-- Mouse binds: 0.55 inferred them from the key; 0.57+ requires the flag.
+bind(key("mouse:272"), hl.dsp.window.drag(),   "Windows: Move with mouse",   { mouse = true })
+bind(key("mouse:273"), hl.dsp.window.resize(), "Windows: Resize with mouse", { mouse = true })
 
--- Multimedia and brightness keys (repeat while held, work when locked)
+-- Resize mode: arrows resize the active window, Esc/Enter leave the mode.
+bind(key("R"), hl.dsp.submap("resize"), "Windows: Resize mode (arrows, Esc to exit)")
+hl.define_submap("resize", function()
+    local step = { repeating = true }
+    bind("right",  hl.dsp.window.resize({ x = 40,  y = 0,   relative = true }), "Resize: Wider",   step)
+    bind("left",   hl.dsp.window.resize({ x = -40, y = 0,   relative = true }), "Resize: Narrower", step)
+    bind("down",   hl.dsp.window.resize({ x = 0,   y = 40,  relative = true }), "Resize: Taller",  step)
+    bind("up",     hl.dsp.window.resize({ x = 0,   y = -40, relative = true }), "Resize: Shorter", step)
+    bind("Escape", hl.dsp.submap("reset"), "Resize: Leave resize mode")
+    bind("Return", hl.dsp.submap("reset"), "Resize: Leave resize mode")
+end)
+
+-- Workspaces 1-10 (key 0 is workspace 10); one cheat-sheet line per pair.
+for i = 1, 10 do
+    local k = tostring(i % 10)
+    local first = i == 1
+    bind(key(k),              hl.dsp.focus({ workspace = i }),
+         first and "Workspaces: Go to workspace 1-10 (keys 1..0)" or nil)
+    bind(key("SHIFT + " .. k), hl.dsp.window.move({ workspace = i }),
+         first and "Workspaces: Move window to workspace 1-10 (keys 1..0)" or nil)
+end
+bind(key("S"),            hl.dsp.workspace.toggle_special("magic"),            "Workspaces: Toggle scratchpad")
+bind(key("SHIFT + S"),    hl.dsp.window.move({ workspace = "special:magic" }), "Workspaces: Move window to scratchpad")
+bind(key("CTRL + right"), hl.dsp.focus({ workspace = "e+1" }),                 "Workspaces: Next")
+bind(key("CTRL + left"),  hl.dsp.focus({ workspace = "e-1" }),                 "Workspaces: Previous")
+bind(key("mouse_up"),     hl.dsp.focus({ workspace = "e+1" }),                 "Workspaces: Next")
+bind(key("mouse_down"),   hl.dsp.focus({ workspace = "e-1" }),                 "Workspaces: Previous")
+
+-- Tools
+bind(key("V"),         hl.dsp.exec_cmd(cmd.clipboard),   "Tools: Clipboard history")
+bind(key("SHIFT + P"), hl.dsp.exec_cmd(cmd.colorPicker), "Tools: Color picker (copies hex)")
+bind(key("T"),         hl.dsp.exec_cmd(cmd.shotClip),    "Screenshots: Region to clipboard")
+bind(key("SHIFT + T"), hl.dsp.exec_cmd(cmd.shotEdit),    "Screenshots: Region to editor (swappy)")
+bind(key("CTRL + T"),  hl.dsp.exec_cmd(cmd.shotSave),    "Screenshots: Region to ~/Pictures/Screenshots")
+bind("Print",          hl.dsp.exec_cmd(cmd.shotScreen),  "Screenshots: Whole monitor to ~/Pictures/Screenshots")
+
+-- Media, volume and brightness keys (work when locked; volume/brightness repeat)
 local held = { locked = true, repeating = true }
-hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"),  held)
-hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),  held)
-hl.bind("XF86AudioMute",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), held)
-hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), held)
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl s 10%+"), held)
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl s 10%-"), held)
+local locked = { locked = true }
+bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd(cmd.volUp),      "Media: Volume up",        held)
+bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd(cmd.volDown),    "Media: Volume down",      held)
+bind("XF86AudioMute",         hl.dsp.exec_cmd(cmd.volMute),    "Media: Mute",             held)
+bind("XF86AudioMicMute",      hl.dsp.exec_cmd(cmd.micMute),    "Media: Mute microphone",  held)
+bind("XF86AudioPlay",         hl.dsp.exec_cmd(cmd.playPause),  "Media: Play/pause",       locked)
+bind("XF86AudioPause",        hl.dsp.exec_cmd(cmd.playPause),  "Media: Play/pause",       locked)
+bind("XF86AudioNext",         hl.dsp.exec_cmd(cmd.next),       "Media: Next track",       locked)
+bind("XF86AudioPrev",         hl.dsp.exec_cmd(cmd.prev),       "Media: Previous track",   locked)
+bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd(cmd.brightUp),   "Media: Brightness up",    held)
+bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(cmd.brightDown), "Media: Brightness down",  held)
 
 -- Lid switch. `hyprctl keyword` doesn't work with Lua configs, so update the
 -- monitor rule directly. hl.monitor merges into the existing eDP-1 rule (mode,

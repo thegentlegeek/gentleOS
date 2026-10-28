@@ -1,11 +1,89 @@
 {
   config,
+  lib,
   pkgs,
   inputs,
   ...
 }:
 let
   hyprlandPlugins = inputs.hyprland-plugins.packages.${pkgs.stdenv.hostPlatform.system};
+
+  exe = lib.getExe;
+  rofi = exe config.programs.rofi.finalPackage;
+  cliphist = exe pkgs.cliphist;
+  hyprshot = exe pkgs.hyprshot;
+  playerctl = exe pkgs.playerctl;
+  wpctl = "${pkgs.wireplumber}/bin/wpctl";
+  brightnessctl = exe pkgs.brightnessctl;
+  shotDir = "$HOME/Pictures/Screenshots";
+
+  clipboardPicker = pkgs.writeShellScript "clipboard-picker" ''
+    ${cliphist} list \
+      | ${rofi} -dmenu -i -p Clipboard -display-columns 2 \
+      | ${cliphist} decode \
+      | ${pkgs.wl-clipboard}/bin/wl-copy
+  '';
+
+  # Cheat sheet generated from the live binds' descriptions ("Category: text").
+  # hyprctl comes from PATH so it always matches the running compositor.
+  cheatsheet = pkgs.writeShellScript "hypr-cheatsheet" ''
+    hyprctl binds -j | ${exe pkgs.jq} -r '
+      def bit(n): ((.modmask / n) | floor) % 2 == 1;
+      def mods: [ (if bit(64) then "SUPER" else empty end),
+                  (if bit(4)  then "CTRL"  else empty end),
+                  (if bit(8)  then "ALT"   else empty end),
+                  (if bit(1)  then "SHIFT" else empty end) ];
+      def pretty: {"mouse:272": "Left drag", "mouse:273": "Right drag",
+                   "mouse_up": "Scroll up", "mouse_down": "Scroll down",
+                   "slash": "/", "Escape": "Esc", "Return": "Enter",
+                   "left": "Left", "right": "Right", "up": "Up", "down": "Down"}[.] // .
+                  | sub("^XF86"; "");
+      .[] | select(.has_description)
+      | (.description | capture("^(?<cat>[^:]+):\\s*(?<text>.*)$")
+           // {cat: "Other", text: .}) as $d
+      | [ $d.cat,
+          ((mods + [(.key | pretty)]) | join(" + "))
+            + (if .submap != "" then " [" + .submap + " mode]" else "" end),
+          $d.text ]
+      | @tsv' \
+      | ${pkgs.coreutils}/bin/sort -s -t "$(printf '\t')" -k1,1 \
+      | ${exe pkgs.gawk} -F '\t' '{ printf "%-12s %-32s %s\n", $1, $2, $3 }' \
+      | ${rofi} -dmenu -i -p Keybinds -no-custom \
+          -theme-str 'window { width: 60%; } * { font: "JetBrainsMono Nerd Font Mono 11"; }' \
+      > /dev/null
+  '';
+
+  # Commands used by binds in hyprland.lua (prepended as `local cmd = {...}`).
+  # Tools binds depend on use store paths; user apps are left to PATH.
+  cmd = {
+    terminal = "${exe pkgs.kitty} fish";
+    fileManager = "${exe pkgs.kitty} yazi";
+    menu = "${rofi} -show drun -display-drun ''";
+    browserPersonal = ''chromium --profile-directory="Profile 2"'';
+    browserWork = ''chromium --profile-directory="Profile 3"'';
+    editor = "codium";
+    music = "${exe pkgs.kitty} spotify_player";
+    calculator = "gnome-calculator";
+    # Through logind so it goes via hypridle's lock_cmd (no stacked lock screens).
+    lock = "loginctl lock-session";
+    logout = "${exe pkgs.uwsm} stop";
+    cheatsheet = "${cheatsheet}";
+    clipboard = "${clipboardPicker}";
+    colorPicker = "${exe pkgs.hyprpicker} -a";
+    shotClip = "${hyprshot} -m region --clipboard-only";
+    shotEdit = "${hyprshot} -m region --raw | ${exe pkgs.swappy} -f -";
+    shotSave = "${hyprshot} -m region -o ${shotDir}";
+    shotScreen = "${hyprshot} -m output -m active -o ${shotDir}";
+    volUp = "${wpctl} set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+";
+    volDown = "${wpctl} set-volume @DEFAULT_AUDIO_SINK@ 5%-";
+    volMute = "${wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle";
+    micMute = "${wpctl} set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
+    playPause = "${playerctl} play-pause";
+    next = "${playerctl} next";
+    prev = "${playerctl} previous";
+    brightUp = "${brightnessctl} s 10%+";
+    brightDown = "${brightnessctl} s 10%-";
+  };
 in
 
 {
@@ -26,7 +104,8 @@ in
     plugins = [
       hyprlandPlugins.hyprfocus
     ];
-    extraConfig = builtins.readFile ./hyprland.lua;
+    extraConfig =
+      "local cmd = ${lib.generators.toLua { } cmd}\n\n" + builtins.readFile ./hyprland.lua;
   };
 
   # Session environment, loaded by UWSM before the compositor starts and exported

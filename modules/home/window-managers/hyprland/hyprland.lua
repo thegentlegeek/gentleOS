@@ -76,15 +76,6 @@ hl.config({
         layout           = "dwindle",
     },
 
-    -- amdgpu (Phoenix, DCN 3.1.4): region damage tracking reuses stale
-    -- buffer content, causing Waybar flicker on pointer motion (blocky
-    -- trails if hardware cursors are disabled instead). Confirmed
-    -- independent of blur. Force whole-monitor damage as a workaround.
-    -- Revisit after the kernel bump in hosts/zbook/default.nix.
-    debug = {
-        damage_tracking = 1,
-    },
-
     decoration = {
         rounding         = 10,
         active_opacity   = 0.93,

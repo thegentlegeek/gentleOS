@@ -113,6 +113,17 @@
       };
     };
 
+    # README screenshots (`gentle-screenshots`): justin's Home Manager config once
+    # per theme, differing only in gentleOS.theme (modules/shared/stylix.nix).
+    # Add a theme here to have it captured.
+    screenshotHomes = builtins.mapAttrs (_: theme: lib.mkHome {
+      username = "justin";
+      extraModules = [ { gentleOS.theme = theme; } ];
+    }) {
+      lime = { scheme = "lime"; wallpaper = "stripes"; };
+      catppuccin-mocha = { scheme = "catppuccin-mocha"; wallpaper = "snowflake"; };
+    };
+
     # `nix flake check`: validates generated configs (see checks/default.nix)
     checks.x86_64-linux = import ./checks {
       inherit self;

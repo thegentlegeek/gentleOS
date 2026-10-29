@@ -24,7 +24,7 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
     - **User level:** `modules/home/window-managers/hyprland/` - This is where user level settings are defined through Home Manager. The Hyprland config itself is native Lua in `hyprland.lua` (keybindings, rules, per-host monitor layouts); the Nix files around it handle the session environment, the desktop shell, Rofi, hypridle/hyprlock and plugins. Press `SUPER + /` for a cheat sheet of every keybinding.
     - **Desktop shell:** `quickshell/` is a [Quickshell](https://quickshell.outfoxxed.me) (QML) bar, quick settings panel (`SUPER + I`) and notification center (`SUPER + N`). Its colors and fonts come from Stylix, generated into `Theme.qml.json`. Set `gentleOS.desktopShell = "waybar";` to go back to Waybar + Dunst.
 
-2. **Theming is controlled by [Stylix](https://github.com/danth/stylix).** The main Stylix configuration lives in `modules/shared/stylix.nix` and is imported by both NixOS system configurations and Home Manager. You can choose your own base16 scheme by editing this file and rebuilding:
+2. **Theming is controlled by [Stylix](https://github.com/danth/stylix).** The main Stylix configuration lives in `modules/shared/stylix.nix` and is imported by both NixOS system configurations and Home Manager. Pick a base16 scheme and a wallpaper (recolored to the scheme) with the `gentleOS.theme` defaults in that file, then rebuild:
     ```bash
     sudo nixos-rebuild switch --flake .#<hostname>
     ```
@@ -39,6 +39,9 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
 
 ### Screenshots
 
+Captured on the real desktop by `gentle-screenshots`, one set per theme in the flake's `screenshotHomes` (see [Regenerating the screenshots](#regenerating-the-screenshots)).
+
+<!-- screenshots:start -->
 ![screenshot1](media/screenshots/screenshot1.png)
 
 ![screenshot2](media/screenshots/screenshot2.png)
@@ -50,6 +53,7 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
 ![screenshot5](media/screenshots/screenshot5.png)
 
 ![screenshot6](media/screenshots/screenshot6.png)
+<!-- screenshots:end -->
 
 ## Repository Structure
 
@@ -94,7 +98,7 @@ gentleOS/
 ├── checks/
 │   └── default.nix              # `nix flake check`: validates the generated Hyprland and Quickshell configs
 └── media/
-    └── screenshots/             # README screenshots
+    └── screenshots/             # README screenshots, a folder per theme (gentle-screenshots)
 ```
 
 ## Key Features (or at least the goal...)
@@ -252,15 +256,14 @@ If you want to use Home Manager independently (e.g., on a non-NixOS system):
 
 ### Customizing Your Theme
 
-1. Edit `modules/shared/stylix.nix` to change the base16 color scheme:
+1. Edit the `gentleOS.theme` defaults in `modules/shared/stylix.nix`:
    ```nix
-   stylix = {
-     enable = true;
-     polarity = "dark";  # or "light"
-     image = ./wallpapers/your-wallpaper.png;
-     base16Scheme = "${pkgs.base16-schemes}/share/themes/YOUR_THEME.yaml";
+   options.gentleOS.theme = {
+     scheme = lib.mkOption { default = "lime"; ... };         # any pkgs.base16-schemes theme
+     wallpaper = lib.mkOption { default = "stripes"; ... };   # a recipe in `wallpapers`
    };
    ```
+   Wallpapers are flat-color images recolored to the scheme; add a recipe to `wallpapers` in the same file to use another one.
 
 2. Browse available themes at [Tinted Theming Gallery](https://tinted-theming.github.io/tinted-gallery/)
 
@@ -283,6 +286,18 @@ If you want to use Home Manager independently (e.g., on a non-NixOS system):
 | `nix build .#checks.x86_64-linux.hyprland-config` | Quickly validate just the generated Hyprland config |
 | `nix build .#checks.x86_64-linux.quickshell-config` | Load the Quickshell shell in a headless compositor and fail on any QML error |
 | `nix fmt` | Format Nix files with nixfmt |
+| `gentle-screenshots` | Recapture the README screenshots for every theme (see below) |
+
+### Regenerating the screenshots
+
+`gentle-screenshots` (from `modules/home/window-managers/hyprland/screenshots.sh`) stages each scene on the running Hyprland desktop and captures it with `grim`: the bare desktop, the launcher, tiled terminals, quick settings, the notification center and the keybinding cheat sheet. It does this once per theme in `screenshotHomes` (`flake.nix`), activating that theme's Home Manager generation first and restoring yours at the end, then rewrites the Screenshots section of this README.
+
+```bash
+gentle-screenshots                     # every theme, from ~/gentleOS
+gentle-screenshots -f ~/src/gentleOS lime
+```
+
+Run it from a Hyprland session on the machine you want to show off; scenes go on the lowest-numbered empty workspace of the focused monitor. To show another theme, add it to `screenshotHomes`.
 
 ## Contributing
 

@@ -6,9 +6,11 @@
 }:
 
 let
+  theme = config.gentleOS.theme;
+
   # Flat-color wallpapers recolored to the active scheme by recolor.py: each
   # source color maps onto a scheme color (A+B@T mixes A toward B by T).
-  # Pick one with `wallpaper` below.
+  # Pick one with gentleOS.theme.wallpaper below.
   c = config.lib.stylix.colors;
   wallpapers = {
     # NixOS snowflake: six accents onto the matching base16 hues.
@@ -52,11 +54,26 @@ let
     '';
 in
 {
-  stylix = {
+  # The active theme. Also set per theme by the flake's screenshotHomes (README
+  # screenshots), so change the defaults here rather than stylix.* below.
+  options.gentleOS.theme = {
+    scheme = lib.mkOption {
+      type = lib.types.str;
+      default = "lime";
+      description = "base16 scheme: a file name (without .yaml) in pkgs.base16-schemes.";
+    };
+    wallpaper = lib.mkOption {
+      type = lib.types.enum (builtins.attrNames wallpapers);
+      default = "stripes";
+      description = "Wallpaper, recolored to the scheme.";
+    };
+  };
+
+  config.stylix = {
     enable = true;
     polarity = "dark";
-    image = recolor "stripes";
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/lime.yaml";
+    image = recolor theme.wallpaper;
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/${theme.scheme}.yaml";
     
     cursor = {
      package = pkgs.bibata-cursors;

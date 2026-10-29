@@ -92,6 +92,26 @@ let
       keepAwake = shell "toggleCaffeine";
     }
   );
+
+  quickshell = config.gentleOS.desktopShell == "quickshell";
+
+  # `gentle-screenshots`: README screenshots for every theme (./screenshots.sh).
+  screenshots = pkgs.writeShellApplication {
+    name = "gentle-screenshots";
+    runtimeInputs = with pkgs; [ coreutils gawk gnugrep grim jq libnotify procps ];
+    runtimeEnv = {
+      KITTY = exe pkgs.kitty;
+      MENU = "${pkgs.writeShellScript "menu" "exec ${cmd.menu}"}";
+      CHEATSHEET = cmd.cheatsheet;
+      QUICKSHELL = lib.optionalString quickshell (exe config.programs.quickshell.package);
+      # Desktop services that read the theme at startup.
+      RELOAD_UNITS = lib.concatStringsSep " " (
+        (if quickshell then [ "quickshell.service" ] else [ "waybar.service" "dunst.service" ])
+        ++ lib.optional config.services.hyprpaper.enable "hyprpaper.service"
+      );
+    };
+    text = builtins.readFile ./screenshots.sh;
+  };
 in
 
 {
@@ -129,6 +149,8 @@ in
   xdg.configFile."uwsm/env-hyprland".text = ''
     export HYPRCURSOR_SIZE=${toString config.stylix.cursor.size}
   '';
+
+  home.packages = [ screenshots ];
 
   # Clipboard history (text + images), as user services instead of compositor
   # autostart so they restart on crash.

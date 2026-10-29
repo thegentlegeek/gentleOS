@@ -22,7 +22,8 @@
   # Usage: mkHome { username = "justin"; }
   mkHome = {
     username,
-    system ? "x86_64-linux"
+    system ? "x86_64-linux",
+    extraModules ? []
   }:
     inputs.home-manager.lib.homeManagerConfiguration {
       pkgs = inputs.nixpkgs.legacyPackages.${system};
@@ -33,6 +34,6 @@
       modules = [
         ../users/${username}/home.nix
         ({ ... }: { nixpkgs.config.allowUnfree = true; })
-      ];
+      ] ++ extraModules;
     };
 }

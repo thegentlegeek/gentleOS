@@ -31,6 +31,10 @@
     targets.waybar.enable = false;
     targets.rofi.enable = false;
     targets.dunst.enable = false;
+    # Stylix overlays patch gtksourceview (and nixos-icons) with the scheme, which
+    # forces local source builds of everything depending on it (inkscape, bottles)
+    # on every theme change. The gtksourceview target still themes via ~/.local/share.
+    overlays.enable = false;
     targets.opencode.enable = false; # Stylix generates OpenCode 1 themes; v2 uses the "system" theme instead
     # Qt via qtct + generated Kvantum theme. Not auto-enabled for standalone HM
     # (home-manager#6565 only affects non-NixOS hosts); matches the NixOS target's qt5ct.

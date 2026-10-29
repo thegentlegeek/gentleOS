@@ -83,6 +83,34 @@ let
     prev = "${playerctl} previous";
     brightUp = "${brightnessctl} s 10%+";
     brightDown = "${brightnessctl} s 10%-";
+  } // lib.optionalAttrs (config.gentleOS.desktopShell == "quickshell") (
+    # Panels of the Quickshell shell (quickshell/shell/shell.qml IpcHandler).
+    let shell = fn: "${exe config.programs.quickshell.package} ipc -c gentle call shell ${fn}"; in {
+      notifications = shell "toggleNotifications";
+      quickSettings = shell "toggleQuickSettings";
+      doNotDisturb = shell "toggleDnd";
+      keepAwake = shell "toggleCaffeine";
+    }
+  );
+
+  quickshell = config.gentleOS.desktopShell == "quickshell";
+
+  # `gentle-screenshots`: README screenshots for every theme (./screenshots.sh).
+  screenshots = pkgs.writeShellApplication {
+    name = "gentle-screenshots";
+    runtimeInputs = with pkgs; [ coreutils gawk gnugrep grim jq libnotify procps ];
+    runtimeEnv = {
+      KITTY = exe pkgs.kitty;
+      MENU = "${pkgs.writeShellScript "menu" "exec ${cmd.menu}"}";
+      CHEATSHEET = cmd.cheatsheet;
+      QUICKSHELL = lib.optionalString quickshell (exe config.programs.quickshell.package);
+      # Desktop services that read the theme at startup.
+      RELOAD_UNITS = lib.concatStringsSep " " (
+        (if quickshell then [ "quickshell.service" ] else [ "waybar.service" "dunst.service" ])
+        ++ lib.optional config.services.hyprpaper.enable "hyprpaper.service"
+      );
+    };
+    text = builtins.readFile ./screenshots.sh;
   };
 in
 
@@ -122,12 +150,18 @@ in
     export HYPRCURSOR_SIZE=${toString config.stylix.cursor.size}
   '';
 
+  home.packages = [ screenshots ];
+
   # Clipboard history (text + images), as user services instead of compositor
   # autostart so they restart on crash.
   services.cliphist = {
     enable = true;
     allowImages = true;
   };
+
+  # playerctl media keys (and Waybar's mpris module, which defaults to the
+  # playerctld proxy) target the most recently active MPRIS player.
+  services.playerctld.enable = true;
 
   # Polkit agent (Hyprland's own). User service on graphical-session.target, which
   # UWSM provides; finds the session via logind, so no XDG_SESSION_ID needed.

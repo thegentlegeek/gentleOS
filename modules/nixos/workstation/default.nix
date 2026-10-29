@@ -37,6 +37,9 @@
   # Enable DBus daemon that allows changing system behavior based on user-selected power profiles
   services.power-profiles-daemon.enable = true;
 
+  # Battery state over D-Bus, for the Quickshell bar's battery module.
+  services.upower.enable = true;
+
   # Define power state behavior
   services.logind.settings.Login = {
     powerKey = "poweroff";

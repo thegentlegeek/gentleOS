@@ -9,56 +9,19 @@ let
   hyprlandPlugins = inputs.hyprland-plugins.packages.${pkgs.stdenv.hostPlatform.system};
 
   exe = lib.getExe;
-  rofi = exe config.programs.rofi.finalPackage;
-  cliphist = exe pkgs.cliphist;
   hyprshot = exe pkgs.hyprshot;
   playerctl = exe pkgs.playerctl;
   wpctl = "${pkgs.wireplumber}/bin/wpctl";
   brightnessctl = exe pkgs.brightnessctl;
   shotDir = "$HOME/Pictures/Screenshots";
-
-  clipboardPicker = pkgs.writeShellScript "clipboard-picker" ''
-    ${cliphist} list \
-      | ${rofi} -dmenu -i -p Clipboard -display-columns 2 \
-      | ${cliphist} decode \
-      | ${pkgs.wl-clipboard}/bin/wl-copy
-  '';
-
-  # Cheat sheet generated from the live binds' descriptions ("Category: text").
-  # hyprctl comes from PATH so it always matches the running compositor.
-  cheatsheet = pkgs.writeShellScript "hypr-cheatsheet" ''
-    hyprctl binds -j | ${exe pkgs.jq} -r '
-      def bit(n): ((.modmask / n) | floor) % 2 == 1;
-      def mods: [ (if bit(64) then "SUPER" else empty end),
-                  (if bit(4)  then "CTRL"  else empty end),
-                  (if bit(8)  then "ALT"   else empty end),
-                  (if bit(1)  then "SHIFT" else empty end) ];
-      def pretty: {"mouse:272": "Left drag", "mouse:273": "Right drag",
-                   "mouse_up": "Scroll up", "mouse_down": "Scroll down",
-                   "slash": "/", "Escape": "Esc", "Return": "Enter",
-                   "left": "Left", "right": "Right", "up": "Up", "down": "Down"}[.] // .
-                  | sub("^XF86"; "");
-      .[] | select(.has_description)
-      | (.description | capture("^(?<cat>[^:]+):\\s*(?<text>.*)$")
-           // {cat: "Other", text: .}) as $d
-      | [ $d.cat,
-          ((mods + [(.key | pretty)]) | join(" + "))
-            + (if .submap != "" then " [" + .submap + " mode]" else "" end),
-          $d.text ]
-      | @tsv' \
-      | ${pkgs.coreutils}/bin/sort -s -t "$(printf '\t')" -k1,1 \
-      | ${exe pkgs.gawk} -F '\t' '{ printf "%-12s %-32s %s\n", $1, $2, $3 }' \
-      | ${rofi} -dmenu -i -p Keybinds -no-custom \
-          -theme-str 'window { width: 60%; } * { font: "JetBrainsMono Nerd Font Mono 11"; }' \
-      > /dev/null
-  '';
+  quickshell = exe config.programs.quickshell.package;
+  shell = fn: "${quickshell} ipc -c gentle call shell ${fn}";
 
   # Commands used by binds in hyprland.lua (prepended as `local cmd = {...}`).
   # Tools binds depend on use store paths; user apps are left to PATH.
   cmd = {
     terminal = "${exe pkgs.kitty} fish";
     fileManager = "${exe pkgs.kitty} yazi";
-    menu = "${rofi} -show drun -display-drun ''";
     browserPersonal = lib.escapeShellArgs config.gentleOS.browser.personal;
     browserWork = lib.escapeShellArgs config.gentleOS.browser.work;
     editor = "codium";
@@ -67,8 +30,6 @@ let
     # Through logind so it goes via hypridle's lock_cmd (no stacked lock screens).
     lock = "loginctl lock-session";
     logout = "${exe pkgs.uwsm} stop";
-    cheatsheet = "${cheatsheet}";
-    clipboard = "${clipboardPicker}";
     colorPicker = "${exe pkgs.hyprpicker} -a";
     shotClip = "${hyprshot} -m region --clipboard-only";
     shotEdit = "${hyprshot} -m region --raw | ${exe pkgs.swappy} -f -";
@@ -83,20 +44,15 @@ let
     prev = "${playerctl} previous";
     brightUp = "${brightnessctl} s 10%+";
     brightDown = "${brightnessctl} s 10%-";
-  } // lib.optionalAttrs (config.gentleOS.desktopShell == "quickshell") (
-    # Panels of the Quickshell shell (quickshell/shell/shell.qml IpcHandler).
-    let shell = fn: "${exe config.programs.quickshell.package} ipc -c gentle call shell ${fn}"; in {
-      menu = shell "toggleLauncher";
-      clipboard = shell "openLauncher clipboard";
-      cheatsheet = shell "openLauncher keybinds";
-      notifications = shell "toggleNotifications";
-      quickSettings = shell "toggleQuickSettings";
-      doNotDisturb = shell "toggleDnd";
-      keepAwake = shell "toggleCaffeine";
-    }
-  );
-
-  quickshell = config.gentleOS.desktopShell == "quickshell";
+    # The Quickshell shell's launcher and panels (quickshell/shell/shell.qml IpcHandler).
+    menu = shell "toggleLauncher";
+    clipboard = shell "openLauncher clipboard";
+    cheatsheet = shell "openLauncher keybinds";
+    notifications = shell "toggleNotifications";
+    quickSettings = shell "toggleQuickSettings";
+    doNotDisturb = shell "toggleDnd";
+    keepAwake = shell "toggleCaffeine";
+  };
 
   # `gentle-screenshots`: README screenshots for every theme (./screenshots.sh).
   screenshots = pkgs.writeShellApplication {
@@ -104,13 +60,10 @@ let
     runtimeInputs = with pkgs; [ coreutils gawk gnugrep grim jq libnotify procps ];
     runtimeEnv = {
       KITTY = exe pkgs.kitty;
-      MENU = "${pkgs.writeShellScript "menu" "exec ${cmd.menu}"}";
-      CHEATSHEET = cmd.cheatsheet;
-      QUICKSHELL = lib.optionalString quickshell (exe config.programs.quickshell.package);
+      QUICKSHELL = quickshell;
       # Desktop services that read the theme at startup.
       RELOAD_UNITS = lib.concatStringsSep " " (
-        (if quickshell then [ "quickshell.service" ] else [ "waybar.service" "dunst.service" ])
-        ++ lib.optional config.services.hyprpaper.enable "hyprpaper.service"
+        [ "quickshell.service" ] ++ lib.optional config.services.hyprpaper.enable "hyprpaper.service"
       );
     };
     text = builtins.readFile ./screenshots.sh;
@@ -140,7 +93,7 @@ in
   };
 
   # Session environment, loaded by UWSM before the compositor starts and exported
-  # to Hyprland, the apps it launches, and systemd user units (waybar, dunst...).
+  # to Hyprland, the apps it launches, and systemd user units (quickshell...).
   # Sourcing hm-session-vars is what makes home.sessionVariables (NIXOS_OZONE_WL,
   # XCURSOR_*, Qt theme) reach the session at all: no HM-managed shell loads it.
   xdg.configFile."uwsm/env".text = ''
@@ -162,8 +115,8 @@ in
     allowImages = true;
   };
 
-  # playerctl media keys (and Waybar's mpris module, which defaults to the
-  # playerctld proxy) target the most recently active MPRIS player.
+  # playerctl media keys (and the bar's media pill) target the most recently
+  # active MPRIS player.
   services.playerctld.enable = true;
 
   # Polkit agent (Hyprland's own). User service on graphical-session.target, which

@@ -51,8 +51,7 @@ hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })
 
 -- Nothing is started from here: session daemons run as systemd user units under
 -- UWSM so they're restarted on crash and log to the journal. The desktop shell
--- is programs.quickshell.systemd (quickshell/) or programs.waybar.systemd plus
--- D-Bus-activated dunst (waybar/, dunst.nix); cliphist is services.cliphist.
+-- is programs.quickshell.systemd (quickshell/); cliphist is services.cliphist.
 
 
 -------------------------------
@@ -205,13 +204,10 @@ bind(key("SHIFT + C"), hl.dsp.exec_cmd(cmd.calculator),      "Apps: Calculator")
 bind(key("slash"),          hl.dsp.exec_cmd(cmd.cheatsheet), "Session: Show this cheat sheet")
 bind(key("L"),              hl.dsp.exec_cmd(cmd.lock),       "Session: Lock screen")
 bind(key("SHIFT + Escape"), hl.dsp.exec_cmd(cmd.logout),     "Session: Log out")
--- Only with the Quickshell shell (gentleOS.desktopShell).
-if cmd.notifications then
-    bind(key("N"),         hl.dsp.exec_cmd(cmd.notifications), "Session: Notification center")
-    bind(key("SHIFT + N"), hl.dsp.exec_cmd(cmd.doNotDisturb),  "Session: Toggle do not disturb")
-    bind(key("I"),         hl.dsp.exec_cmd(cmd.quickSettings), "Session: Quick settings")
-    bind(key("SHIFT + I"), hl.dsp.exec_cmd(cmd.keepAwake),     "Session: Toggle keep awake (pause auto-lock)")
-end
+bind(key("N"),              hl.dsp.exec_cmd(cmd.notifications), "Session: Notification center")
+bind(key("SHIFT + N"),      hl.dsp.exec_cmd(cmd.doNotDisturb),  "Session: Toggle do not disturb")
+bind(key("I"),              hl.dsp.exec_cmd(cmd.quickSettings), "Session: Quick settings")
+bind(key("SHIFT + I"),      hl.dsp.exec_cmd(cmd.keepAwake),     "Session: Toggle keep awake (pause auto-lock)")
 
 -- Windows
 bind(key("Q"),         hl.dsp.window.close(),                          "Windows: Close")
@@ -369,8 +365,8 @@ hl.window_rule({ name = "opaque-freetube", match = { class = "^(FreeTube)$" }, o
 ---------------------
 
 -- Blur behind the translucent overlays. ignore_alpha keeps fully transparent
--- pixels (rounded corners, rofi's padding) from being blurred into a grey box.
+-- pixels (rounded corners, the launcher's unused area) from being blurred into a grey box.
 -- gentle-* are the Quickshell shell's layers (quickshell/shell).
-for _, ns in ipairs({ "waybar", "rofi", "notifications", "gentle-bar", "gentle-panel", "gentle-notifications", "gentle-launcher" }) do
+for _, ns in ipairs({ "gentle-bar", "gentle-panel", "gentle-notifications", "gentle-launcher" }) do
     hl.layer_rule({ name = "blur-" .. ns, match = { namespace = "^(" .. ns .. ")$" }, blur = true, ignore_alpha = 0.5 })
 end

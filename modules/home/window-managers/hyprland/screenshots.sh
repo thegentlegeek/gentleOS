@@ -3,9 +3,9 @@
 # For each theme in the flake's screenshotHomes it activates that Home Manager
 # generation, reloads the desktop, stages each scene on an empty workspace and
 # grabs it with grim. Your own generation is restored at the end (also on
-# failure or Ctrl+C). Packaged by hyprland-config.nix, which sets KITTY, MENU,
-# CHEATSHEET, QUICKSHELL (empty when the Quickshell shell is off) and
-# RELOAD_UNITS (the desktop's user services to restart after a theme switch).
+# failure or Ctrl+C). Packaged by hyprland-config.nix, which sets KITTY,
+# QUICKSHELL and RELOAD_UNITS (the desktop's user services to restart after a
+# theme switch).
 
 usage() {
   cat <<EOF
@@ -58,7 +58,7 @@ workspace=$(hyprctl workspaces -j | jq '[.[] | select(.windows > 0) | .id] as $u
   | first(range(1; 100) | select(. as $i | $used | index($i) | not))')
 
 dispatch() { hyprctl dispatch "$1" >/dev/null; }
-ipc() { "$QUICKSHELL" ipc -c gentle call shell "$1" >/dev/null; }
+ipc() { "$QUICKSHELL" ipc -c gentle call shell "$@" >/dev/null; }
 
 # Apps started for a scene; closed when the scene is done.
 pids=()
@@ -69,7 +69,7 @@ launch() {
 close_all() {
   (( ${#pids[@]} )) && kill "${pids[@]}" 2>/dev/null
   pids=()
-  pkill -x rofi || true
+  ipc closeLauncher
   sleep 1
 }
 
@@ -129,7 +129,7 @@ scene_launcher() {
   local pid x y
   read -r pid x y <<<"$geo"
   dispatch "hl.dsp.window.move({ x = $x, y = $y, window = 'pid:$pid' })"
-  launch "$MENU"
+  ipc openLauncher all
   shot launcher
   close_all
 }
@@ -147,7 +147,6 @@ scene_tiled() {
 
 # Quickshell panels, over the bare desktop.
 scene_panels() {
-  [[ -n $QUICKSHELL ]] || return 0
   ipc toggleQuickSettings
   shot quick-settings
   ipc toggleQuickSettings
@@ -161,8 +160,8 @@ scene_panels() {
 }
 
 scene_cheatsheet() {
-  launch "$CHEATSHEET"
-  sleep 2
+  ipc openLauncher keybinds
+  sleep 1
   shot cheatsheet
   close_all
 }

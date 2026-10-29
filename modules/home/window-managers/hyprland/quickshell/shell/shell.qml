@@ -59,6 +59,10 @@ ShellRoot {
             LauncherState.show(mode);
         }
 
+        function closeLauncher(): void {
+            LauncherState.close();
+        }
+
         function toggleDnd(): void {
             Notifs.dnd = !Notifs.dnd;
         }

@@ -28,9 +28,6 @@
   ## User specific stylix options. 
   # Main config in stylix module that is imported to Home Manager and NixOS system config
   stylix = {
-    targets.waybar.enable = false;
-    targets.rofi.enable = false;
-    targets.dunst.enable = false;
     # Stylix overlays patch gtksourceview (and nixos-icons) with the scheme, which
     # forces local source builds of everything depending on it (inkscape, bottles)
     # on every theme change. The gtksourceview target still themes via ~/.local/share.

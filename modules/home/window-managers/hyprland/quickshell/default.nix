@@ -117,7 +117,7 @@ let
   '';
 in
 {
-  config = lib.mkIf (config.gentleOS.desktopShell == "quickshell") {
+  config = {
     programs.quickshell = {
       enable = true;
       configs.gentle = shellConfig;

@@ -37,6 +37,21 @@ let
   # of living (and dying) in quickshell's cgroup.
   app = cmd: [ (exe pkgs.uwsm) "app" "--" ] ++ cmd;
 
+  # Emoji, Nerd Font glyphs and symbols for the launcher's "." mode
+  # (LauncherEmoji.qml), built from Unicode, CLDR and Nerd Fonts data.
+  nerdFontsVersion = lib.head (lib.splitString "+" pkgs.nerd-fonts.jetbrains-mono.version);
+  glyphNames = pkgs.fetchurl {
+    url = "https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v${nerdFontsVersion}/glyphnames.json";
+    hash = "sha256-4tENI/W/8L1vBnbpsB2XifzcZW3ntJiilVwncW6kQ5w=";
+  };
+  cldr = "${pkgs.cldr-annotations}/share/unicode/cldr/common";
+  emojiData = pkgs.runCommandLocal "gentle-emoji.json" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+    python3 -I ${./emoji.py} \
+      ${pkgs.unicode-emoji}/share/unicode/emoji/emoji-test.txt \
+      ${cldr}/annotations/en.xml ${cldr}/annotationsDerived/en.xml \
+      ${glyphNames} > $out
+  '';
+
   settings = {
     lock = [ "loginctl" "lock-session" ];
     logout = [ (exe pkgs.uwsm) "stop" ];
@@ -67,6 +82,10 @@ let
     uwsm = exe pkgs.uwsm;
     cliphist = exe pkgs.cliphist;
     wlCopy = "${pkgs.wl-clipboard}/bin/wl-copy";
+    qalc = "${pkgs.libqalculate}/bin/qalc";
+    # Run mode reads its history and runs commands in it.
+    fish = exe config.programs.fish.package;
+    emojiData = "${emojiData}";
     terminal = [ (exe pkgs.kitty) ];
     browserPersonal = app config.gentleOS.browser.personal;
     browserWork = app config.gentleOS.browser.work;

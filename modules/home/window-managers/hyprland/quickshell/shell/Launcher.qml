@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import Quickshell.Widgets
 import QtQuick
 
 // The launcher: a command palette in the upper third of the focused monitor.
@@ -11,6 +12,12 @@ PanelWindow {
 
     // Index of the selected row in LauncherState.rows.
     property int selected: -1
+    // Selection survives rows refreshing under the same query (thumbnails
+    // arriving, a pin, a confirmation) but resets when the query changes.
+    property var selectedRow: null
+    property string rowsFor: ""
+
+    onSelectedChanged: selectedRow = LauncherState.rows[selected] ?? null
 
     readonly property var mode: LauncherState.currentMode
     readonly property bool split: mode?.split ?? false
@@ -58,9 +65,21 @@ PanelWindow {
 
         function onRowsChanged() {
             const rows = LauncherState.rows;
+            const state = LauncherState.mode + "\n" + LauncherState.query;
+            const same = state === root.rowsFor;
+            root.rowsFor = state;
+            const key = r => r ? r.key ?? r.entry?.id ?? r.toplevel ?? r.title : undefined;
+            const kept = same && root.selectedRow ? rows.findIndex(r => !r.header && key(r) === key(root.selectedRow)) : -1;
+            if (kept >= 0) {
+                root.selected = kept;
+                root.selectedRow = rows[kept];
+                return;
+            }
             const first = rows.findIndex(r => !r.header && !r.passive);
-            root.selected = first >= 0 ? first : root.nextRow(-1, 1);
+            // Calc mode: nothing selected, so Enter copies the result.
+            root.selected = first >= 0 ? first : LauncherState.mode === "calc" ? -1 : root.nextRow(-1, 1);
             list.positionViewAtBeginning();
+            emojiView.positionViewAtBeginning();
             columns.contentY = 0;
         }
     }
@@ -113,10 +132,44 @@ PanelWindow {
             return;
         }
 
+        // Mode keys.
+        const m = LauncherState.mode;
+        if (m === "emoji" && !ctrl && [Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down].includes(event.key)) {
+            if (event.key === Qt.Key_Up || event.key === Qt.Key_Down) {
+                emojiView.step(event.key === Qt.Key_Down ? 1 : -1);
+            } else {
+                selected = Math.max(0, Math.min(LauncherState.rows.length - 1, selected + (event.key === Qt.Key_Right ? 1 : -1)));
+                emojiView.positionViewAtIndex(emojiView.lineOf(selected), ListView.Contain);
+            }
+            event.accepted = true;
+            return;
+        }
+        if (m === "run" && ctrl && letter === "t") {
+            LauncherRun.inTerminal = !LauncherRun.inTerminal;
+            event.accepted = true;
+            return;
+        }
+        if (m === "power" && !ctrl && event.key >= Qt.Key_1 && event.key <= Qt.Key_5) {
+            selected = Math.min(event.key - Qt.Key_1, LauncherState.rows.length - 1);
+            event.accepted = true;
+            return;
+        }
+        // Shift+1…0 arrives as the shifted symbol (US layout).
+        const workspace = [Qt.Key_Exclam, Qt.Key_At, Qt.Key_NumberSign, Qt.Key_Dollar, Qt.Key_Percent,
+            Qt.Key_AsciiCircum, Qt.Key_Ampersand, Qt.Key_Asterisk, Qt.Key_ParenLeft, Qt.Key_ParenRight].indexOf(event.key) + 1;
+        if (m === "windows" && workspace > 0 && current()?.toplevel) {
+            LauncherState.close();
+            LauncherWindows.moveTo(current().toplevel, workspace);
+            event.accepted = true;
+            return;
+        }
+
         switch (event.key) {
         case Qt.Key_Escape:
             if (LauncherState.actionsOf)
                 LauncherState.actionsOf = null;
+            else if (LauncherPower.confirming !== "")
+                LauncherPower.confirming = "";
             else
                 LauncherState.close();
             break;
@@ -239,7 +292,7 @@ PanelWindow {
                     id: input
                     anchors.left: chip.visible ? chip.right : searchGlyph.right
                     anchors.leftMargin: 12
-                    anchors.right: tabs.left
+                    anchors.right: extras.left
                     anchors.rightMargin: 12
                     anchors.verticalCenter: parent.verticalCenter
                     color: Style.base07
@@ -267,22 +320,77 @@ PanelWindow {
                     }
                 }
 
-                // Keybinds mode: the categories Tab cycles through.
+                // Mode extras on the right: keybind categories, where run mode
+                // runs commands, power mode's uptime.
                 Row {
-                    id: tabs
+                    id: extras
                     anchors.right: parent.right
                     anchors.rightMargin: 16
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 4
 
+                    PanelText {
+                        visible: LauncherState.mode === "power"
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: LauncherPower.uptimeText
+                        color: Style.subtle
+                        font.pointSize: Style.fontSizeSmall
+                    }
+
+                    Rectangle {
+                        visible: LauncherState.mode === "run"
+                        implicitWidth: runToggle.implicitWidth + 6
+                        implicitHeight: runToggle.implicitHeight + 6
+                        radius: 7
+                        color: Style.base01
+
+                        Row {
+                            id: runToggle
+                            anchors.centerIn: parent
+                            spacing: 2
+
+                            Repeater {
+                                model: [["kitty", true], ["background", false]]
+
+                                Rectangle {
+                                    id: runOption
+
+                                    required property var modelData
+                                    readonly property bool active: LauncherRun.inTerminal === modelData[1]
+
+                                    implicitWidth: runText.implicitWidth + 18
+                                    implicitHeight: runText.implicitHeight + 8
+                                    radius: 5
+                                    color: active ? Style.base03 : "transparent"
+
+                                    PanelText {
+                                        id: runText
+                                        anchors.centerIn: parent
+                                        text: runOption.modelData[0]
+                                        color: runOption.active ? Style.base07 : Style.subtle
+                                        font.pointSize: Style.fontSizeSmall
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: LauncherRun.inTerminal = runOption.modelData[1]
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // [value, label] pairs; Tab cycles them (LauncherState.tab).
                     Repeater {
-                        model: LauncherState.mode === "keybinds" ? [""].concat(LauncherBinds.categories) : []
+                        model: LauncherState.mode === "keybinds" ? [["", "All"]].concat(LauncherBinds.categories.map(c => [c, c]))
+                            : LauncherState.mode === "emoji" ? LauncherEmoji.tabs : []
 
                         Rectangle {
                             id: tab
 
-                            required property string modelData
-                            readonly property bool active: LauncherState.bindCategory === modelData
+                            required property var modelData
+                            readonly property bool active: (LauncherState.mode === "emoji" ? LauncherState.emojiTab : LauncherState.bindCategory) === modelData[0]
 
                             implicitWidth: tabText.implicitWidth + 16
                             implicitHeight: tabText.implicitHeight + 8
@@ -292,7 +400,7 @@ PanelWindow {
                             PanelText {
                                 id: tabText
                                 anchors.centerIn: parent
-                                text: tab.modelData || "All"
+                                text: tab.modelData[1]
                                 color: tab.active ? Style.base07 : Style.subtle
                                 font.pointSize: Style.fontSizeSmall
                             }
@@ -300,7 +408,12 @@ PanelWindow {
                             MouseArea {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: LauncherState.bindCategory = tab.modelData
+                                onClicked: {
+                                    if (LauncherState.mode === "emoji")
+                                        LauncherState.emojiTab = tab.modelData[0];
+                                    else
+                                        LauncherState.bindCategory = tab.modelData[0];
+                                }
                             }
                         }
                     }
@@ -317,21 +430,28 @@ PanelWindow {
             // the cheat sheet's two columns (keybinds).
             Item {
                 width: parent.width
-                height: LauncherState.mode === "keybinds" ? columns.height : root.split ? 420 : list.height
+                height: LauncherState.mode === "keybinds" ? columns.height
+                    : LauncherState.mode === "power" ? powerView.implicitHeight
+                    : LauncherState.mode === "emoji" ? emojiView.height
+                    : root.split ? 420 : list.height
 
                 ListView {
                     id: list
 
-                    visible: LauncherState.mode !== "keybinds"
+                    readonly property bool used: !["keybinds", "power", "emoji"].includes(LauncherState.mode)
+
+                    visible: used
                     width: root.split ? 400 : parent.width
-                    height: root.split ? parent.height : count > 0 ? Math.min(contentHeight + topMargin + bottomMargin, 540) : 0
+                    height: root.split ? parent.height
+                        : count > 0 || headerItem ? Math.min(contentHeight + topMargin + bottomMargin, 540) : 0
                     topMargin: 6
                     bottomMargin: 8
                     leftMargin: 8
                     rightMargin: 8
                     clip: true
                     boundsBehavior: Flickable.StopAtBounds
-                    model: LauncherState.mode === "keybinds" ? [] : LauncherState.rows
+                    model: used ? LauncherState.rows : []
+                    header: LauncherState.mode === "calc" ? calcHeader : null
 
                     delegate: LauncherEntry {
                         required property var modelData
@@ -359,7 +479,271 @@ PanelWindow {
                     width: parent.width - 401
                     height: parent.height
                     active: root.split
-                    sourceComponent: LauncherState.mode === "clipboard" ? clipboardPreview : null
+                    sourceComponent: LauncherState.mode === "clipboard" ? clipboardPreview
+                        : LauncherState.mode === "windows" ? windowPreview : null
+                }
+
+                // Emoji mode: a grid of characters, in lines of `emojiView.perLine`
+                // under section headers. Lines hold indexes into the rows.
+                ListView {
+                    id: emojiView
+
+                    readonly property int perLine: 12
+                    readonly property var lines: {
+                        if (LauncherState.mode !== "emoji")
+                            return [];
+                        const lines = [];
+                        let section = null;
+                        let line = null;
+                        LauncherState.rows.forEach((r, i) => {
+                            if (r.section !== section) {
+                                section = r.section;
+                                lines.push({ header: true, title: section });
+                                line = null;
+                            }
+                            if (!line || line.cells.length === perLine) {
+                                line = { cells: [] };
+                                lines.push(line);
+                            }
+                            line.cells.push(i);
+                        });
+                        return lines;
+                    }
+                    readonly property real cellWidth: (width - leftMargin - rightMargin - 4 * (perLine - 1)) / perLine
+
+                    // Index of the line holding row `i`.
+                    function lineOf(i) {
+                        return lines.findIndex(l => l.cells?.includes(i));
+                    }
+
+                    // Up/down: same column in the next line of cells, clamped.
+                    function step(dir) {
+                        const from = lineOf(root.selected);
+                        if (from < 0)
+                            return;
+                        const col = lines[from].cells.indexOf(root.selected);
+                        for (let l = from + dir; l >= 0 && l < lines.length; l += dir) {
+                            if (lines[l].cells) {
+                                root.selected = lines[l].cells[Math.min(col, lines[l].cells.length - 1)];
+                                positionViewAtIndex(l, ListView.Contain);
+                                return;
+                            }
+                        }
+                    }
+
+                    visible: LauncherState.mode === "emoji"
+                    width: parent.width
+                    height: visible ? Math.min(contentHeight + topMargin + bottomMargin, 420) : 0
+                    topMargin: 6
+                    bottomMargin: 10
+                    leftMargin: 14
+                    rightMargin: 14
+                    spacing: 4
+                    clip: true
+                    boundsBehavior: Flickable.StopAtBounds
+                    model: lines
+
+                    delegate: Item {
+                        id: line
+
+                        required property var modelData
+                        required property int index
+
+                        width: emojiView.width - emojiView.leftMargin - emojiView.rightMargin
+                        height: modelData.header ? (index === 0 ? 22 : 30) : emojiView.cellWidth * 0.86
+
+                        PanelText {
+                            visible: line.modelData.header ?? false
+                            x: 4
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: 4
+                            text: line.modelData.title ?? ""
+                            color: Style.subtle
+                            font.pointSize: Style.fontSizeSmall - 1
+                            font.capitalization: Font.AllUppercase
+                            font.letterSpacing: 1
+                        }
+
+                        Row {
+                            spacing: 4
+
+                            Repeater {
+                                model: line.modelData.cells ?? []
+
+                                Rectangle {
+                                    id: cell
+
+                                    required property int modelData
+                                    readonly property bool isSelected: root.selected === modelData
+
+                                    width: emojiView.cellWidth
+                                    height: line.height
+                                    radius: 8
+                                    color: isSelected ? Style.base02 : "transparent"
+                                    border.width: isSelected ? 2 : 0
+                                    border.color: Style.accent
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: LauncherState.rows[cell.modelData]?.char ?? ""
+                                        color: Style.base07
+                                        font.family: Style.fontShell
+                                        font.pixelSize: Math.round(cell.height * 0.5)
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onPositionChanged: root.selected = cell.modelData
+                                        onClicked: LauncherState.activate(LauncherState.rows[cell.modelData], false)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Power mode: one tile per action, numbered for 1–5.
+                Column {
+                    id: powerView
+
+                    visible: LauncherState.mode === "power"
+                    width: parent.width
+                    topPadding: 18
+                    bottomPadding: 18
+                    spacing: 14
+
+                    Row {
+                        id: tiles
+                        x: 18
+                        width: parent.width - 36
+                        spacing: 10
+
+                        Repeater {
+                            model: powerView.visible ? LauncherState.rows : []
+
+                            Rectangle {
+                                id: tile
+
+                                required property var modelData
+                                required property int index
+                                readonly property bool isSelected: root.selected === index
+                                readonly property bool danger: modelData.power.confirm && isSelected
+
+                                width: (tiles.width - tiles.spacing * 4) / 5
+                                height: 120
+                                radius: Style.radius
+                                color: danger ? Style.alpha(Style.base08, 0.14) : isSelected ? Style.base02 : Style.alpha(Style.base02, 0.5)
+                                border.width: isSelected ? 2 : 0
+                                border.color: danger ? Style.base08 : Style.accent
+
+                                Rectangle {
+                                    x: 8
+                                    y: 8
+                                    implicitWidth: number.implicitWidth + 10
+                                    implicitHeight: number.implicitHeight + 2
+                                    radius: 4
+                                    color: Style.base03
+
+                                    PanelText {
+                                        id: number
+                                        anchors.centerIn: parent
+                                        text: tile.index + 1
+                                        color: Style.base06
+                                        font.pointSize: Style.fontSizeSmall - 1
+                                    }
+                                }
+
+                                Column {
+                                    anchors.centerIn: parent
+                                    spacing: 12
+
+                                    BarText {
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        text: tile.modelData.glyph
+                                        color: tile.danger ? Style.base08 : tile.isSelected ? Style.accent : Style.base06
+                                        font.pixelSize: 30
+                                    }
+
+                                    PanelText {
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        textFormat: tile.modelData.titleHtml ? Text.StyledText : Text.PlainText
+                                        text: tile.modelData.titleHtml || tile.modelData.title
+                                        font.weight: Font.Medium
+                                    }
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        root.selected = tile.index;
+                                        LauncherState.activate(tile.modelData, false);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Second-Enter confirmation for log out, reboot, shut down.
+                    Rectangle {
+                        visible: LauncherPower.confirming !== ""
+                        x: 18
+                        width: parent.width - 36
+                        height: 44
+                        radius: 8
+                        color: Style.alpha(Style.base08, 0.12)
+
+                        BarText {
+                            id: warnGlyph
+                            x: 14
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: Icons.warning
+                            color: Style.base08
+                            font.pixelSize: 16
+                        }
+
+                        PanelText {
+                            anchors.left: warnGlyph.right
+                            anchors.leftMargin: 10
+                            anchors.right: confirmKeys.left
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: LauncherPower.confirmText
+                        }
+
+                        Row {
+                            id: confirmKeys
+                            anchors.right: parent.right
+                            anchors.rightMargin: 14
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 6
+
+                            KeyCaps {
+                                anchors.verticalCenter: parent.verticalCenter
+                                keys: ["↵"]
+                            }
+
+                            PanelText {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: "again to confirm"
+                                color: Style.subtle
+                                font.pointSize: Style.fontSizeSmall
+                            }
+
+                            KeyCaps {
+                                anchors.verticalCenter: parent.verticalCenter
+                                keys: ["Esc"]
+                            }
+
+                            PanelText {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: "cancel"
+                                color: Style.subtle
+                                font.pointSize: Style.fontSizeSmall
+                            }
+                        }
+                    }
                 }
 
                 Flickable {
@@ -424,7 +808,7 @@ PanelWindow {
             // Footer: the mode's key hints, or the mode prefixes with the active one lit.
             Rectangle {
                 width: parent.width
-                height: 40
+                height: LauncherState.mode === "emoji" ? 60 : 40
                 color: Style.alpha(Style.base01, 0.9)
                 bottomLeftRadius: Style.radius - 2
                 bottomRightRadius: Style.radius - 2
@@ -433,6 +817,64 @@ PanelWindow {
                     width: parent.width
                     height: 1
                     color: Style.base02
+                }
+
+                // Emoji mode: the selected character, its name and keywords.
+                Item {
+                    visible: LauncherState.mode === "emoji"
+                    anchors.fill: parent
+                    anchors.leftMargin: 18
+                    anchors.rightMargin: 18
+
+                    Text {
+                        id: bigChar
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: root.current()?.char ?? ""
+                        color: Style.base07
+                        font.family: Style.fontShell
+                        font.pixelSize: 30
+                    }
+
+                    Column {
+                        anchors.left: bigChar.right
+                        anchors.leftMargin: 14
+                        anchors.right: copyKey.left
+                        anchors.rightMargin: 14
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 2
+
+                        PanelText {
+                            width: parent.width
+                            text: root.current()?.title ?? ""
+                            font.weight: Font.Medium
+                        }
+
+                        PanelText {
+                            width: parent.width
+                            text: root.current()?.detail ?? ""
+                            color: Style.subtle
+                            font.pointSize: Style.fontSizeSmall
+                        }
+                    }
+
+                    Row {
+                        id: copyKey
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 6
+
+                        KeyCaps {
+                            anchors.verticalCenter: parent.verticalCenter
+                            keys: ["↵"]
+                        }
+
+                        PanelText {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: "Copy"
+                            color: Style.subtle
+                            font.pointSize: Style.fontSizeSmall
+                        }
+                    }
                 }
 
                 Row {
@@ -470,7 +912,7 @@ PanelWindow {
                     x: 18
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 16
-                    visible: root.mode?.hints === undefined
+                    visible: root.mode?.hints === undefined && LauncherState.mode !== "emoji"
 
                     Repeater {
                         model: LauncherState.modes
@@ -519,6 +961,190 @@ PanelWindow {
             color: "transparent"
             border.width: 2
             border.color: Style.base0E
+        }
+    }
+
+    // Calc mode: the result above the history, with its other formats.
+    Component {
+        id: calcHeader
+
+        Column {
+            width: list.width - list.leftMargin - list.rightMargin
+            topPadding: 10
+            bottomPadding: 10
+            spacing: 12
+
+            Row {
+                x: 10
+                spacing: 14
+
+                PanelText {
+                    anchors.baseline: result.baseline
+                    text: "="
+                    color: Style.subtle
+                    font.pointSize: Style.fontSize * 1.6
+                }
+
+                PanelText {
+                    id: result
+                    text: LauncherCalc.result || (LauncherCalc.expression === "" ? "" : "…")
+                    color: Style.accent
+                    font.pointSize: Style.fontSize * 2.6
+                    font.bold: true
+                }
+            }
+
+            Row {
+                x: 10
+                spacing: 8
+                visible: LauncherCalc.choices.length > 1
+
+                Repeater {
+                    model: LauncherCalc.choices
+
+                    Rectangle {
+                        id: choice
+
+                        required property var modelData
+                        required property int index
+                        readonly property bool chosen: LauncherCalc.format === index
+
+                        implicitWidth: choiceRow.implicitWidth + 20
+                        implicitHeight: choiceRow.implicitHeight + 10
+                        radius: 6
+                        color: chosen ? Style.base03 : Style.base02
+                        border.width: chosen ? 1 : 0
+                        border.color: Style.accent
+
+                        Row {
+                            id: choiceRow
+                            anchors.centerIn: parent
+                            spacing: 8
+
+                            PanelText {
+                                anchors.baseline: value.baseline
+                                text: choice.modelData.label || "dec"
+                                color: Style.subtle
+                                font.pointSize: Style.fontSizeSmall - 1
+                            }
+
+                            PanelText {
+                                id: value
+                                text: choice.modelData.value
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: LauncherCalc.format = choice.index
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Windows mode: a still of the selected window, where it is, and its keys.
+    Component {
+        id: windowPreview
+
+        Item {
+            id: wp
+
+            readonly property var toplevel: root.current()?.toplevel ?? null
+            readonly property var row: root.current()
+
+            Rectangle {
+                id: frame
+                x: 18
+                width: parent.width - 36
+                anchors.top: parent.top
+                anchors.topMargin: 18
+                anchors.bottom: info.top
+                anchors.bottomMargin: 14
+                radius: 8
+                color: Style.base00
+                border.width: 1
+                border.color: Style.base02
+                clip: true
+
+                ScreencopyView {
+                    id: shot
+                    readonly property real scale: Math.min((frame.width - 2) / Math.max(sourceSize.width, 1),
+                        (frame.height - 2) / Math.max(sourceSize.height, 1))
+                    anchors.centerIn: parent
+                    width: sourceSize.width * scale
+                    height: sourceSize.height * scale
+                    captureSource: wp.toplevel?.wayland ?? null
+                    live: true
+                }
+
+                IconImage {
+                    anchors.centerIn: parent
+                    visible: !shot.hasContent
+                    implicitSize: 64
+                    source: wp.row?.icon ?? ""
+                }
+            }
+
+            Column {
+                id: info
+                x: 18
+                anchors.bottom: keys.top
+                anchors.bottomMargin: 14
+                width: parent.width - 36
+                spacing: 4
+
+                PanelText {
+                    width: parent.width
+                    text: wp.toplevel?.title ?? ""
+                    font.weight: Font.Medium
+                }
+
+                PanelText {
+                    width: parent.width
+                    text: !wp.toplevel ? "" : [
+                        LauncherWindows.workspaceLabel(wp.toplevel.workspace),
+                        wp.toplevel.lastIpcObject?.floating ? "floating" : "tiled",
+                        wp.toplevel.monitor?.name ?? ""
+                    ].filter(t => t).join(" · ")
+                    color: Style.subtle
+                    font.pointSize: Style.fontSizeSmall
+                }
+            }
+
+            Row {
+                id: keys
+                x: 18
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 16
+                spacing: 16
+
+                Repeater {
+                    model: [[["↵"], "Focus"], [["⇧", "1…0"], "Move to workspace"], [["Ctrl", "Q"], "Close"]]
+
+                    Row {
+                        id: windowKey
+
+                        required property var modelData
+
+                        spacing: 6
+
+                        KeyCaps {
+                            anchors.verticalCenter: parent.verticalCenter
+                            keys: windowKey.modelData[0]
+                        }
+
+                        PanelText {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: windowKey.modelData[1]
+                            color: Style.subtle
+                            font.pointSize: Style.fontSizeSmall
+                        }
+                    }
+                }
+            }
         }
     }
 

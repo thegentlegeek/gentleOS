@@ -1,6 +1,7 @@
 pragma Singleton
 
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 import QtQuick
 import "fuzzy.js" as Fuzzy
@@ -23,15 +24,19 @@ Singleton {
     property var actionsOf: null
     // Keybinds mode: the category shown ("" for all), cycled with Tab.
     property string bindCategory: ""
+    // Emoji mode: "emoji", "nerd" or "symbols", cycled with Tab.
+    property string emojiTab: "emoji"
 
     readonly property var modes: [
         { prefix: ":", mode: "clipboard", label: "clipboard", title: "Clipboard", glyph: Icons.clipboard, placeholder: "Search clipboard…", width: 880, split: true },
         { prefix: "?", mode: "keybinds", label: "keys", title: "Keybinds", glyph: Icons.keyboard, placeholder: "Search keybinds…", width: 1000,
             hints: [[["↵"], "run the selected bind"], [["⇥"], "next category"]] },
-        { prefix: "=", mode: "calc", label: "calc", title: "Calc", glyph: Icons.calculator, placeholder: "Type an expression…", width: 720 },
+        { prefix: "=", mode: "calc", label: "calc", title: "Calc", glyph: Icons.calculator, placeholder: "Type an expression…", width: 720,
+            hints: [[["↵"], "copy"], [["⇥"], "cycle formats"], [["↓"], "history"]] },
         { prefix: "@", mode: "windows", label: "windows", title: "Windows", glyph: Icons.windows, placeholder: "Search open windows…", width: 880, split: true },
-        { prefix: ".", mode: "emoji", label: "emoji", title: "Emoji", glyph: Icons.emoji, placeholder: "Search by name…", width: 720 },
-        { prefix: ">", mode: "run", label: "run", title: "Run", glyph: Icons.terminal, placeholder: "Command to run…", width: 720 },
+        { prefix: ".", mode: "emoji", label: "emoji", title: "Emoji", glyph: Icons.emoji, placeholder: "Search by name…", width: 760 },
+        { prefix: ">", mode: "run", label: "run", title: "Run", glyph: Icons.terminal, placeholder: "Command to run…", width: 720,
+            hints: [[["↵"], "run"], [["Ctrl", "T"], "kitty / background"], [["⇥"], "complete"]] },
         { prefix: "!", mode: "power", label: "power", title: "Power", glyph: Icons.power, placeholder: "Lock, suspend, reboot…", width: 720 }
     ]
     readonly property var currentMode: modes.find(m => m.mode === mode) ?? null
@@ -48,13 +53,37 @@ Singleton {
             return LauncherClipboard.search(q);
         case "keybinds":
             return keybindRows(q);
+        case "calc":
+            return calcHistoryRows();
+        case "windows":
+            return LauncherWindows.rows(q);
+        case "run":
+            return LauncherRun.rows(query);
+        case "power":
+            return LauncherPower.search(q);
+        case "emoji":
+            return LauncherEmoji.rows(emojiTab, q);
         }
         return [];
     }
 
     onOpenChanged: {
-        if (open)
-            LauncherClipboard.reload();
+        if (!open)
+            return;
+        LauncherClipboard.reload();
+        LauncherRun.reload();
+        LauncherPower.reload();
+        Hyprland.refreshToplevels();
+    }
+
+    onQueryChanged: {
+        if (mode === "calc" || (mode === "all" && LauncherCalc.looksLikeMath(query)))
+            LauncherCalc.evaluate(query);
+    }
+
+    onModeChanged: {
+        if (mode === "calc")
+            LauncherCalc.evaluate(query);
     }
 
     // Load the app list and bind registry at startup, not on the first search.
@@ -68,6 +97,7 @@ Singleton {
         query = "";
         actionsOf = null;
         bindCategory = "";
+        emojiTab = "emoji";
         ShellState.openPanel = "launcher";
     }
 
@@ -106,20 +136,36 @@ Singleton {
     }
 
     function activate(item, alt) {
+        // Calc mode with no history row selected: copy the result.
+        if (!item && mode === "calc" && LauncherCalc.result !== "") {
+            close();
+            LauncherCalc.copy();
+            return;
+        }
         if (!item || item.header || item.disabled)
             return;
-        if (item.key)
+        // Items that stay open (a power action's first Enter) haven't run yet.
+        if (item.key && !item.keepOpen)
             record(item.key);
         if (!item.keepOpen)
             close();
         item.run(alt);
     }
 
-    // Tab: the next keybind category, or the selected item's actions.
+    // Tab: the next keybind category or calc format, completes a command, or
+    // lists the selected item's actions.
     function tab(item) {
         if (mode === "keybinds") {
             const cats = [""].concat(LauncherBinds.categories);
             bindCategory = cats[(cats.indexOf(bindCategory) + 1) % cats.length];
+        } else if (mode === "calc") {
+            LauncherCalc.cycle();
+        } else if (mode === "emoji") {
+            const tabs = LauncherEmoji.tabs.map(t => t[0]);
+            emojiTab = tabs[(tabs.indexOf(emojiTab) + 1) % tabs.length];
+        } else if (mode === "run") {
+            if (item?.kind === "command")
+                query = item.title;
         } else if (item?.actions?.length) {
             actionsOf = item;
         }
@@ -141,8 +187,11 @@ Singleton {
     }
 
     function universal(q) {
+        const calc = LauncherCalc.looksLikeMath(q) && LauncherCalc.expression === q ? LauncherCalc.item() : null;
         return [].concat(
+            calc ? [calc] : [],
             section("Apps", ranked(LauncherApps.search(q)), 5),
+            section("Windows", LauncherWindows.search(q), 3),
             section("Keybinds", ranked(LauncherBinds.search(q)), 3),
             section("Clipboard", LauncherClipboard.search(q), 3),
             [webItem(q)]
@@ -174,6 +223,29 @@ Singleton {
                 query = "";
             }
         }];
+    }
+
+    // Calc mode's history; selecting one puts it back in the field.
+    function calcHistoryRows() {
+        const items = store.calcHistory.map(h => ({
+            kind: "calc",
+            title: h.expression,
+            hint: "= " + h.result,
+            glyph: Icons.history,
+            compact: true,
+            passive: true,
+            keepOpen: true,
+            run: () => {
+                query = h.expression;
+            }
+        }));
+        return section("History", items, 8);
+    }
+
+    function addCalcHistory(expression, result) {
+        const history = [{ expression, result }].concat(store.calcHistory.filter(h => h.expression !== expression));
+        store.calcHistory = history.slice(0, 20);
+        storeFile.writeAdapter();
     }
 
     // Every bind, grouped by category in registry order.
@@ -241,6 +313,11 @@ Singleton {
         storeFile.writeAdapter();
     }
 
+    // Recorded keys starting with `prefix`, most used first.
+    function recentKeys(prefix) {
+        return Object.keys(store.recent).filter(k => k.startsWith(prefix)).sort((a, b) => frecency(b) - frecency(a));
+    }
+
     // The recent items that still exist, most used first.
     function recentItems() {
         const keys = Object.keys(store.recent).sort((a, b) => frecency(b) - frecency(a));
@@ -263,6 +340,12 @@ Singleton {
             return LauncherApps.byKey(key);
         if (key.startsWith("bind:"))
             return LauncherBinds.byKey(key);
+        if (key.startsWith("cmd:"))
+            return LauncherRun.byKey(key);
+        if (key.startsWith("power:"))
+            return LauncherPower.byKey(key);
+        if (key.startsWith("emoji:"))
+            return LauncherEmoji.byKey(key);
         return null;
     }
 
@@ -281,6 +364,8 @@ Singleton {
             // key -> { count, last (ms since epoch) }
             property var recent: ({})
             property var pins: []
+            // [{ expression, result }], newest first.
+            property var calcHistory: []
         }
     }
 }

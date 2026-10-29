@@ -65,6 +65,8 @@ let
 
     # Launcher (LauncherState.qml). Apps start as `uwsm app -- <id>.desktop`.
     uwsm = exe pkgs.uwsm;
+    cliphist = exe pkgs.cliphist;
+    wlCopy = "${pkgs.wl-clipboard}/bin/wl-copy";
     terminal = [ (exe pkgs.kitty) ];
     browserPersonal = app config.gentleOS.browser.personal;
     browserWork = app config.gentleOS.browser.work;

@@ -87,6 +87,8 @@ let
     # Panels of the Quickshell shell (quickshell/shell/shell.qml IpcHandler).
     let shell = fn: "${exe config.programs.quickshell.package} ipc -c gentle call shell ${fn}"; in {
       menu = shell "toggleLauncher";
+      clipboard = shell "openLauncher clipboard";
+      cheatsheet = shell "openLauncher keybinds";
       notifications = shell "toggleNotifications";
       quickSettings = shell "toggleQuickSettings";
       doNotDisturb = shell "toggleDnd";

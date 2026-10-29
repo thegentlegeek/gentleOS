@@ -3,6 +3,7 @@ pragma Singleton
 import Quickshell
 import Quickshell.Io
 import QtQuick
+import "fuzzy.js" as Fuzzy
 
 // The launcher (Launcher.qml): its mode, query and result rows, and the
 // recent-use counts that rank results and fill the empty state.
@@ -20,12 +21,15 @@ Singleton {
     property string query: ""
     // The item whose actions (Tab) are listed instead of the results.
     property var actionsOf: null
+    // Keybinds mode: the category shown ("" for all), cycled with Tab.
+    property string bindCategory: ""
 
     readonly property var modes: [
-        { prefix: ":", mode: "clipboard", label: "clipboard", title: "Clipboard", glyph: Icons.clipboard, placeholder: "Search clipboard…", width: 880 },
-        { prefix: "?", mode: "keybinds", label: "keys", title: "Keybinds", glyph: Icons.keyboard, placeholder: "Search by action or key…", width: 1000 },
+        { prefix: ":", mode: "clipboard", label: "clipboard", title: "Clipboard", glyph: Icons.clipboard, placeholder: "Search clipboard…", width: 880, split: true },
+        { prefix: "?", mode: "keybinds", label: "keys", title: "Keybinds", glyph: Icons.keyboard, placeholder: "Search keybinds…", width: 1000,
+            hints: [[["↵"], "run the selected bind"], [["⇥"], "next category"]] },
         { prefix: "=", mode: "calc", label: "calc", title: "Calc", glyph: Icons.calculator, placeholder: "Type an expression…", width: 720 },
-        { prefix: "@", mode: "windows", label: "windows", title: "Windows", glyph: Icons.windows, placeholder: "Search open windows…", width: 880 },
+        { prefix: "@", mode: "windows", label: "windows", title: "Windows", glyph: Icons.windows, placeholder: "Search open windows…", width: 880, split: true },
         { prefix: ".", mode: "emoji", label: "emoji", title: "Emoji", glyph: Icons.emoji, placeholder: "Search by name…", width: 720 },
         { prefix: ">", mode: "run", label: "run", title: "Run", glyph: Icons.terminal, placeholder: "Command to run…", width: 720 },
         { prefix: "!", mode: "power", label: "power", title: "Power", glyph: Icons.power, placeholder: "Lock, suspend, reboot…", width: 720 }
@@ -37,9 +41,20 @@ Singleton {
         if (actionsOf)
             return [{ header: true, title: actionsOf.title }].concat(actionsOf.actions);
         const q = query.trim();
-        if (mode === "all")
+        switch (mode) {
+        case "all":
             return q === "" ? home() : universal(q);
+        case "clipboard":
+            return LauncherClipboard.search(q);
+        case "keybinds":
+            return keybindRows(q);
+        }
         return [];
+    }
+
+    onOpenChanged: {
+        if (open)
+            LauncherClipboard.reload();
     }
 
     // Load the app list and bind registry at startup, not on the first search.
@@ -52,6 +67,7 @@ Singleton {
         mode = m || "all";
         query = "";
         actionsOf = null;
+        bindCategory = "";
         ShellState.openPanel = "launcher";
     }
 
@@ -99,9 +115,14 @@ Singleton {
         item.run(alt);
     }
 
-    function showActions(item) {
-        if (item?.actions?.length)
+    // Tab: the next keybind category, or the selected item's actions.
+    function tab(item) {
+        if (mode === "keybinds") {
+            const cats = [""].concat(LauncherBinds.categories);
+            bindCategory = cats[(cats.indexOf(bindCategory) + 1) % cats.length];
+        } else if (item?.actions?.length) {
             actionsOf = item;
+        }
     }
 
     // ---- Results ----
@@ -123,12 +144,57 @@ Singleton {
         return [].concat(
             section("Apps", ranked(LauncherApps.search(q)), 5),
             section("Keybinds", ranked(LauncherBinds.search(q)), 3),
+            section("Clipboard", LauncherClipboard.search(q), 3),
             [webItem(q)]
         );
     }
 
     function home() {
-        return section("Recent", recentItems(), 7);
+        return clipboardPeek().concat(section("Recent", recentItems(), 7));
+    }
+
+    // The newest clipboard entry, as a way into clipboard mode.
+    function clipboardPeek() {
+        const entry = LauncherClipboard.entries[0];
+        if (!entry)
+            return [];
+        return [{
+            kind: "peek",
+            title: entry.image ? `${entry.image.type.toUpperCase()} image` : entry.text.trim(),
+            label: "clipboard",
+            glyph: Icons.clipboard,
+            keys: [":"],
+            compact: true,
+            dim: true,
+            // Not selected when the launcher opens; Recent's first item is.
+            passive: true,
+            keepOpen: true,
+            run: () => {
+                mode = "clipboard";
+                query = "";
+            }
+        }];
+    }
+
+    // Every bind, grouped by category in registry order.
+    function keybindRows(q) {
+        const rows = [];
+        let last = null;
+        for (const bind of LauncherBinds.binds) {
+            if (bindCategory && bind.category !== bindCategory)
+                continue;
+            const m = q ? Fuzzy.best(q, [[bind.text, 1], [bind.category, 0.5], [bind.keys.join(" "), 0.5]]) : null;
+            if (q && !m)
+                continue;
+            if (bind.category !== last) {
+                rows.push({ header: true, title: bind.category });
+                last = bind.category;
+            }
+            const it = LauncherBinds.item(bind, m?.field === 0 ? m : null);
+            it.dense = true;
+            rows.push(it);
+        }
+        return rows;
     }
 
     function webItem(q) {
@@ -162,6 +228,16 @@ Singleton {
         for (const k of keys.slice(200))
             delete recent[k];
         store.recent = recent;
+        storeFile.writeAdapter();
+    }
+
+    // Pinned clipboard entries (cliphist ids).
+    function isPinned(id) {
+        return store.pins.includes(id);
+    }
+
+    function togglePin(id) {
+        store.pins = isPinned(id) ? store.pins.filter(p => p !== id) : store.pins.concat([id]);
         storeFile.writeAdapter();
     }
 
@@ -204,6 +280,7 @@ Singleton {
             id: store
             // key -> { count, last (ms since epoch) }
             property var recent: ({})
+            property var pins: []
         }
     }
 }

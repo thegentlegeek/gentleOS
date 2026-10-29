@@ -13,6 +13,8 @@ Singleton {
 
     // [{ desc, category, text, keys: ["Super", "E"], exec, runnable }]
     property var binds: []
+    // Categories in registry order (the cheat sheet's tabs).
+    readonly property var categories: binds.map(b => b.category).filter((c, i, all) => all.indexOf(c) === i)
 
     FileView {
         path: Quickshell.env("XDG_RUNTIME_DIR") + "/gentle-binds.json"

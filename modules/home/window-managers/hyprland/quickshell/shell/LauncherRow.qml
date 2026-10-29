@@ -2,7 +2,8 @@ import Quickshell.Widgets
 import QtQuick
 
 // One launcher result (see LauncherState for the item fields). Two lines
-// (title, subtitle) by default; one line with a small kind label if compact.
+// (title, subtitle) by default; one line with a small kind label if compact;
+// one short line without the icon if dense (the cheat sheet).
 Rectangle {
     id: root
 
@@ -13,10 +14,12 @@ Rectangle {
     signal pointed
 
     readonly property bool compact: item.compact ?? false
+    readonly property bool dense: item.dense ?? false
+    readonly property bool oneLine: compact || dense
 
-    implicitHeight: compact ? 44 : 52
+    implicitHeight: dense ? 32 : compact ? 44 : 52
     radius: 8
-    color: selected ? Style.base02 : "transparent"
+    color: selected ? Style.base02 : (item.dim ?? false) ? Style.alpha(Style.base01, 0.7) : "transparent"
 
     MouseArea {
         anchors.fill: parent
@@ -30,6 +33,7 @@ Rectangle {
 
     Rectangle {
         id: tile
+        visible: !root.dense
         x: 10
         anchors.verticalCenter: parent.verticalCenter
         width: root.compact ? 30 : 34
@@ -56,19 +60,19 @@ Rectangle {
 
     Item {
         id: texts
-        anchors.left: tile.right
-        anchors.leftMargin: 12
+        anchors.left: root.dense ? parent.left : tile.right
+        anchors.leftMargin: root.dense ? 10 : 12
         anchors.right: trailing.left
         anchors.rightMargin: 12
         anchors.verticalCenter: parent.verticalCenter
-        height: root.compact ? title.implicitHeight : title.implicitHeight + 2 + subtitle.implicitHeight
+        height: root.oneLine ? title.implicitHeight : title.implicitHeight + 2 + subtitle.implicitHeight
 
         PanelText {
             id: title
-            width: root.compact ? Math.min(implicitWidth, parent.width - label.implicitWidth - 10) : parent.width
+            width: root.oneLine ? Math.min(implicitWidth, parent.width - label.implicitWidth - 10) : parent.width
             textFormat: root.item.titleHtml ? Text.StyledText : Text.PlainText
             text: root.item.titleHtml || (root.item.title ?? "")
-            font.pointSize: root.compact ? Style.fontSize : Style.fontSize + 1
+            font.pointSize: root.oneLine ? Style.fontSize : Style.fontSize + 1
             font.weight: root.selected ? Font.Medium : Font.Normal
         }
 
@@ -86,7 +90,7 @@ Rectangle {
 
         PanelText {
             id: subtitle
-            visible: !root.compact
+            visible: !root.oneLine
             anchors.top: title.bottom
             anchors.topMargin: 2
             width: parent.width

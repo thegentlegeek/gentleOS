@@ -6,7 +6,7 @@ This repository houses my personal NixOS and Home Manager configurations, design
 
 1. [Overview](#overview)
 2. [Repository Structure](#repository-structure)
-3. [Key Features](#key-features)
+3. [Key Features](#key-features-or-at-least-the-goal)
 4. [Configured Hosts](#configured-hosts)
 5. [Flake Inputs](#flake-inputs)
 6. [Getting Started](#getting-started)
@@ -24,9 +24,10 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
     - **User level:** `modules/home/window-managers/hyprland/` - This is where user level settings are defined through Home Manager. The Hyprland config itself is native Lua in `hyprland.lua` (keybindings, rules, per-host monitor layouts); the Nix files around it handle the session environment, the desktop shell, Rofi, hypridle/hyprlock and plugins. Press `SUPER + /` for a cheat sheet of every keybinding.
     - **Desktop shell:** `quickshell/` is a [Quickshell](https://quickshell.outfoxxed.me) (QML) bar, quick settings panel (`SUPER + I`) and notification center (`SUPER + N`). Its colors and fonts come from Stylix, generated into `Theme.qml.json`. Set `gentleOS.desktopShell = "waybar";` to go back to Waybar + Dunst.
 
-2. **Theming is controlled by [Stylix](https://github.com/danth/stylix).** The main Stylix configuration lives in `modules/shared/stylix.nix` and is imported by both NixOS system configurations and Home Manager. Pick a base16 scheme and a wallpaper (recolored to the scheme) with the `gentleOS.theme` defaults in that file, then rebuild:
+2. **Theming is controlled by [Stylix](https://github.com/danth/stylix).** The main Stylix configuration lives in `modules/shared/stylix.nix` and is imported by both NixOS system configurations and Home Manager. Pick a base16 scheme and a wallpaper (recolored to the scheme) with the `gentleOS.theme` defaults in that file, then rebuild both: the system side themes the login screen and console, Home Manager themes the desktop itself.
     ```bash
     sudo nixos-rebuild switch --flake .#<hostname>
+    home-manager switch --flake .#<username>
     ```
     I like to use [this theme preview page](https://tinted-theming.github.io/tinted-gallery/) to find good themes to try out but you can also create your own following Stylix documentation.
 
@@ -42,6 +43,8 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
 Captured on the real desktop by `gentle-screenshots`, one set per theme in the flake's `screenshotHomes` (see [Regenerating the screenshots](#regenerating-the-screenshots)).
 
 <!-- screenshots:start -->
+_These predate the Quickshell desktop and the current themes; the next `gentle-screenshots` run replaces them._
+
 ![screenshot1](media/screenshots/screenshot1.png)
 
 ![screenshot2](media/screenshots/screenshot2.png)
@@ -67,12 +70,12 @@ gentleOS/
 │   ├── zbook/                   # Primary workstation laptop (Hyprland)
 │   │   ├── default.nix          # Main host configuration
 │   │   └── hardware-configuration.nix
-│   ├── testing/                 # Steambox gaming system
+│   ├── testing/                 # Steambox gaming system (Hyprland)
 │   ├── nixcloud/                # Linode VPS running Gitea
 │   └── geigcraft-server/        # Dedicated Minecraft server
 ├── users/                       # User configurations
 │   ├── justin/
-│   │   ├── home.nix             # Home Manager configuration
+│   │   ├── home.nix             # Home Manager configuration (standalone)
 │   │   └── system.nix           # NixOS user definition
 │   └── jgeigley/
 │       └── system.nix           # NixOS user definition (used by testing)
@@ -80,21 +83,21 @@ gentleOS/
 │   ├── nixos/                   # NixOS system modules
 │   │   ├── base.nix             # Base system config (flakes, shell aliases)
 │   │   ├── boot/                # Bootloader configs (systemd-boot, grub)
-│   │   ├── cli/                 # CLI tools (neovim, yazi, tmux, fzf, lazygit)
+│   │   ├── cli/                 # CLI tools (neovim, yazi, tmux, fzf, lazygit, Bitwarden CLI, DuckDB)
 │   │   ├── cpu/                 # CPU-specific configs (AMD, Intel)
-│   │   ├── workstation/         # Desktop essentials (sound, fonts, network, etc.)
-│   │   ├── window-managers/     # WM configs (Hyprland system-level)
+│   │   ├── workstation/         # Desktop essentials (sound, fonts, network, QMK keyboards, ReGreet, libvirt)
+│   │   ├── window-managers/     # WM configs (Hyprland system-level, UWSM session)
 │   │   ├── gaming/              # Gaming (Steam, Minecraft, emulation)
 │   │   ├── server/              # Server services (Gitea, Minecraft server)
 │   │   └── browsers/            # Browser configs (Chromium)
 │   ├── home/                    # Home Manager modules
-│   │   ├── cli/                 # User CLI (kitty, fish, starship, nix-index)
-│   │   ├── window-managers/     # WM user configs (hyprland.lua, Quickshell shell, Waybar, Rofi, Dunst, hypridle)
-│   │   ├── editors/             # Code editors (VSCode, Zed, opencode)
+│   │   ├── cli/                 # User CLI (kitty, fish, starship, nix-index, gh, rbw)
+│   │   ├── window-managers/     # WM user configs (hyprland.lua, Quickshell shell, Waybar, Rofi, Dunst, hypridle, gentle-screenshots)
+│   │   ├── editors/             # Code editors and AI tools (VSCodium, Zed, opencode, Claude Code)
 │   │   └── browsers/            # Browser user configs
 │   └── shared/                  # Shared between NixOS & Home Manager
-│       ├── stylix.nix           # Stylix theming configuration
-│       └── wallpapers/          # Wallpaper images
+│       ├── stylix.nix           # Stylix theming and the gentleOS.theme options
+│       └── wallpapers/          # Wallpaper images + recolor.py (recolors them to the scheme)
 ├── checks/
 │   └── default.nix              # `nix flake check`: validates the generated Hyprland and Quickshell configs
 └── media/
@@ -109,7 +112,7 @@ gentleOS/
 * **Shared Configurations**: Common program settings, services, and window manager configurations are centralized to avoid duplication.
 * **Multiple Host Support**: Easily manage configurations for different machines (workstations, servers).
 * **Flake-based**: Uses Nix flakes for reproducible builds with pinned dependencies.
-* **Unified Theming**: [Stylix](https://github.com/danth/stylix) provides consistent base16 theming across all applications.
+* **Unified Theming**: [Stylix](https://github.com/danth/stylix) provides consistent base16 theming across all applications, and the wallpaper is recolored to match the scheme.
 * **Helper Functions**: Custom `mkHost` and `mkHome` functions in `lib/` simplify adding new hosts and users.
 
 ## Configured Hosts
@@ -117,7 +120,7 @@ gentleOS/
 | Host | Type | Description |
 |------|------|-------------|
 | `zbook` | Workstation | Primary laptop running Hyprland with full desktop environment |
-| `testing` | Workstation | Steambox for gaming |
+| `testing` | Workstation | Steambox for gaming, also on Hyprland (user `jgeigley`) |
 | `nixcloud` | Server | Linode VPS running Gitea git server |
 | `geigcraft-server` | Server | Dedicated Minecraft server (uses nixpkgs unstable for latest server) |
 
@@ -133,8 +136,8 @@ This configuration uses the following external inputs:
 | `stylix` | release-26.05 | System-wide theming with base16 |
 | `hyprland` | release tag (e.g. `v0.57.0`) | Hyprland compositor + portal, upstream flake |
 | `hyprland-plugins` | release tag matching `hyprland` | Hyprland plugins, built against the pinned Hyprland |
-| `nix-wallpaper` | latest | Auto-colorized wallpapers |
-| `llm-agents` | latest | AI coding tools (opencode, Claude Code) |
+| `nix-wallpaper` | latest | Declared but currently unused; wallpapers are recolored by `modules/shared/wallpapers/recolor.py` |
+| `llm-agents` | latest | AI coding tools (opencode, Claude Code, Claude Desktop) |
 
 ## Getting Started
 
@@ -203,7 +206,7 @@ This section explains how to adapt this configuration for your own systems.
    mkdir -p users/YOUR_USERNAME
    ```
    
-   Create `users/YOUR_USERNAME/system.nix` for NixOS user definition:
+   Create `users/YOUR_USERNAME/system.nix` for the NixOS user definition:
    ```nix
    { config, pkgs, ... }:
    {
@@ -212,12 +215,10 @@ This section explains how to adapt this configuration for your own systems.
        description = "Your Name";
        extraGroups = [ "wheel" "networkmanager" ];
      };
-     
-     home-manager.users.YOUR_USERNAME = import ./home.nix;
    }
    ```
    
-   Create `users/YOUR_USERNAME/home.nix` for Home Manager configuration (see `users/justin/home.nix` for a full example).
+   Create `users/YOUR_USERNAME/home.nix` for your Home Manager configuration (see `users/justin/home.nix` for a full example). Home Manager runs standalone here, not as a NixOS module, so the desktop can be rebuilt without `sudo`; see [Home Manager](#home-manager) below.
 
 5. **Register your host in `flake.nix`**
    
@@ -236,9 +237,9 @@ This section explains how to adapt this configuration for your own systems.
    sudo nixos-rebuild switch --flake .#YOUR_HOSTNAME
    ```
 
-### Standalone Home Manager (Optional)
+### Home Manager
 
-If you want to use Home Manager independently (e.g., on a non-NixOS system):
+User environments (the Hyprland desktop included) are standalone Home Manager configurations, also usable on a non-NixOS system:
 
 1. Add your user to `homeConfigurations` in `flake.nix`:
    ```nix
@@ -267,9 +268,10 @@ If you want to use Home Manager independently (e.g., on a non-NixOS system):
 
 2. Browse available themes at [Tinted Theming Gallery](https://tinted-theming.github.io/tinted-gallery/)
 
-3. Rebuild to apply:
+3. Rebuild to apply (system for the login screen and console, Home Manager for the desktop):
    ```bash
    sudo nixos-rebuild switch --flake .#YOUR_HOSTNAME
+   home-manager switch --flake .#YOUR_USERNAME
    ```
 
 ### Common Commands
@@ -305,5 +307,5 @@ Suggestions and contributions are welcome! If you have ideas for improving the s
 
 ## License
 
-This project is licensed under the the [GPL 3 License](https://www.gnu.org/licenses/gpl-3.0.en.html).
+This project is licensed under the [GPL 3 License](https://www.gnu.org/licenses/gpl-3.0.en.html).
 

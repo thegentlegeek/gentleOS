@@ -121,7 +121,9 @@
       extraModules = [ { gentleOS.theme = theme; } ];
     }) {
       lime = { scheme = "lime"; wallpaper = "stripes"; };
-      catppuccin-mocha = { scheme = "catppuccin-mocha"; wallpaper = "snowflake"; };
+      catppuccin-mocha = { scheme = "catppuccin-mocha"; wallpaper = "stripes"; };
+      tarot = { scheme = "tarot"; wallpaper = "stripes"; };
+      standardized-dark = { scheme = "standardized-dark"; wallpaper = "stripes"; };
     };
 
     # `nix flake check`: validates generated configs (see checks/default.nix)

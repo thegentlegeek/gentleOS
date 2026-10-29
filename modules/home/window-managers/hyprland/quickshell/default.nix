@@ -52,6 +52,22 @@ let
       ${glyphNames} > $out
   '';
 
+  # pinentry for rbw/gpg: the shell's prompt (shell/Pinentry.qml) through its
+  # socket, or pinentry-tty without a graphical session or a running shell.
+  # socat exits before reading stdin if it can't connect, so the fallback still
+  # gets the whole conversation.
+  pinentry = pkgs.writeShellApplication {
+    name = "pinentry-gentle";
+    runtimeInputs = [ pkgs.socat pkgs.pinentry-tty ];
+    text = ''
+      sock="''${XDG_RUNTIME_DIR:-}/gentle-pinentry.sock"
+      if [ -n "''${WAYLAND_DISPLAY:-}" ] && [ -S "$sock" ] && socat STDIO UNIX-CONNECT:"$sock" 2>/dev/null; then
+        exit 0
+      fi
+      exec pinentry-tty "$@"
+    '';
+  };
+
   settings = {
     lock = [ "loginctl" "lock-session" ];
     logout = [ (exe pkgs.uwsm) "stop" ];
@@ -112,6 +128,9 @@ in
         target = "graphical-session.target";
       };
     };
+
+    home.packages = [ pinentry ];
+    programs.rbw.settings.pinentry = pinentry;
 
     systemd.user.services.quickshell.Unit = {
       # Stop with the session (UWSM stops graphical-session.target on logout).

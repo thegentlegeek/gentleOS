@@ -10,5 +10,6 @@
       ./fish.nix
       ./nix-index.nix
       ./gh.nix
+      ./rbw.nix
     ];
 }

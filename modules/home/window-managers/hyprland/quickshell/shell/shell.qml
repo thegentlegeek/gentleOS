@@ -24,6 +24,7 @@ ShellRoot {
     SessionMenu {}
     Calendar {}
     Launcher {}
+    Pinentry {}
 
     // Keybinds in hyprland.lua: quickshell ipc -c gentle call shell <function>
     IpcHandler {

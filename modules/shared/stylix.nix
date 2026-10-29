@@ -56,7 +56,7 @@ in
     enable = true;
     polarity = "dark";
     image = recolor "stripes";
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/catppuccin-mocha.yaml";
+    base16Scheme = "${pkgs.base16-schemes}/share/themes/lime.yaml";
     
     cursor = {
      package = pkgs.bibata-cursors;

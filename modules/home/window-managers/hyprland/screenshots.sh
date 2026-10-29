@@ -142,20 +142,22 @@ scene_tiled() {
   launch "$KITTY" nvim "$flake/README.md"
   wait_pid "${pids[-1]}"
   shot tiled
-  # Panels over the tiled windows show off the blur.
-  if [[ -n $QUICKSHELL ]]; then
-    ipc toggleQuickSettings
-    shot quick-settings
-    ipc toggleQuickSettings
-    notify-send -a gentleOS -i nix-snowflake "Rebuild finished" "home-manager switch activated a new generation"
-    notify-send -a kitty -i kitty "Command finished" "nix flake check: all checks passed"
-    notify-send -a Thunar -i drive-removable-media "USB drive mounted" "Opened in Thunar"
-    # Popups hide while the center is open.
-    ipc toggleNotifications
-    shot notifications
-    ipc toggleNotifications
-  fi
   close_all
+}
+
+# Quickshell panels, over the bare desktop.
+scene_panels() {
+  [[ -n $QUICKSHELL ]] || return 0
+  ipc toggleQuickSettings
+  shot quick-settings
+  ipc toggleQuickSettings
+  notify-send -a gentleOS -i nix-snowflake "Rebuild finished" "home-manager switch activated a new generation"
+  notify-send -a kitty -i kitty "Command finished" "nix flake check: all checks passed"
+  notify-send -a Thunar -i drive-removable-media "USB drive mounted" "Opened in Thunar"
+  # Popups hide while the center is open.
+  ipc toggleNotifications
+  shot notifications
+  ipc toggleNotifications
 }
 
 scene_cheatsheet() {
@@ -165,7 +167,7 @@ scene_cheatsheet() {
   close_all
 }
 
-scenes=(desktop launcher tiled cheatsheet)
+scenes=(desktop launcher tiled panels cheatsheet)
 
 for theme in "${themes[@]}"; do
   echo "Theme $theme: building..."

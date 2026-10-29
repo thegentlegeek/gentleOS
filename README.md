@@ -31,6 +31,8 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
     ```
     I like to use [this theme preview page](https://tinted-theming.github.io/tinted-gallery/) to find good themes to try out but you can also create your own following Stylix documentation.
 
+    [`modules/shared/README.md`](modules/shared/README.md) explains the whole setup: wallpaper recipes, where the colors go, and why theme changes stay fast.
+
 3. **Hyprland comes from the upstream flake, pinned to a release tag.** `flake.nix` pins `hyprland` (and `hyprland-plugins`, which builds against it) to a release tag such as `v0.57.0`, so you get new releases without waiting for nixpkgs, but never development builds: `nix flake update` won't move a tag. To upgrade, change the tag on both inputs, then validate before switching:
     ```bash
     nix flake lock
@@ -141,6 +143,7 @@ gentleOS/
 │   │   ├── editors/             # Code editors and AI tools (VSCodium, Zed, opencode, Claude Code)
 │   │   └── browsers/            # Browser user configs
 │   └── shared/                  # Shared between NixOS & Home Manager
+│       ├── README.md            # How the theming setup works
 │       ├── stylix.nix           # Stylix theming and the gentleOS.theme options
 │       └── wallpapers/          # Wallpaper images + recolor.py (recolors them to the scheme)
 ├── checks/
@@ -309,7 +312,7 @@ User environments (the Hyprland desktop included) are standalone Home Manager co
      wallpaper = lib.mkOption { default = "stripes"; ... };   # a recipe in `wallpapers`
    };
    ```
-   Wallpapers are flat-color images recolored to the scheme; add a recipe to `wallpapers` in the same file to use another one.
+   Wallpapers are flat-color images recolored to the scheme; add a recipe to `wallpapers` in the same file to use another one. See [`modules/shared/README.md`](modules/shared/README.md) for the recipes and how to add one.
 
 2. Browse available themes at [Tinted Theming Gallery](https://tinted-theming.github.io/tinted-gallery/)
 

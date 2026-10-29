@@ -62,6 +62,14 @@ let
     # (case-insensitive). blueman-applet keeps running as the pairing agent;
     # Bluetooth is managed from quick settings.
     trayHidden = [ "blueman" ];
+
+    # Launcher (LauncherState.qml). Apps start as `uwsm app -- <id>.desktop`.
+    uwsm = exe pkgs.uwsm;
+    terminal = [ (exe pkgs.kitty) ];
+    browserPersonal = app config.gentleOS.browser.personal;
+    browserWork = app config.gentleOS.browser.work;
+    # %s is the URL-encoded query.
+    searchUrl = "https://www.google.com/search?q=%s";
   };
 
   shellConfig = pkgs.runCommandLocal "quickshell-gentle" { } ''
@@ -84,7 +92,12 @@ in
       };
     };
 
-    # Stop with the session (UWSM stops graphical-session.target on logout).
-    systemd.user.services.quickshell.Unit.PartOf = [ "graphical-session.target" ];
+    systemd.user.services.quickshell.Unit = {
+      # Stop with the session (UWSM stops graphical-session.target on logout).
+      PartOf = [ "graphical-session.target" ];
+      # Restart on `home-manager switch` when the config changes: the running
+      # shell keeps watching the old store path and never reloads by itself.
+      X-Restart-Triggers = [ "${shellConfig}" ];
+    };
   };
 }

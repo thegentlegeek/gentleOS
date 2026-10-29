@@ -65,4 +65,20 @@ Singleton {
     readonly property string logout: g(0xF0343)
     readonly property string sleep: g(0xF0904)
     readonly property string reboot: g(0xF0709)
+
+    // Launcher
+    readonly property string search: g(0xF0349)
+    readonly property string app: g(0xF08C6)
+    readonly property string keyboard: g(0xF097B)
+    readonly property string clipboard: g(0xF0A38)
+    readonly property string calculator: g(0xF00EC)
+    readonly property string windows: g(0xF05B2)
+    readonly property string emoji: g(0xF01F5)
+    readonly property string terminal: g(0xF018D)
+    readonly property string web: g(0xF059F)
+    readonly property string history: g(0xF02DA)
+    readonly property string pin: g(0xF0403)
+    readonly property string image: g(0xF02E9)
+    readonly property string link: g(0xF0339)
+    readonly property string textLines: g(0xF09A8)
 }

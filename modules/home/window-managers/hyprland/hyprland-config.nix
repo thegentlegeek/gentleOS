@@ -59,8 +59,8 @@ let
     terminal = "${exe pkgs.kitty} fish";
     fileManager = "${exe pkgs.kitty} yazi";
     menu = "${rofi} -show drun -display-drun ''";
-    browserPersonal = ''chromium --profile-directory="Profile 2"'';
-    browserWork = ''chromium --profile-directory="Profile 3"'';
+    browserPersonal = lib.escapeShellArgs config.gentleOS.browser.personal;
+    browserWork = lib.escapeShellArgs config.gentleOS.browser.work;
     editor = "codium";
     music = "${exe pkgs.kitty} spotify_player";
     calculator = "gnome-calculator";
@@ -86,6 +86,7 @@ let
   } // lib.optionalAttrs (config.gentleOS.desktopShell == "quickshell") (
     # Panels of the Quickshell shell (quickshell/shell/shell.qml IpcHandler).
     let shell = fn: "${exe config.programs.quickshell.package} ipc -c gentle call shell ${fn}"; in {
+      menu = shell "toggleLauncher";
       notifications = shell "toggleNotifications";
       quickSettings = shell "toggleQuickSettings";
       doNotDisturb = shell "toggleDnd";

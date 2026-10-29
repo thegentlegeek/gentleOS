@@ -145,13 +145,50 @@ hl.gesture({ fingers = 4, direction = "up",         action = "fullscreen" })
 local mainMod = "SUPER"
 local function key(k) return mainMod .. " + " .. k end
 
+-- Bind registry for the launcher's keybinds mode (quickshell/shell/LauncherBinds.qml).
+-- `hyprctl binds` can't say what a Lua bind runs, so bind() records every
+-- described bind here, with its command when it's an exec_cmd (matched against
+-- apps for the key hints); the list is written to $XDG_RUNTIME_DIR at the end of
+-- this section. gentleBinds[desc] keeps the dispatcher, so the launcher runs a
+-- bind with `dispatch gentleBinds["<desc>"]`.
+local execOf = setmetatable({}, { __mode = "k" })
+do
+    local exec_cmd = hl.dsp.exec_cmd
+    hl.dsp.exec_cmd = function(command, ...)
+        local d = exec_cmd(command, ...)
+        execOf[d] = command
+        return d
+    end
+end
+gentleBinds = {}
+local registry = {}
+local currentSubmap = ""
+
 -- Every user-facing bind gets a "Category: text" description; the cheat sheet
--- (SUPER + /) is generated from them with `hyprctl binds -j`, so it can't drift.
+-- (SUPER + /) is generated from them, so it can't drift. opts.list_only: shown
+-- in the cheat sheet but not runnable from it. Mouse and submap binds never are.
 local function bind(keys, dispatcher, desc, opts)
     local o = {}
     for k, v in pairs(opts or {}) do o[k] = v end
+    local listOnly = o.list_only
+    o.list_only = nil
     o.desc = desc
+    if desc then
+        registry[#registry + 1] = {
+            desc = desc, keys = keys, exec = execOf[dispatcher],
+            run = not (listOnly or o.mouse or currentSubmap ~= ""),
+        }
+        gentleBinds[desc] = gentleBinds[desc] or dispatcher
+    end
     return hl.bind(keys, dispatcher, o)
+end
+
+local function submap(name, fn)
+    hl.define_submap(name, function()
+        currentSubmap = name
+        fn()
+        currentSubmap = ""
+    end)
 end
 
 -- Apps
@@ -192,7 +229,7 @@ bind(key("mouse:273"), hl.dsp.window.resize(), "Windows: Resize with mouse", { m
 
 -- Resize mode: arrows resize the active window, Esc/Enter leave the mode.
 bind(key("R"), hl.dsp.submap("resize"), "Windows: Resize mode (arrows, Esc to exit)")
-hl.define_submap("resize", function()
+submap("resize", function()
     local step = { repeating = true }
     bind("right",  hl.dsp.window.resize({ x = 40,  y = 0,   relative = true }), "Resize: Wider",   step)
     bind("left",   hl.dsp.window.resize({ x = -40, y = 0,   relative = true }), "Resize: Narrower", step)
@@ -207,9 +244,9 @@ for i = 1, 10 do
     local k = tostring(i % 10)
     local first = i == 1
     bind(key(k),              hl.dsp.focus({ workspace = i }),
-         first and "Workspaces: Go to workspace 1-10 (keys 1..0)" or nil)
+         first and "Workspaces: Go to workspace 1-10 (keys 1..0)" or nil, { list_only = true })
     bind(key("SHIFT + " .. k), hl.dsp.window.move({ workspace = i }),
-         first and "Workspaces: Move window to workspace 1-10 (keys 1..0)" or nil)
+         first and "Workspaces: Move window to workspace 1-10 (keys 1..0)" or nil, { list_only = true })
 end
 bind(key("S"),            hl.dsp.workspace.toggle_special("magic"),            "Workspaces: Toggle scratchpad")
 bind(key("SHIFT + S"),    hl.dsp.window.move({ workspace = "special:magic" }), "Workspaces: Move window to scratchpad")
@@ -239,6 +276,29 @@ bind("XF86AudioNext",         hl.dsp.exec_cmd(cmd.next),       "Media: Next trac
 bind("XF86AudioPrev",         hl.dsp.exec_cmd(cmd.prev),       "Media: Previous track",   locked)
 bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd(cmd.brightUp),   "Media: Brightness up",    held)
 bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(cmd.brightDown), "Media: Brightness down",  held)
+
+-- Write the bind registry (see bind() above) for the launcher. Skipped when
+-- there's no runtime dir (the flake check's --verify-config).
+do
+    local function str(s)
+        if s == nil then return "null" end
+        return '"' .. (tostring(s):gsub('[%c"\\]', function(c)
+            if c == '"' or c == "\\" then return "\\" .. c end
+            return string.format("\\u%04x", c:byte())
+        end)) .. '"'
+    end
+    local dir = os.getenv("XDG_RUNTIME_DIR")
+    local f = dir and io.open(dir .. "/gentle-binds.json", "w")
+    if f then
+        local rows = {}
+        for i, b in ipairs(registry) do
+            rows[i] = string.format('{"desc":%s,"keys":%s,"exec":%s,"run":%s}',
+                str(b.desc), str(b.keys), str(b.exec), tostring(b.run))
+        end
+        f:write("[\n" .. table.concat(rows, ",\n") .. "\n]\n")
+        f:close()
+    end
+end
 
 -- Lid switch. `hyprctl keyword` doesn't work with Lua configs, so update the
 -- monitor rule directly. hl.monitor merges into the existing eDP-1 rule (mode,
@@ -311,6 +371,6 @@ hl.window_rule({ name = "opaque-freetube", match = { class = "^(FreeTube)$" }, o
 -- Blur behind the translucent overlays. ignore_alpha keeps fully transparent
 -- pixels (rounded corners, rofi's padding) from being blurred into a grey box.
 -- gentle-* are the Quickshell shell's layers (quickshell/shell).
-for _, ns in ipairs({ "waybar", "rofi", "notifications", "gentle-bar", "gentle-panel", "gentle-notifications" }) do
+for _, ns in ipairs({ "waybar", "rofi", "notifications", "gentle-bar", "gentle-panel", "gentle-notifications", "gentle-launcher" }) do
     hl.layer_rule({ name = "blur-" .. ns, match = { namespace = "^(" .. ns .. ")$" }, blur = true, ignore_alpha = 0.5 })
 end

@@ -98,7 +98,7 @@ Singleton {
             if (seen[bind.desc])
                 continue;
             seen[bind.desc] = true;
-            const m = Fuzzy.best(query, [[bind.text, 1], [bind.category, 0.5]]);
+            const m = Fuzzy.best(query, [[bind.text, 1], [bind.category, 0.5, true]]);
             if (!m)
                 continue;
             const it = item(bind, m.field === 0 ? m : null);

@@ -255,7 +255,7 @@ Singleton {
         for (const bind of LauncherBinds.binds) {
             if (bindCategory && bind.category !== bindCategory)
                 continue;
-            const m = q ? Fuzzy.best(q, [[bind.text, 1], [bind.category, 0.5], [bind.keys.join(" "), 0.5]]) : null;
+            const m = q ? Fuzzy.best(q, [[bind.text, 1], [bind.category, 0.5, true], [bind.keys.join(" "), 0.5, true]]) : null;
             if (q && !m)
                 continue;
             if (bind.category !== last) {

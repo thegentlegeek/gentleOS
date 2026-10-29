@@ -63,13 +63,12 @@ Singleton {
     function rows(tab, query) {
         const list = data[tab] ?? [];
         if (query) {
-            // Substring matches only (fuzzy.js scores those 700+): scattered
-            // letters across thousands of names and keywords match nearly
-            // everything.
+            // Substring matches only: scattered letters across thousands of
+            // names match nearly everything.
             const matches = [];
             for (const e of list) {
-                const m = Fuzzy.best(query, [[e.n, 1], [e.k ?? "", 0.7]]);
-                if (m && m.score >= 500)
+                const m = Fuzzy.best(query, [[e.n, 1, true], [e.k ?? "", 0.7, true]]);
+                if (m)
                     matches.push({ e, score: m.score });
             }
             return matches.sort((a, b) => b.score - a.score).slice(0, 240).map(x => item(x.e, "Results"));

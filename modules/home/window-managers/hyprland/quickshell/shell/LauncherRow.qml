@@ -11,7 +11,8 @@ Rectangle {
     property bool selected: false
 
     signal activated(bool alt)
-    signal pointed
+    // The pointer moved over the row, at `point` (window coordinates).
+    signal pointed(point point)
 
     readonly property bool compact: item.compact ?? false
     readonly property bool dense: item.dense ?? false
@@ -26,8 +27,8 @@ Rectangle {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         // Not onEntered: rows scrolling under a still pointer would steal the
-        // keyboard selection.
-        onPositionChanged: root.pointed()
+        // keyboard selection (Launcher.point() also ignores a still pointer).
+        onPositionChanged: mouse => root.pointed(mapToItem(null, mouse.x, mouse.y))
         onClicked: mouse => root.activated(mouse.modifiers & Qt.ShiftModifier)
     }
 

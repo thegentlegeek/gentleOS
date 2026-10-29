@@ -9,7 +9,7 @@ Item {
     property bool first: false
     property bool selected: false
 
-    signal pointed
+    signal pointed(point point)
     signal activated(bool alt)
 
     readonly property bool header: row.header ?? false
@@ -34,7 +34,7 @@ Item {
         width: parent.width
         item: root.row
         selected: root.selected
-        onPointed: root.pointed()
+        onPointed: point => root.pointed(point)
         onActivated: alt => root.activated(alt)
     }
 }

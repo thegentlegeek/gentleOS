@@ -85,10 +85,10 @@ Singleton {
         for (const entry of entries) {
             const m = Fuzzy.best(query, [
                 [entry.name, 1],
-                [subtitleOf(entry), 0.6],
-                [entry.genericName, 0.7],
-                [Array.from(entry.keywords).join(" "), 0.6],
-                [LauncherBinds.program(entry.execString), 0.7]
+                [subtitleOf(entry), 0.6, true],
+                [entry.genericName, 0.7, true],
+                [Array.from(entry.keywords).join(" "), 0.6, true],
+                [LauncherBinds.program(entry.execString), 0.7, true]
             ]);
             if (!m)
                 continue;

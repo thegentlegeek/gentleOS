@@ -143,7 +143,8 @@ while [ $# -ge 2 ]; do printf '%s' "$1" | "$cliphist" decode > "$2"; shift 2; do
         }
         const out = [];
         for (const entry of entries) {
-            const m = Fuzzy.match(query, entry.image ? entry.image.type + " image" : entry.text);
+            // Substring only: entries are long, and scattered letters match most.
+            const m = Fuzzy.best(query, [[entry.image ? entry.image.type + " image" : entry.text, 1, true]]);
             if (!m)
                 continue;
             const it = item(entry, m);

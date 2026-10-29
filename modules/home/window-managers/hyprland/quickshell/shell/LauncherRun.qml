@@ -70,7 +70,7 @@ Singleton {
             const c = history[i];
             if (c === q)
                 continue;
-            const m = q ? Fuzzy.match(q, c) : { score: 0, positions: [] };
+            const m = q ? Fuzzy.best(q, [[c, 1, true]]) : { score: 0, positions: [] };
             if (m)
                 matches.push({ c, m, i });
         }

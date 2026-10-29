@@ -63,13 +63,18 @@ function match(query, text) {
     return { score: score - t.length * 0.1, positions };
 }
 
-// Best match over several fields: [[text, weight], ...]. Returns
+// Substring matches score from about 700; subsequences stay well below.
+const substringScore = 500;
+
+// Best match over several fields: [[text, weight, strict], ...]. A strict
+// field (long descriptions, keywords) only counts substring matches: letters
+// scattered across a sentence match nearly anything. Returns
 // { score, field, positions } or null; field is the index of the winner.
 function best(query, fields) {
     let result = null;
     for (let i = 0; i < fields.length; i++) {
         const m = match(query, fields[i][0]);
-        if (!m)
+        if (!m || (fields[i][2] && m.score < substringScore))
             continue;
         const score = m.score * fields[i][1];
         if (!result || score > result.score)

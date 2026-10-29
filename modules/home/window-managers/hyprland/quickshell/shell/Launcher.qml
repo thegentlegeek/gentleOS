@@ -50,6 +50,7 @@ PanelWindow {
     onVisibleChanged: {
         if (!visible)
             return;
+        lastPoint = null;
         input.text = LauncherState.query;
         input.forceActiveFocus();
     }
@@ -82,6 +83,17 @@ PanelWindow {
             emojiView.positionViewAtBeginning();
             columns.contentY = 0;
         }
+    }
+
+    // Where the pointer was last seen over a row, so only real movement
+    // selects: opening under a resting pointer must not move the selection.
+    property var lastPoint: null
+
+    function point(p, index) {
+        const moved = lastPoint && Math.abs(p.x - lastPoint.x) + Math.abs(p.y - lastPoint.y) > 2;
+        lastPoint = p;
+        if (moved)
+            selected = index;
     }
 
     function plural(n, word) {
@@ -461,7 +473,7 @@ PanelWindow {
                         row: modelData
                         first: index === 0
                         selected: root.selected === index
-                        onPointed: root.selected = index
+                        onPointed: point => root.point(point, index)
                         onActivated: alt => LauncherState.activate(modelData, alt)
                     }
                 }
@@ -595,7 +607,7 @@ PanelWindow {
                                         anchors.fill: parent
                                         hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor
-                                        onPositionChanged: root.selected = cell.modelData
+                                        onPositionChanged: mouse => root.point(mapToItem(null, mouse.x, mouse.y), cell.modelData)
                                         onClicked: LauncherState.activate(LauncherState.rows[cell.modelData], false)
                                     }
                                 }
@@ -795,7 +807,7 @@ PanelWindow {
                                         first: modelData === column.modelData[0]
                                         selected: root.selected === modelData
                                         onSelectedChanged: if (selected) root.reveal(this)
-                                        onPointed: root.selected = modelData
+                                        onPointed: point => root.point(point, modelData)
                                         onActivated: alt => LauncherState.activate(row, alt)
                                     }
                                 }

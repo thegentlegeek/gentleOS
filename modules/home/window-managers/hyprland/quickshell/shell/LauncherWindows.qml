@@ -62,7 +62,7 @@ Singleton {
         const out = [];
         for (const t of Hyprland.toplevels.values) {
             const app = appOf(t);
-            const m = Fuzzy.best(query, [[t.title, 1], [app.name, 0.8], [app.cls, 0.6]]);
+            const m = Fuzzy.best(query, [[t.title, 1], [app.name, 0.8], [app.cls, 0.6, true]]);
             if (!m)
                 continue;
             const it = item(t, m);

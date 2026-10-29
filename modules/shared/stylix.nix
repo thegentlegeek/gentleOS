@@ -40,6 +40,36 @@ let
         "4b2054" = "${c.base0E}+${c.base00}@0.5";
       };
     };
+    # Diagonal stripes, scheme colors only. The original is the tarot scheme:
+    # a base03-base06 ramp ending in base0A, so this reproduces it there. The
+    # snowflake's dark arms are base0A (tarot: base02) to stay visible in
+    # low-contrast schemes.
+    stripes-ramp = {
+      src = ./wallpapers/nixos-wallpaper-custom.png;
+      bg = "0e091d";
+      colors = {
+        "74316b" = c.base03;
+        "8c406f" = c.base04;
+        "aa556f" = c.base05;
+        "c4686d" = c.base06;
+        "ff6565" = c.base0A;
+        "4b2054" = c.base0A;
+      };
+    };
+    # Diagonal stripes, scheme colors only, mirrored: base0E, then a dip
+    # through base04 to base03 in the middle, and back out to base0E.
+    stripes-mirror = {
+      src = ./wallpapers/nixos-wallpaper-custom.png;
+      bg = "0e091d";
+      colors = {
+        "74316b" = c.base0E;
+        "8c406f" = c.base04;
+        "aa556f" = c.base03;
+        "c4686d" = c.base04;
+        "ff6565" = c.base0E;
+        "4b2054" = c.base0E;
+      };
+    };
   };
 
   recolor =
@@ -59,12 +89,12 @@ in
   options.gentleOS.theme = {
     scheme = lib.mkOption {
       type = lib.types.str;
-      default = "lime";
+      default = "eris";
       description = "base16 scheme: a file name (without .yaml) in pkgs.base16-schemes.";
     };
     wallpaper = lib.mkOption {
       type = lib.types.enum (builtins.attrNames wallpapers);
-      default = "stripes";
+      default = "stripes-mirror";
       description = "Wallpaper, recolored to the scheme.";
     };
   };

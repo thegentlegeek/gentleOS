@@ -90,13 +90,14 @@ hl.config({
         },
         blur = {
             enabled           = true,
-            size              = 6,
+            size              = 12,
             passes            = 2,
             new_optimizations = true,
             popups            = false,
             vibrancy          = 0.1696,
             ignore_opacity    = true,
             xray              = false,
+            variant           = "kawase",
         },
     },
 

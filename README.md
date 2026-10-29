@@ -61,6 +61,20 @@ Captured on the real desktop by `gentle-screenshots`, one set per theme in the f
 
 ![catppuccin-mocha: cheatsheet](media/screenshots/catppuccin-mocha/6-cheatsheet.png)
 
+#### gruvbox-dark
+
+![gruvbox-dark: desktop](media/screenshots/gruvbox-dark/1-desktop.png)
+
+![gruvbox-dark: launcher](media/screenshots/gruvbox-dark/2-launcher.png)
+
+![gruvbox-dark: tiled](media/screenshots/gruvbox-dark/3-tiled.png)
+
+![gruvbox-dark: quick-settings](media/screenshots/gruvbox-dark/4-quick-settings.png)
+
+![gruvbox-dark: notifications](media/screenshots/gruvbox-dark/5-notifications.png)
+
+![gruvbox-dark: cheatsheet](media/screenshots/gruvbox-dark/6-cheatsheet.png)
+
 #### lime
 
 ![lime: desktop](media/screenshots/lime/1-desktop.png)
@@ -74,6 +88,20 @@ Captured on the real desktop by `gentle-screenshots`, one set per theme in the f
 ![lime: notifications](media/screenshots/lime/5-notifications.png)
 
 ![lime: cheatsheet](media/screenshots/lime/6-cheatsheet.png)
+
+#### outrun-dark
+
+![outrun-dark: desktop](media/screenshots/outrun-dark/1-desktop.png)
+
+![outrun-dark: launcher](media/screenshots/outrun-dark/2-launcher.png)
+
+![outrun-dark: tiled](media/screenshots/outrun-dark/3-tiled.png)
+
+![outrun-dark: quick-settings](media/screenshots/outrun-dark/4-quick-settings.png)
+
+![outrun-dark: notifications](media/screenshots/outrun-dark/5-notifications.png)
+
+![outrun-dark: cheatsheet](media/screenshots/outrun-dark/6-cheatsheet.png)
 
 #### standardized-dark
 

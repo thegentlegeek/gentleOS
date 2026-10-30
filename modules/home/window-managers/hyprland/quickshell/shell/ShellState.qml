@@ -10,6 +10,8 @@ Singleton {
 
     // The open panel: "", "quickSettings", "notifications" or "session".
     property string openPanel: ""
+    // The password prompt on screen ("pinentry", "polkit" or ""); see AuthPrompt.qml.
+    property string authOwner: ""
     // Holds a Wayland idle inhibitor on the bar (hypridle honours it).
     // Kept in the runtime dir so it survives shell restarts (home-manager
     // switch) but not logout or reboot.

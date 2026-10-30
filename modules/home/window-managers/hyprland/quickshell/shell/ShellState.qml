@@ -2,6 +2,7 @@ pragma Singleton
 
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import QtQuick
 
 Singleton {
@@ -10,7 +11,10 @@ Singleton {
     // The open panel: "", "quickSettings", "notifications" or "session".
     property string openPanel: ""
     // Holds a Wayland idle inhibitor on the bar (hypridle honours it).
-    property bool caffeine: false
+    // Kept in the runtime dir so it survives shell restarts (home-manager
+    // switch) but not logout or reboot.
+    property alias caffeine: caffeineStore.enabled
+    onCaffeineChanged: caffeineFile.writeAdapter()
 
     // Panels open on the monitor that has focus.
     readonly property ShellScreen focusedScreen:
@@ -42,5 +46,17 @@ Singleton {
     function run(command) {
         openPanel = "";
         Quickshell.execDetached(command);
+    }
+
+    FileView {
+        id: caffeineFile
+        path: Quickshell.env("XDG_RUNTIME_DIR") + "/gentle-caffeine.json"
+        // Missing until keep awake is first toggled.
+        printErrors: false
+
+        JsonAdapter {
+            id: caffeineStore
+            property bool enabled: false
+        }
     }
 }

@@ -332,9 +332,9 @@ User environments (the Hyprland desktop included) are standalone Home Manager co
 1. Edit the `gentleOS.theme` defaults in `modules/shared/stylix.nix`:
    ```nix
    options.gentleOS.theme = {
-     scheme = lib.mkOption { default = "apathy"; ... };       # a scheme file name, without .yaml
+     scheme = lib.mkOption { default = "<scheme>"; ... };     # a scheme file name, without .yaml
      system = lib.mkOption { default = "base16"; ... };       # "base16" or "base24": the folder it's in
-     wallpaper = lib.mkOption { default = "stripes-mirror"; ... };  # a recipe in `wallpapers`
+     wallpaper = lib.mkOption { default = "<recipe>"; ... };  # a recipe in `wallpapers`
    };
    ```
    Schemes come straight from the [tinted-theming/schemes](https://github.com/tinted-theming/schemes) flake input, so `nix flake update tinted-schemes` picks up new ones. Set `system = "base24"` for schemes that only exist as base24 (such as `one-dark` or `cobalt2`).
@@ -370,7 +370,7 @@ User environments (the Hyprland desktop included) are standalone Home Manager co
 
 ```bash
 gentle-screenshots                     # every theme, from ~/gentleOS
-gentle-screenshots -f ~/src/gentleOS nord
+gentle-screenshots -f ~/src/gentleOS THEME   # one screenshotHomes theme, from another checkout
 gentle-screenshots -r                  # only rewrite the Screenshots section from the existing shots
 ```
 

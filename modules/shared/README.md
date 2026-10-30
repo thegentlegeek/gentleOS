@@ -19,9 +19,9 @@ Change the defaults of `gentleOS.theme` in `stylix.nix`:
 
 ```nix
 options.gentleOS.theme = {
-  scheme = lib.mkOption { default = "apathy"; ... };            # a scheme file name, without .yaml
-  system = lib.mkOption { default = "base16"; ... };            # "base16" or "base24": the folder it's in
-  wallpaper = lib.mkOption { default = "stripes-mirror"; ... };  # a recipe from `wallpapers`
+  scheme = lib.mkOption { default = "<scheme>"; ... };     # a scheme file name, without .yaml
+  system = lib.mkOption { default = "base16"; ... };       # "base16" or "base24": the folder it's in
+  wallpaper = lib.mkOption { default = "<recipe>"; ... };  # a recipe from `wallpapers`
 };
 ```
 

@@ -47,7 +47,7 @@ Singleton {
 
     readonly property var keyNames: ({
         "SUPER": "Super", "SHIFT": "Shift", "CTRL": "Ctrl", "ALT": "Alt",
-        "slash": "/", "Escape": "Esc", "Return": "Enter", "Print": "PrtSc",
+        "slash": "/", "Escape": "Esc", "Return": "Enter", "Print": "PrtSc", "space": "Space",
         "left": "←", "right": "→", "up": "↑", "down": "↓",
         "mouse:272": "Left drag", "mouse:273": "Right drag",
         "mouse_up": "Scroll ↑", "mouse_down": "Scroll ↓"

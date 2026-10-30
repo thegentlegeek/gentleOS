@@ -80,7 +80,7 @@ hl.config({
 
     decoration = {
         rounding         = 10,
-        active_opacity   = 0.93,
+        active_opacity   = 0.95,
         inactive_opacity = 0.8,
         shadow = {
             enabled      = true,
@@ -192,7 +192,7 @@ end
 
 -- Apps
 bind(key("C"),         hl.dsp.exec_cmd(cmd.terminal),        "Apps: Terminal")
-bind(key("A"),         hl.dsp.exec_cmd(cmd.menu),            "Apps: App launcher")
+bind(key("space"),     hl.dsp.exec_cmd(cmd.menu),            "Apps: App launcher")
 bind(key("F"),         hl.dsp.exec_cmd(cmd.fileManager),     "Apps: File manager (yazi)")
 bind(key("B"),         hl.dsp.exec_cmd(cmd.browserPersonal), "Apps: Browser (personal profile)")
 bind(key("SHIFT + B"), hl.dsp.exec_cmd(cmd.browserWork),     "Apps: Browser (work profile)")
@@ -224,7 +224,7 @@ bind(key("mouse:272"), hl.dsp.window.drag(),   "Windows: Move with mouse",   { m
 bind(key("mouse:273"), hl.dsp.window.resize(), "Windows: Resize with mouse", { mouse = true })
 
 -- Resize mode: arrows resize the active window, Esc/Enter leave the mode.
-bind(key("R"), hl.dsp.submap("resize"), "Windows: Resize mode (arrows, Esc to exit)")
+bind(key("R"), hl.dsp.submap("resize"), "Resize: Resize mode (arrows, Esc to exit)")
 submap("resize", function()
     local step = { repeating = true }
     bind("right",  hl.dsp.window.resize({ x = 40,  y = 0,   relative = true }), "Resize: Wider",   step)

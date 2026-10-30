@@ -22,7 +22,7 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
 1. **Hyprland configurations are located:**
     - **System level:** `modules/nixos/window-managers/hyprland/` - This is where system level packages and settings are defined. Base things that enable Hyprland to work for all users (Hyprland + its portal from the upstream flake, UWSM session, greetd/ReGreet login screen, Thunar, system packages).
     - **User level:** `modules/home/window-managers/hyprland/` - This is where user level settings are defined through Home Manager. The Hyprland config itself is native Lua in `hyprland.lua` (keybindings, rules, per-host monitor layouts); the Nix files around it handle the session environment, the desktop shell, hypridle/hyprlock and plugins. Press `SUPER + /` for a cheat sheet of every keybinding.
-    - **Desktop shell:** `quickshell/` is a [Quickshell](https://quickshell.outfoxxed.me) (QML) bar, quick settings panel (`SUPER + I`), notification center (`SUPER + N`), launcher (`SUPER + Space`) and password prompt for rbw/gpg. Its colors and fonts come from Stylix, generated into `Theme.qml.json`.
+    - **Desktop shell:** `modules/home/window-managers/hyprland/quickshell/` is a [Quickshell](https://quickshell.outfoxxed.me) (QML) bar, quick settings panel (`SUPER + I`), notification center (`SUPER + N`), launcher (`SUPER + Space`), volume/brightness OSD, polkit agent and password prompt for rbw/gpg. Its colors and fonts come from Stylix, generated into `Theme.qml.json`.
     - **Launcher:** `SUPER + Space` searches apps, open windows, keybinds and the clipboard at once. Typing a prefix first switches mode: `:` clipboard (also `SUPER + V`), `?` keybinds (also `SUPER + /`; Enter runs the bind), `=` calculator, `@` windows, `.` emoji and Nerd Font glyphs, `>` run a command, `!` power. The footer lists them.
 
 2. **Theming is controlled by [Stylix](https://github.com/danth/stylix).** The main Stylix configuration lives in `modules/shared/stylix.nix` and is imported by both NixOS system configurations and Home Manager. Pick a base16 or base24 scheme and a wallpaper (recolored to the scheme) with the `gentleOS.theme` defaults in that file, then rebuild both: the system side themes the login screen and console, Home Manager themes the desktop itself.
@@ -206,6 +206,7 @@ This configuration uses the following external inputs:
 | `unstable` | nixos-unstable | Unstable packages for specific hosts |
 | `home-manager` | release-26.05 | User environment management |
 | `stylix` | release-26.05 | System-wide theming with base16 |
+| `tinted-schemes` | latest | base16/base24 color schemes from [tinted-theming/schemes](https://github.com/tinted-theming/schemes), read by `modules/shared/stylix.nix` |
 | `hyprland` | release tag (e.g. `v0.57.0`) | Hyprland compositor + portal, upstream flake |
 | `hyprland-plugins` | release tag matching `hyprland` | Hyprland plugins, built against the pinned Hyprland |
 | `nix-wallpaper` | latest | Declared but currently unused; wallpapers are recolored by `modules/shared/wallpapers/recolor.py` |
@@ -259,7 +260,6 @@ This section explains how to adapt this configuration for your own systems.
    { pkgs, lib, inputs, config, ... }:
    {
      imports = [
-       inputs.home-manager.nixosModules.home-manager
        ./hardware-configuration.nix
        ../../users/YOUR_USERNAME/system.nix
        ../../modules/nixos/base.nix
@@ -332,9 +332,9 @@ User environments (the Hyprland desktop included) are standalone Home Manager co
 1. Edit the `gentleOS.theme` defaults in `modules/shared/stylix.nix`:
    ```nix
    options.gentleOS.theme = {
-     scheme = lib.mkOption { default = "lime"; ... };         # a scheme file name, without .yaml
+     scheme = lib.mkOption { default = "apathy"; ... };       # a scheme file name, without .yaml
      system = lib.mkOption { default = "base16"; ... };       # "base16" or "base24": the folder it's in
-     wallpaper = lib.mkOption { default = "stripes"; ... };   # a recipe in `wallpapers`
+     wallpaper = lib.mkOption { default = "stripes-mirror"; ... };  # a recipe in `wallpapers`
    };
    ```
    Schemes come straight from the [tinted-theming/schemes](https://github.com/tinted-theming/schemes) flake input, so `nix flake update tinted-schemes` picks up new ones. Set `system = "base24"` for schemes that only exist as base24 (such as `one-dark` or `cobalt2`).
@@ -370,7 +370,7 @@ User environments (the Hyprland desktop included) are standalone Home Manager co
 
 ```bash
 gentle-screenshots                     # every theme, from ~/gentleOS
-gentle-screenshots -f ~/src/gentleOS lime
+gentle-screenshots -f ~/src/gentleOS nord
 gentle-screenshots -r                  # only rewrite the Screenshots section from the existing shots
 ```
 

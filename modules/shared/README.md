@@ -19,7 +19,7 @@ Change the defaults of `gentleOS.theme` in `stylix.nix`:
 
 ```nix
 options.gentleOS.theme = {
-  scheme = lib.mkOption { default = "eris"; ... };              # a scheme file name, without .yaml
+  scheme = lib.mkOption { default = "apathy"; ... };            # a scheme file name, without .yaml
   system = lib.mkOption { default = "base16"; ... };            # "base16" or "base24": the folder it's in
   wallpaper = lib.mkOption { default = "stripes-mirror"; ... };  # a recipe from `wallpapers`
 };
@@ -103,7 +103,7 @@ scheme, so only the original `stripes` recipe uses it.
 
 | Recipe | Source | Mapping |
 |---|---|---|
-| `stripes-mirror` | diagonal stripes | Only scheme colors, mirrored: base0E, base04, base03 (middle), base04, base0E. Snowflake: base04 and base0E. |
+| `stripes-mirror` | diagonal stripes | Only scheme colors, mirrored: base0D, base04, base03 (middle), base04, base0D. Snowflake: base04 and base0D. |
 | `stripes-ramp` | diagonal stripes | The designer's mapping: a base03 → base06 ramp ending in base0A. The source image *is* the `tarot` scheme, so this reproduces it there exactly, except that the snowflake's dark arms are base0A instead of base02, so they stay visible in low-contrast schemes. |
 | `stripes` | diagonal stripes | A blended gradient from base0E to base08. Smooth in every scheme, but the middle three stripes are blends, not scheme colors. |
 | `snowflake` | NixOS snowflake | Six accents onto their matching hues (base08, 0A, 0B, 0C, 0D, 0E). |

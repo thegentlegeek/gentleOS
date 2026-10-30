@@ -91,7 +91,12 @@ in
     scheme = lib.mkOption {
       type = lib.types.str;
       default = "apathy";
-      description = "base16 scheme: a file name (without .yaml) in the tinted-schemes input's base16/.";
+      description = "Scheme: a file name (without .yaml) in the tinted-schemes input's base16/ or base24/ (see system).";
+    };
+    system = lib.mkOption {
+      type = lib.types.enum [ "base16" "base24" ];
+      default = "base16";
+      description = "Which tinted-schemes folder scheme is read from. Stylix themes from base00-base0F either way; base24's extra colors only reach a few targets (starship, k9s).";
     };
     wallpaper = lib.mkOption {
       type = lib.types.enum (builtins.attrNames wallpapers);
@@ -115,10 +120,10 @@ in
           in
           if m == null then line else builtins.head m;
         yaml = builtins.unsafeDiscardStringContext (
-          builtins.readFile "${inputs.tinted-schemes}/base16/${theme.scheme}.yaml"
+          builtins.readFile "${inputs.tinted-schemes}/${theme.system}/${theme.scheme}.yaml"
         );
       in
-      builtins.toFile "${theme.scheme}.yaml" (
+      builtins.toFile "${theme.system}-${theme.scheme}.yaml" (
         lib.concatMapStringsSep "\n" stripComment (lib.splitString "\n" yaml)
       );
     

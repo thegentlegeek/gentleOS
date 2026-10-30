@@ -134,6 +134,25 @@ Rectangle {
             }
         }
 
+        // Tab lists the selection's actions (app desktop actions).
+        Row {
+            anchors.verticalCenter: parent.verticalCenter
+            visible: root.selected && (root.item.actions ?? []).length > 0
+            spacing: 6
+
+            KeyCaps {
+                anchors.verticalCenter: parent.verticalCenter
+                keys: ["⇥"]
+            }
+
+            PanelText {
+                anchors.verticalCenter: parent.verticalCenter
+                text: "Actions"
+                color: Style.subtle
+                font.pointSize: Style.fontSizeSmall
+            }
+        }
+
         KeyCaps {
             anchors.verticalCenter: parent.verticalCenter
             keys: root.item.keys ?? []

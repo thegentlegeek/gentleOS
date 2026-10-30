@@ -20,6 +20,8 @@ PanelWindow {
     onSelectedChanged: selectedRow = LauncherState.rows[selected] ?? null
 
     readonly property var mode: LauncherState.currentMode
+    // Footer key hints: the actions list's, else the mode's (none: mode prefixes).
+    readonly property var hints: LauncherState.actionsOf ? [[["↵"], "open"], [["Esc"], "back"]] : mode?.hints
     readonly property bool split: mode?.split ?? false
 
     visible: LauncherState.open
@@ -893,10 +895,10 @@ PanelWindow {
                     x: 18
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 18
-                    visible: root.mode?.hints !== undefined
+                    visible: root.hints !== undefined
 
                     Repeater {
-                        model: root.mode?.hints ?? []
+                        model: root.hints ?? []
 
                         Row {
                             id: hint
@@ -924,7 +926,7 @@ PanelWindow {
                     x: 18
                     anchors.verticalCenter: parent.verticalCenter
                     spacing: 16
-                    visible: root.mode?.hints === undefined && LauncherState.mode !== "emoji"
+                    visible: root.hints === undefined && LauncherState.mode !== "emoji"
 
                     Repeater {
                         model: LauncherState.modes

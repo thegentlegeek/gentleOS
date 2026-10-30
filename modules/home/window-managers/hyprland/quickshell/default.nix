@@ -54,14 +54,20 @@ let
 
   # pinentry for rbw/gpg: the shell's prompt (shell/Pinentry.qml) through its
   # socket, or pinentry-tty without a graphical session or a running shell.
-  # socat exits before reading stdin if it can't connect, so the fallback still
-  # gets the whole conversation.
+  # The probe connects without touching stdin, so the fallback still gets the
+  # whole conversation.
+  #
+  # rbw closes stdin right after GETPIN, before reading the answer. Passed on
+  # as is, that EOF closes the socket and the prompt with it, so it becomes a
+  # BYE instead (the shell runs it once the prompt is answered) and socat
+  # neither shuts the socket down nor gives up while the prompt is open.
   pinentry = pkgs.writeShellApplication {
     name = "pinentry-gentle";
     runtimeInputs = [ pkgs.socat pkgs.pinentry-tty ];
     text = ''
       sock="''${XDG_RUNTIME_DIR:-}/gentle-pinentry.sock"
-      if [ -n "''${WAYLAND_DISPLAY:-}" ] && [ -S "$sock" ] && socat STDIO UNIX-CONNECT:"$sock" 2>/dev/null; then
+      if [ -n "''${WAYLAND_DISPLAY:-}" ] && [ -S "$sock" ] && socat -u OPEN:/dev/null UNIX-CONNECT:"$sock" 2>/dev/null; then
+        { cat; echo BYE; } | socat -t 86400 STDIO UNIX-CONNECT:"$sock",shut-none 2>/dev/null || true
         exit 0
       fi
       exec pinentry-tty "$@"

@@ -122,7 +122,7 @@ PanelFrame {
                     PanelText {
                         anchors.centerIn: parent
                         text: day.modelData.getDate()
-                        color: day.inMonth ? Style.base07 : Style.base03
+                        color: day.inMonth ? Style.fg : Style.base03
                         font.bold: day.isToday
                     }
                 }

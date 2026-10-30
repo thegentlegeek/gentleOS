@@ -22,8 +22,8 @@ Pill {
             width: Math.max(28, label.implicitWidth + 16)
             height: 20
             radius: Style.radius - 2
-            color: modelData.focused ? Style.base0D
-                : modelData.urgent ? Style.base08
+            color: modelData.focused ? Style.highlight
+                : modelData.urgent ? Style.alert
                 : modelData.active ? Style.base03
                 : area.containsMouse ? Style.base03
                 : "transparent"
@@ -32,6 +32,9 @@ Pill {
                 id: label
                 anchors.centerIn: parent
                 text: chip.modelData.name
+                color: chip.modelData.focused ? Style.highlightText
+                    : chip.modelData.urgent ? Style.alertText
+                    : Style.fg
                 font.pixelSize: Style.fontSizeBar - 1
                 font.bold: chip.modelData.focused
             }

@@ -31,7 +31,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         width: 22
         text: root.icon
-        color: root.highlighted ? Style.base0D : Style.base07
+        color: root.highlighted ? Style.base0D : Style.fg
         font.pixelSize: 16
     }
 
@@ -42,7 +42,7 @@ Rectangle {
         anchors.rightMargin: 8
         anchors.verticalCenter: parent.verticalCenter
         text: root.text
-        color: root.highlighted ? Style.base0D : Style.base07
+        color: root.highlighted ? Style.base0D : Style.fg
         font.bold: root.highlighted
     }
 

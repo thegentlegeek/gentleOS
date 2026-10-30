@@ -171,7 +171,7 @@ PanelWindow {
                     echoMode: root.echo ? TextInput.Normal : TextInput.Password
                     passwordCharacter: "•"
                     readOnly: root.busy
-                    color: root.busy ? Style.subtle : Style.base07
+                    color: root.busy ? Style.subtle : Style.fg
                     font.family: Style.fontShell
                     font.pointSize: Style.fontSize + 2
                     clip: true

@@ -28,24 +28,24 @@ Pill {
         BarText {
             visible: Audio.ready
             text: Audio.icon
-            color: Audio.muted ? Style.muted : Style.base07
+            color: Audio.muted ? Style.muted : Style.fg
         }
 
         BarText {
             text: Net.icon
-            color: Net.wiredDevice || Net.activeWifi ? Style.base07 : Style.base0A
+            color: Net.wiredDevice || Net.activeWifi ? Style.fg : Style.base0A
         }
 
         BarText {
             visible: root.btOn
             text: Icons.bluetooth
-            color: root.btConnected.length > 0 ? Style.base0D : Style.base07
+            color: root.btConnected.length > 0 ? Style.base0D : Style.fg
         }
 
         BarText {
             visible: Battery.present
             text: `${Battery.icon} ${Battery.percent}%`
-            color: Battery.low ? Style.base08 : Battery.charging ? Style.base0B : Style.base07
+            color: Battery.low ? Style.base08 : Battery.charging ? Style.base0B : Style.fg
         }
     }
 }

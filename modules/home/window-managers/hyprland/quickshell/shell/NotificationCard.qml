@@ -25,9 +25,12 @@ Rectangle {
         return Quickshell.iconPath(i, true);
     }
 
+    // Popups are filled with the alert/highlight color; text follows it.
+    readonly property color textColor: !popup ? Style.fg : critical ? Style.alertText : Style.highlightText
+
     implicitHeight: layout.implicitHeight + 24
     radius: Style.radius
-    color: popup ? Style.alpha(critical ? Style.base08 : Style.base0D, Style.popupAlpha)
+    color: popup ? Style.alpha(critical ? Style.alert : Style.highlight, Style.popupAlpha)
         : critical ? Style.alpha(Style.base08, 0.4) : Style.base01
     border.width: popup ? 0 : 1
     border.color: critical ? Style.base08 : Style.base02
@@ -81,6 +84,7 @@ Rectangle {
                 spacing: 2
 
                 PanelText {
+                    color: root.textColor
                     width: parent.width
                     text: root.notif.appName
                     font.pointSize: Style.fontSizeSmall
@@ -88,12 +92,14 @@ Rectangle {
                 }
 
                 PanelText {
+                    color: root.textColor
                     width: parent.width
                     text: root.notif.summary
                     font.bold: true
                 }
 
                 PanelText {
+                    color: root.textColor
                     width: parent.width
                     visible: text !== ""
                     text: root.notif.body
@@ -111,6 +117,7 @@ Rectangle {
                 color: closeArea.containsMouse ? Style.alpha(Style.base00, 0.3) : "transparent"
 
                 BarText {
+                    color: root.textColor
                     anchors.centerIn: parent
                     text: Icons.close
                     font.pixelSize: 14
@@ -146,6 +153,7 @@ Rectangle {
                     PanelText {
                         id: actionText
                         anchors.centerIn: parent
+                        color: root.textColor
                         text: action.modelData.text
                     }
 

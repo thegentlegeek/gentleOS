@@ -38,6 +38,21 @@ Singleton {
     readonly property real popupAlpha: Theme.popupAlpha
     readonly property int radius: Theme.radius
 
+    // Light text: the lightest of base05-base07. base07 alone is an accent or a
+    // dark tone in some schemes (Nord, Rosé Pine).
+    readonly property color fg: [base05, base06, base07].reduce((a, b) => _y(b) > _y(a) ? b : a)
+
+    // Filled pills with text on them (clock, focused workspace, notification
+    // popups): base0D/base08 with whichever of base00/fg reads better, and the
+    // fill's lightness nudged a little if that still isn't enough. See legible().
+    // (Not onHighlight/onAlert: QML takes on<Capital> names as signal handlers.)
+    readonly property var _highlight: legible(base0D)
+    readonly property color highlight: _highlight.fill
+    readonly property color highlightText: _highlight.text
+    readonly property var _alert: legible(base08)
+    readonly property color alert: _alert.fill
+    readonly property color alertText: _alert.text
+
     readonly property color panelBg: alpha(base00, popupAlpha)
     // Bar modules share one surface; color is reserved for state.
     readonly property color pillBg: base02
@@ -54,5 +69,62 @@ Singleton {
 
     function mix(a, b, t) {
         return Qt.rgba(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, 1);
+    }
+
+    // APCA lightness contrast (|Lc|, 0-106) of text on bg. WCAG 2 ratios
+    // undercount light text on mid-tone colors, which is most base16 accents.
+    // Lc 45 is the usual floor for short bold labels, 60 is comfortable.
+    function contrast(text, bg) {
+        const yt = _y(text), yb = _y(bg);
+        if (Math.abs(yb - yt) < 0.0005)
+            return 0;
+        const s = yb > yt ? (Math.pow(yb, 0.56) - Math.pow(yt, 0.57)) * 1.14
+            : (Math.pow(yb, 0.65) - Math.pow(yt, 0.62)) * 1.14;
+        return Math.abs(s) < 0.1 ? 0 : (Math.abs(s) - 0.027) * 100;
+    }
+
+    // A fill for `bg` and text to put on it: base00 or fg, whichever reads
+    // better, then the fill's OKLab lightness (hue and chroma kept) moved away
+    // from the text until it reaches Lc 55. The nudge is capped so the fill
+    // stays recognizably the scheme's color; most schemes need none.
+    function legible(bg) {
+        const text = contrast(base00, bg) > contrast(fg, bg) ? base00 : fg;
+        const lab = _toOklab(bg);
+        const step = _y(text) > _y(bg) ? -0.005 : 0.005;
+        let fill = bg, l = lab.l;
+        while (contrast(text, fill) < 55 && Math.abs(l - lab.l) < 0.12 && l > 0.02 && l < 0.98) {
+            l += step;
+            fill = _fromOklab(l, lab.a, lab.b);
+        }
+        return { fill: fill, text: text };
+    }
+
+    // APCA screen luminance.
+    function _y(c) {
+        const y = 0.2126729 * Math.pow(c.r, 2.4) + 0.7151522 * Math.pow(c.g, 2.4) + 0.072175 * Math.pow(c.b, 2.4);
+        return y < 0.022 ? y + Math.pow(0.022 - y, 1.414) : y;
+    }
+
+    function _toOklab(c) {
+        const lin = x => x <= 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+        const r = lin(c.r), g = lin(c.g), b = lin(c.b);
+        const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+        const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+        const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+        return {
+            l: 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+            a: 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+            b: 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s
+        };
+    }
+
+    function _fromOklab(L, a, b) {
+        const l = Math.pow(L + 0.3963377774 * a + 0.2158037573 * b, 3);
+        const m = Math.pow(L - 0.1055613458 * a - 0.0638541728 * b, 3);
+        const s = Math.pow(L - 0.0894841775 * a - 1.291485548 * b, 3);
+        const gam = x => Math.min(1, Math.max(0, x <= 0.0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - 0.055));
+        return Qt.rgba(gam(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
+            gam(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
+            gam(-0.0041960771 * l - 0.7034186147 * m + 1.707614701 * s), 1);
     }
 }

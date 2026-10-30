@@ -320,9 +320,9 @@ PanelWindow {
                     anchors.right: extras.left
                     anchors.rightMargin: 12
                     anchors.verticalCenter: parent.verticalCenter
-                    color: Style.base07
+                    color: Style.fg
                     selectionColor: Style.base03
-                    selectedTextColor: Style.base07
+                    selectedTextColor: Style.fg
                     font.family: Style.fontShell
                     font.pointSize: Style.fontSize * 1.5
                     clip: true
@@ -392,7 +392,7 @@ PanelWindow {
                                         id: runText
                                         anchors.centerIn: parent
                                         text: runOption.modelData[0]
-                                        color: runOption.active ? Style.base07 : Style.subtle
+                                        color: runOption.active ? Style.fg : Style.subtle
                                         font.pointSize: Style.fontSizeSmall
                                     }
 
@@ -426,7 +426,7 @@ PanelWindow {
                                 id: tabText
                                 anchors.centerIn: parent
                                 text: tab.modelData[1]
-                                color: tab.active ? Style.base07 : Style.subtle
+                                color: tab.active ? Style.fg : Style.subtle
                                 font.pointSize: Style.fontSizeSmall
                             }
 
@@ -619,7 +619,7 @@ PanelWindow {
                                     Text {
                                         anchors.centerIn: parent
                                         text: LauncherState.rows[cell.modelData]?.char ?? ""
-                                        color: Style.base07
+                                        color: Style.fg
                                         font.family: Style.fontShell
                                         font.pixelSize: Math.round(cell.height * 0.5)
                                     }
@@ -867,7 +867,7 @@ PanelWindow {
                         id: bigChar
                         anchors.verticalCenter: parent.verticalCenter
                         text: root.current()?.char ?? ""
-                        color: Style.base07
+                        color: Style.fg
                         font.family: Style.fontShell
                         font.pixelSize: 30
                     }
@@ -982,7 +982,7 @@ PanelWindow {
                             PanelText {
                                 anchors.verticalCenter: parent.verticalCenter
                                 text: modeHint.modelData.label
-                                color: modeHint.active ? Style.base07 : Style.subtle
+                                color: modeHint.active ? Style.fg : Style.subtle
                                 font.pointSize: Style.fontSizeSmall
                             }
                         }

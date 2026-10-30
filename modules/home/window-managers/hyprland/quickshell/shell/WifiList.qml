@@ -72,7 +72,7 @@ Column {
                     anchors.rightMargin: 12
                     verticalAlignment: TextInput.AlignVCenter
                     echoMode: TextInput.Password
-                    color: Style.base07
+                    color: Style.fg
                     font.family: Style.fontShell
                     font.pointSize: Style.fontSize
                     clip: true

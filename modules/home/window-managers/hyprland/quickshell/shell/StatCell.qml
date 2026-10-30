@@ -28,7 +28,7 @@ Rectangle {
         PanelText {
             width: parent.width
             text: `${root.icon}  ${root.value}`
-            color: root.warn || root.critical ? root.accent : Style.base07
+            color: root.warn || root.critical ? root.accent : Style.fg
             font.bold: true
         }
 

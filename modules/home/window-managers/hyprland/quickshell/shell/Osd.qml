@@ -75,7 +75,7 @@ PanelWindow {
                 text: root.kind === "mic" ? (Audio.micMuted ? "Microphone muted" : "Microphone on")
                     : Audio.sink?.description || Audio.sink?.nickname || Audio.sink?.name || "Audio output"
                 font.pointSize: root.kind === "mic" ? Style.fontSize : Style.fontSizeSmall
-                color: root.kind === "mic" ? Style.base07 : Style.base06
+                color: root.kind === "mic" ? Style.fg : Style.base06
             }
 
             Rectangle {
@@ -107,7 +107,7 @@ PanelWindow {
             width: 40
             horizontalAlignment: Text.AlignRight
             text: root.dimmed ? "Muted" : Math.round(root.level * 100) + "%"
-            color: root.dimmed ? Style.subtle : Style.base07
+            color: root.dimmed ? Style.subtle : Style.fg
             font.pointSize: root.dimmed ? Style.fontSizeSmall : Style.fontSize
         }
     }

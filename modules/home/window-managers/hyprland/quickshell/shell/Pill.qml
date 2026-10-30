@@ -7,7 +7,7 @@ Rectangle {
 
     default property alias content: row.data
     property string text: ""
-    property color fg: Style.base07
+    property color fg: Style.fg
     property bool italic: false
     property string tooltip: ""
     property int padding: 16

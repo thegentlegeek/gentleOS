@@ -33,7 +33,7 @@ Item {
                 radius: Style.radius
                 color: Style.alpha(Style.base00, 0.9)
                 border.width: 2
-                border.color: Style.base07
+                border.color: Style.fg
 
                 PanelText {
                     id: label

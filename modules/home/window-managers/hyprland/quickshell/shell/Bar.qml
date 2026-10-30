@@ -38,7 +38,8 @@ PanelWindow {
         spacing: 8
 
         Pill {
-            color: Style.base0D
+            color: Style.highlight
+            fg: Style.highlightText
             // 12-hour without AM/PM, as before.
             text: Qt.formatDateTime(time.date, "ddd MMM d") + "  " + Qt.formatDateTime(time.date, "h:mm AP").replace(/\s*[AP]M$/i, "")
             tooltip: Qt.formatDateTime(time.date, "dddd, MMMM d, yyyy")
@@ -92,7 +93,7 @@ PanelWindow {
 
         Pill {
             visible: Notifs.history.length > 0 || Notifs.dnd
-            fg: Notifs.dnd ? Style.base0A : Style.base07
+            fg: Notifs.dnd ? Style.base0A : Style.fg
             padding: 10
             text: (Notifs.dnd ? Icons.bellOff : Icons.bell) + (Notifs.history.length > 0 ? ` ${Notifs.history.length}` : "")
             tooltip: (Notifs.dnd ? "Do not disturb is on\n" : "") + "Click: notifications · Right click: do not disturb"

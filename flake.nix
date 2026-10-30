@@ -131,7 +131,7 @@
     }) {
       pastelon-de-amarillos-dark = { scheme = "pastelon-de-amarillos-dark"; wallpaper = "stripes-mirror"; };
       apathy = { scheme = "apathy"; wallpaper = "stripes-mirror"; };
-      nord = { scheme = "tarot"; wallpaper = "stripes-mirror"; };
+      nord = { scheme = "nord"; wallpaper = "stripes-mirror"; };
       gruvbox-dark = { scheme = "gruvbox-dark"; wallpaper = "stripes-mirror"; };
     };
 

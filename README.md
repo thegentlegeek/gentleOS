@@ -25,7 +25,7 @@ This project is focused on utilizing Hyprland and declaring all necessary compon
     - **Desktop shell:** `quickshell/` is a [Quickshell](https://quickshell.outfoxxed.me) (QML) bar, quick settings panel (`SUPER + I`), notification center (`SUPER + N`), launcher (`SUPER + Space`) and password prompt for rbw/gpg. Its colors and fonts come from Stylix, generated into `Theme.qml.json`.
     - **Launcher:** `SUPER + Space` searches apps, open windows, keybinds and the clipboard at once. Typing a prefix first switches mode: `:` clipboard (also `SUPER + V`), `?` keybinds (also `SUPER + /`; Enter runs the bind), `=` calculator, `@` windows, `.` emoji and Nerd Font glyphs, `>` run a command, `!` power. The footer lists them.
 
-2. **Theming is controlled by [Stylix](https://github.com/danth/stylix).** The main Stylix configuration lives in `modules/shared/stylix.nix` and is imported by both NixOS system configurations and Home Manager. Pick a base16 scheme and a wallpaper (recolored to the scheme) with the `gentleOS.theme` defaults in that file, then rebuild both: the system side themes the login screen and console, Home Manager themes the desktop itself.
+2. **Theming is controlled by [Stylix](https://github.com/danth/stylix).** The main Stylix configuration lives in `modules/shared/stylix.nix` and is imported by both NixOS system configurations and Home Manager. Pick a base16 or base24 scheme and a wallpaper (recolored to the scheme) with the `gentleOS.theme` defaults in that file, then rebuild both: the system side themes the login screen and console, Home Manager themes the desktop itself.
     ```bash
     sudo nixos-rebuild switch --flake .#<hostname>
     home-manager switch --flake .#<username>
@@ -332,10 +332,12 @@ User environments (the Hyprland desktop included) are standalone Home Manager co
 1. Edit the `gentleOS.theme` defaults in `modules/shared/stylix.nix`:
    ```nix
    options.gentleOS.theme = {
-     scheme = lib.mkOption { default = "lime"; ... };         # any pkgs.base16-schemes theme
+     scheme = lib.mkOption { default = "lime"; ... };         # a scheme file name, without .yaml
+     system = lib.mkOption { default = "base16"; ... };       # "base16" or "base24": the folder it's in
      wallpaper = lib.mkOption { default = "stripes"; ... };   # a recipe in `wallpapers`
    };
    ```
+   Schemes come straight from the [tinted-theming/schemes](https://github.com/tinted-theming/schemes) flake input, so `nix flake update tinted-schemes` picks up new ones. Set `system = "base24"` for schemes that only exist as base24 (such as `one-dark` or `cobalt2`).
    Wallpapers are flat-color images recolored to the scheme; add a recipe to `wallpapers` in the same file to use another one. See [`modules/shared/README.md`](modules/shared/README.md) for the recipes and how to add one.
 
 2. Browse available themes at [Tinted Theming Gallery](https://tinted-theming.github.io/tinted-gallery/)

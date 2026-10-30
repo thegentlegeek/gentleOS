@@ -1,6 +1,6 @@
 # Theming
 
-One base16 scheme themes everything: the desktop and its apps, the login screen,
+One base16 (or base24) scheme themes everything: the desktop and its apps, the login screen,
 the console and the wallpaper. [Stylix](https://github.com/danth/stylix) does
 the work. This folder holds its configuration, which both NixOS and Home Manager
 import, so the system and the desktop always agree.
@@ -19,7 +19,8 @@ Change the defaults of `gentleOS.theme` in `stylix.nix`:
 
 ```nix
 options.gentleOS.theme = {
-  scheme = lib.mkOption { default = "eris"; ... };              # any pkgs.base16-schemes file, without .yaml
+  scheme = lib.mkOption { default = "eris"; ... };              # a scheme file name, without .yaml
+  system = lib.mkOption { default = "base16"; ... };            # "base16" or "base24": the folder it's in
   wallpaper = lib.mkOption { default = "stripes-mirror"; ... };  # a recipe from `wallpapers`
 };
 ```
@@ -28,11 +29,23 @@ Change the defaults rather than setting `stylix.*` directly: the flake's
 `screenshotHomes` sets `gentleOS.theme` per theme to capture the README
 screenshots.
 
-List the available schemes:
+Schemes come from the `tinted-schemes` flake input, a pin of
+[tinted-theming/schemes](https://github.com/tinted-theming/schemes) rather than
+nixpkgs' older `base16-schemes` snapshot. `nix flake update tinted-schemes`
+picks up newly added ones. List them from the repo root:
 
 ```bash
-ls $(nix build --no-link --print-out-paths nixpkgs#base16-schemes)/share/themes
+ls $(nix flake archive --json | jq -r '.inputs."tinted-schemes".path')/base16
+ls $(nix flake archive --json | jq -r '.inputs."tinted-schemes".path')/base24
 ```
+
+Many schemes exist only as base24 (`one-dark`, `cobalt2`, the `lumina-*`
+family, ...); set `system = "base24"` to use one. Stylix themes from
+base00-base0F either way, and only a few targets (starship, k9s) use base24's
+extra colors.
+
+`stylix.nix` strips trailing YAML comments before Stylix parses a scheme:
+base16.nix's parser silently drops any line whose comment contains a colon.
 
 You can preview them in the [Tinted Theming gallery](https://tinted-theming.github.io/tinted-gallery/).
 For a light scheme, also set `stylix.polarity = "light"`.

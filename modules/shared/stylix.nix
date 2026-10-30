@@ -1,5 +1,6 @@
 {
  config,
+ inputs,
  lib,
  pkgs,
  ...
@@ -92,7 +93,12 @@ in
     scheme = lib.mkOption {
       type = lib.types.str;
       default = "nord";
-      description = "base16 scheme: a file name (without .yaml) in pkgs.base16-schemes.";
+      description = "Scheme: a file name (without .yaml) in the tinted-schemes input's base16/ or base24/ (see system).";
+    };
+    system = lib.mkOption {
+      type = lib.types.enum [ "base16" "base24" ];
+      default = "base16";
+      description = "Which tinted-schemes folder scheme is read from. Stylix themes from base00-base0F either way; base24's extra colors only reach a few targets (starship, k9s).";
     };
     wallpaper = lib.mkOption {
       type = lib.types.enum (builtins.attrNames wallpapers);
@@ -105,7 +111,23 @@ in
     enable = true;
     polarity = "dark";
     image = recolor theme.wallpaper;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/${theme.scheme}.yaml";
+    # Trailing comments are stripped first: base16.nix's YAML parser silently
+    # drops any line whose comment holds a colon (bogota's "# derived: ...").
+    base16Scheme =
+      let
+        stripComment =
+          line:
+          let
+            m = builtins.match ''(.*")[[:space:]]+#.*'' line;
+          in
+          if m == null then line else builtins.head m;
+        yaml = builtins.unsafeDiscardStringContext (
+          builtins.readFile "${inputs.tinted-schemes}/${theme.system}/${theme.scheme}.yaml"
+        );
+      in
+      builtins.toFile "${theme.system}-${theme.scheme}.yaml" (
+        lib.concatMapStringsSep "\n" stripComment (lib.splitString "\n" yaml)
+      );
     
     cursor = {
      package = pkgs.bibata-cursors;

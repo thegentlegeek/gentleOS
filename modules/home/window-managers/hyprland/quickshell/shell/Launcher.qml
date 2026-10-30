@@ -4,7 +4,8 @@ import Quickshell.Wayland
 import Quickshell.Widgets
 import QtQuick
 
-// The launcher: a command palette in the upper third of the focused monitor.
+// The launcher: a command palette on the focused monitor, in the upper third
+// until dragged up or down (double-click its background to put it back).
 // SUPER+Space (hyprland.lua) toggles it; typing a mode prefix (LauncherState.modes)
 // switches mode. Esc or a click outside closes it.
 PanelWindow {
@@ -27,13 +28,12 @@ PanelWindow {
     visible: LauncherState.open
     screen: ShellState.focusedScreen
     anchors.top: true
-    margins.top: Math.round((screen?.height ?? 1080) * 0.15)
+    anchors.bottom: true
     exclusiveZone: 0
-    // Sized for the widest and tallest mode, with the card drawn at the top and
-    // only the card taking input: resizing the surface as results change made
-    // Hyprland drop keystrokes typed during the resize.
+    // As wide as the widest mode and as tall as the monitor, with the card
+    // drawn inside it and only the card taking input: resizing or moving the
+    // surface as results change made Hyprland drop keystrokes typed meanwhile.
     implicitWidth: 1000
-    implicitHeight: 700
     color: "transparent"
     mask: Region {
         item: card
@@ -239,7 +239,12 @@ PanelWindow {
     Item {
         id: card
 
+        // Window y while being dragged, else -1.
+        property real dragY: -1
+
         anchors.horizontalCenter: parent.horizontalCenter
+        // Kept whole on screen, also when a taller mode opens near the bottom.
+        y: Math.max(0, Math.min(root.height - height, dragY >= 0 ? dragY : LauncherState.top * root.height))
         width: LauncherState.width
         height: content.implicitHeight + 4
 
@@ -247,6 +252,12 @@ PanelWindow {
             anchors.fill: parent
             radius: Style.radius
             color: Style.panelBg
+        }
+
+        // Double-clicking the background puts the card back where it started.
+        MouseArea {
+            anchors.fill: parent
+            onDoubleClicked: LauncherState.setTop(0.15)
         }
 
         Column {
@@ -463,7 +474,7 @@ PanelWindow {
                     leftMargin: 8
                     rightMargin: 8
                     clip: true
-                    boundsBehavior: Flickable.StopAtBounds
+                    interactive: false
                     model: used ? LauncherState.rows : []
                     header: LauncherState.mode === "calc" ? calcHeader : null
 
@@ -477,6 +488,10 @@ PanelWindow {
                         selected: root.selected === index
                         onPointed: point => root.point(point, index)
                         onActivated: alt => LauncherState.activate(modelData, alt)
+                    }
+
+                    WheelHandler {
+                        onWheel: event => root.wheel(list, event)
                     }
                 }
 
@@ -554,8 +569,12 @@ PanelWindow {
                     rightMargin: 14
                     spacing: 4
                     clip: true
-                    boundsBehavior: Flickable.StopAtBounds
+                    interactive: false
                     model: lines
+
+                    WheelHandler {
+                        onWheel: event => root.wheel(emojiView, event)
+                    }
 
                     delegate: Item {
                         id: line
@@ -779,7 +798,11 @@ PanelWindow {
                     height: visible ? Math.min(contentHeight, 540) : 0
                     contentHeight: columnsRow.implicitHeight + 14
                     clip: true
-                    boundsBehavior: Flickable.StopAtBounds
+                    interactive: false
+
+                    WheelHandler {
+                        onWheel: event => root.wheel(columns, event)
+                    }
 
                     Row {
                         id: columnsRow
@@ -976,6 +999,42 @@ PanelWindow {
             border.width: 2
             border.color: Style.base0E
         }
+
+        // Dragging anywhere moves the card up or down. On top of everything,
+        // but a handler only watches the press: rows, tabs and the search
+        // field still get it, and lose it (no click) once the drag starts.
+        Item {
+            anchors.fill: parent
+
+            DragHandler {
+                property real grab: 0
+
+                target: null
+                xAxis.enabled: false
+                cursorShape: Qt.ClosedHandCursor
+                onActiveChanged: {
+                    if (active) {
+                        grab = centroid.scenePressPosition.y - card.y;
+                    } else {
+                        LauncherState.setTop(card.y / root.height);
+                        card.dragY = -1;
+                    }
+                }
+                onCentroidChanged: {
+                    if (active)
+                        card.dragY = centroid.scenePosition.y - grab;
+                }
+            }
+        }
+    }
+
+    // Wheel scrolling for the result views, which don't scroll by dragging:
+    // dragging moves the card.
+    function wheel(view, event) {
+        const dy = event.pixelDelta.y !== 0 ? event.pixelDelta.y : event.angleDelta.y / 2;
+        const top = view.originY - view.topMargin;
+        const bottom = view.originY + view.contentHeight + view.bottomMargin - view.height;
+        view.contentY = Math.max(top, Math.min(Math.max(top, bottom), view.contentY - dy));
     }
 
     // Calc mode: the result above the history, with its other formats.

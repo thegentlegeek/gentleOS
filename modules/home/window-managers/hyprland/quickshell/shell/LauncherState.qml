@@ -308,6 +308,14 @@ Singleton {
         return store.pins.includes(id);
     }
 
+    // Where the launcher sits: its top edge as a fraction of the monitor height.
+    readonly property real top: store.top
+
+    function setTop(fraction) {
+        store.top = fraction;
+        storeFile.writeAdapter();
+    }
+
     function togglePin(id) {
         store.pins = isPinned(id) ? store.pins.filter(p => p !== id) : store.pins.concat([id]);
         storeFile.writeAdapter();
@@ -366,6 +374,8 @@ Singleton {
             property var pins: []
             // [{ expression, result }], newest first.
             property var calcHistory: []
+            // Launcher position (see `top` above).
+            property real top: 0.15
         }
     }
 }

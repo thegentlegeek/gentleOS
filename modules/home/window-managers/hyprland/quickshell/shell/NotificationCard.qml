@@ -27,7 +27,7 @@ Rectangle {
 
     implicitHeight: layout.implicitHeight + 24
     radius: Style.radius
-    color: popup ? Style.alpha(critical ? Style.base08 : Style.base0E, Style.popupAlpha)
+    color: popup ? Style.alpha(critical ? Style.base08 : Style.base0D, Style.popupAlpha)
         : critical ? Style.alpha(Style.base08, 0.4) : Style.base01
     border.width: popup ? 0 : 1
     border.color: critical ? Style.base08 : Style.base02

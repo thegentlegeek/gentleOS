@@ -28,7 +28,10 @@ Row {
             width: (root.width - root.spacing * (root.actions.length - 1)) / root.actions.length
             height: 64
             radius: Style.radius
-            color: area.containsMouse ? (index === root.actions.length - 1 ? Style.base08 : Style.base0D) : Style.base02
+            readonly property bool danger: index === root.actions.length - 1
+            readonly property color textColor: !area.containsMouse ? Style.fg : danger ? Style.alertText : Style.highlightText
+
+            color: area.containsMouse ? (danger ? Style.alert : Style.highlight) : Style.base02
 
             Column {
                 anchors.centerIn: parent
@@ -37,12 +40,14 @@ Row {
                 BarText {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: button.modelData.icon
+                    color: button.textColor
                     font.pixelSize: 20
                 }
 
                 PanelText {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: button.modelData.label
+                    color: button.textColor
                     font.pointSize: Style.fontSizeSmall
                 }
             }

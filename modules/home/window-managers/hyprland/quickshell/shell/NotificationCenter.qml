@@ -26,7 +26,8 @@ PanelFrame {
             spacing: 6
 
             Pill {
-                color: Notifs.dnd ? Style.base0D : Style.base02
+                color: Notifs.dnd ? Style.highlight : Style.base02
+                fg: Notifs.dnd ? Style.highlightText : Style.fg
                 padding: 10
                 implicitHeight: 30
                 text: Notifs.dnd ? Icons.bellOff : Icons.bell

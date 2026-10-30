@@ -116,13 +116,13 @@ PanelFrame {
                         width: 30
                         height: 30
                         radius: 15
-                        color: day.isToday ? Style.base0D : "transparent"
+                        color: day.isToday ? Style.highlight : "transparent"
                     }
 
                     PanelText {
                         anchors.centerIn: parent
                         text: day.modelData.getDate()
-                        color: day.inMonth ? Style.fg : Style.base03
+                        color: day.isToday ? Style.highlightText : day.inMonth ? Style.fg : Style.base03
                         font.bold: day.isToday
                     }
                 }

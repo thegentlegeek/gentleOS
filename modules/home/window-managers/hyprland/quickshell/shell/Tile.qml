@@ -14,9 +14,12 @@ Rectangle {
     signal toggled
     signal expandToggled
 
+    // Text follows the fill (see Style.highlightText).
+    readonly property color textColor: active ? Style.highlightText : Style.fg
+
     implicitHeight: 56
     radius: Style.radius
-    color: active ? Style.base0D : Style.base02
+    color: active ? Style.highlight : Style.base02
     opacity: mainArea.pressed ? 0.8 : 1
 
     MouseArea {
@@ -39,6 +42,7 @@ Rectangle {
             id: iconText
             anchors.verticalCenter: parent.verticalCenter
             text: root.icon
+            color: root.textColor
             font.pixelSize: 20
         }
 
@@ -49,6 +53,7 @@ Rectangle {
             PanelText {
                 width: parent.width
                 text: root.title
+                color: root.textColor
                 font.bold: true
             }
 
@@ -56,6 +61,7 @@ Rectangle {
                 width: parent.width
                 visible: text !== ""
                 text: root.subtitle
+                color: root.textColor
                 font.pointSize: Style.fontSizeSmall
                 opacity: 0.8
             }
@@ -74,6 +80,7 @@ Rectangle {
         BarText {
             anchors.centerIn: parent
             text: Icons.chevron
+            color: root.textColor
             rotation: root.expanded ? 90 : 0
         }
 

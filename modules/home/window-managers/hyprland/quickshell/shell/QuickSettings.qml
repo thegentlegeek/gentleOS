@@ -180,11 +180,12 @@ PanelFrame {
                     width: (profiles.width - profiles.spacing * (profiles.options.length - 1)) / profiles.options.length
                     height: 34
                     radius: Style.radius
-                    color: selected ? Style.base0D : optionArea.containsMouse ? Style.base03 : Style.base02
+                    color: selected ? Style.highlight : optionArea.containsMouse ? Style.base03 : Style.base02
 
                     PanelText {
                         anchors.centerIn: parent
                         text: `${option.modelData.icon}  ${option.modelData.label}`
+                        color: option.selected ? Style.highlightText : Style.fg
                     }
 
                     MouseArea {

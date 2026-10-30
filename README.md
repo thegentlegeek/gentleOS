@@ -50,14 +50,31 @@ Captured on the real desktop by `gentle-screenshots`, one set per theme in the f
 
 <table>
 <tr>
+<td align="center" valign="top"><a href="media/screenshots/apathy/1-desktop.png"><img src="media/screenshots/apathy/1-desktop.png" width="390" alt="apathy: desktop"></a><br><sub><b>apathy</b></sub></td>
 <td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/1-desktop.png"><img src="media/screenshots/gruvbox-dark/1-desktop.png" width="390" alt="gruvbox-dark: desktop"></a><br><sub><b>gruvbox-dark</b></sub></td>
-<td align="center" valign="top"><a href="media/screenshots/lime/1-desktop.png"><img src="media/screenshots/lime/1-desktop.png" width="390" alt="lime: desktop"></a><br><sub><b>lime</b></sub></td>
 </tr>
 <tr>
 <td align="center" valign="top"><a href="media/screenshots/outrun-dark/1-desktop.png"><img src="media/screenshots/outrun-dark/1-desktop.png" width="390" alt="outrun-dark: desktop"></a><br><sub><b>outrun-dark</b></sub></td>
 <td align="center" valign="top"><a href="media/screenshots/tarot/1-desktop.png"><img src="media/screenshots/tarot/1-desktop.png" width="390" alt="tarot: desktop"></a><br><sub><b>tarot</b></sub></td>
 </tr>
 </table>
+
+<details>
+<summary><b>apathy</b>: more screenshots</summary>
+
+<table>
+<tr>
+<td align="center" valign="top"><a href="media/screenshots/apathy/2-launcher.png"><img src="media/screenshots/apathy/2-launcher.png" width="250" alt="apathy: launcher"></a><br><sub>launcher</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/apathy/3-tiled.png"><img src="media/screenshots/apathy/3-tiled.png" width="250" alt="apathy: tiled"></a><br><sub>tiled</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/apathy/4-quick-settings.png"><img src="media/screenshots/apathy/4-quick-settings.png" width="250" alt="apathy: quick settings"></a><br><sub>quick settings</sub></td>
+</tr>
+<tr>
+<td align="center" valign="top"><a href="media/screenshots/apathy/5-notifications.png"><img src="media/screenshots/apathy/5-notifications.png" width="250" alt="apathy: notifications"></a><br><sub>notifications</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/apathy/6-cheatsheet.png"><img src="media/screenshots/apathy/6-cheatsheet.png" width="250" alt="apathy: cheatsheet"></a><br><sub>cheatsheet</sub></td>
+</tr>
+</table>
+
+</details>
 
 <details>
 <summary><b>gruvbox-dark</b>: more screenshots</summary>
@@ -71,23 +88,6 @@ Captured on the real desktop by `gentle-screenshots`, one set per theme in the f
 <tr>
 <td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/5-notifications.png"><img src="media/screenshots/gruvbox-dark/5-notifications.png" width="250" alt="gruvbox-dark: notifications"></a><br><sub>notifications</sub></td>
 <td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/6-cheatsheet.png"><img src="media/screenshots/gruvbox-dark/6-cheatsheet.png" width="250" alt="gruvbox-dark: cheatsheet"></a><br><sub>cheatsheet</sub></td>
-</tr>
-</table>
-
-</details>
-
-<details>
-<summary><b>lime</b>: more screenshots</summary>
-
-<table>
-<tr>
-<td align="center" valign="top"><a href="media/screenshots/lime/2-launcher.png"><img src="media/screenshots/lime/2-launcher.png" width="250" alt="lime: launcher"></a><br><sub>launcher</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/lime/3-tiled.png"><img src="media/screenshots/lime/3-tiled.png" width="250" alt="lime: tiled"></a><br><sub>tiled</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/lime/4-quick-settings.png"><img src="media/screenshots/lime/4-quick-settings.png" width="250" alt="lime: quick settings"></a><br><sub>quick settings</sub></td>
-</tr>
-<tr>
-<td align="center" valign="top"><a href="media/screenshots/lime/5-notifications.png"><img src="media/screenshots/lime/5-notifications.png" width="250" alt="lime: notifications"></a><br><sub>notifications</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/lime/6-cheatsheet.png"><img src="media/screenshots/lime/6-cheatsheet.png" width="250" alt="lime: cheatsheet"></a><br><sub>cheatsheet</sub></td>
 </tr>
 </table>
 

@@ -190,7 +190,7 @@ Singleton {
         const calc = LauncherCalc.looksLikeMath(q) && LauncherCalc.expression === q ? LauncherCalc.item() : null;
         return [].concat(
             calc ? [calc] : [],
-            section("Apps", ranked(LauncherApps.search(q)), 5),
+            section("Apps", ranked(LauncherApps.search(q)).slice(0, 5).map(r => LauncherApps.item(r.entry, r.m)), 5),
             section("Windows", LauncherWindows.search(q), 3),
             section("Keybinds", ranked(LauncherBinds.search(q)), 3),
             section("Clipboard", LauncherClipboard.search(q), 3),

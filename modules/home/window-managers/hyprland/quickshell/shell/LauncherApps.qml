@@ -25,7 +25,37 @@ Singleton {
     Timer {
         id: refresh
         interval: 250
-        onTriggered: root.entries = DesktopEntries.applications.values.filter(e => !e.noDisplay)
+        onTriggered: {
+            const entries = DesktopEntries.applications.values.filter(e => !e.noDisplay);
+            root.entries = entries;
+            const names = new Set();
+            for (const e of entries) {
+                names.add(e.icon);
+                for (const a of e.actions)
+                    names.add(a.icon);
+            }
+            root.unresolved = Array.from(names).filter(icon => icon && !(icon in root.icons));
+            warm.start();
+        }
+    }
+
+    // Icon name -> source. A theme lookup takes 30-300 ms the first time
+    // (no icon-theme.cache for hicolor or breeze), which a keystroke that
+    // matched new apps used to wait for; `warm` looks them all up ahead of
+    // time, one per tick so the shell stays responsive.
+    property var icons: ({})
+    property var unresolved: []
+
+    Timer {
+        id: warm
+        interval: 100
+        repeat: true
+        onTriggered: {
+            if (root.unresolved.length === 0)
+                stop();
+            else
+                root.iconSource(root.unresolved.shift());
+        }
     }
 
     // Start the scan at shell startup rather than on the first search.
@@ -36,7 +66,9 @@ Singleton {
             return "";
         if (icon.startsWith("/"))
             return "file://" + icon;
-        return Quickshell.iconPath(icon, true);
+        if (!(icon in icons))
+            icons[icon] = Quickshell.iconPath(icon, true);
+        return icons[icon];
     }
 
     function desktopId(entry) {
@@ -80,6 +112,8 @@ Singleton {
         };
     }
 
+    // Matches as { key, score, entry, m }, not items: a one-letter query
+    // matches nearly every app, and only the few shown need item(entry, m).
     function search(query) {
         const out = [];
         for (const entry of entries) {
@@ -90,11 +124,8 @@ Singleton {
                 [Array.from(entry.keywords).join(" "), 0.6, true],
                 [LauncherBinds.program(entry.execString), 0.7, true]
             ]);
-            if (!m)
-                continue;
-            const it = item(entry, m);
-            it.score = m.score;
-            out.push(it);
+            if (m)
+                out.push({ key: "app:" + entry.id, score: m.score, entry, m });
         }
         return out;
     }

@@ -89,7 +89,7 @@ in
   options.gentleOS.theme = {
     scheme = lib.mkOption {
       type = lib.types.str;
-      default = "apathy";
+      default = "nord";
       description = "base16 scheme: a file name (without .yaml) in pkgs.base16-schemes.";
     };
     wallpaper = lib.mkOption {

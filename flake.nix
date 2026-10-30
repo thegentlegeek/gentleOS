@@ -16,6 +16,15 @@
     stylix = {
       url = "github:danth/stylix/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.tinted-schemes.follows = "tinted-schemes";
+    };
+
+    # base16/base24 color schemes straight from upstream, instead of nixpkgs'
+    # base16-schemes snapshot. `nix flake update tinted-schemes` picks up newly
+    # added schemes (the repo's default branch is spec-0.11).
+    tinted-schemes = {
+      url = "github:tinted-theming/schemes";
+      flake = false;
     };
 
     # Nix Wallpaper (auto colorized wallpaper that I will attempt to further automate based on Stylix theme chosen)

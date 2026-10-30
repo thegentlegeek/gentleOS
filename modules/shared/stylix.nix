@@ -1,5 +1,6 @@
 {
  config,
+ inputs,
  lib,
  pkgs,
  ...
@@ -90,7 +91,7 @@ in
     scheme = lib.mkOption {
       type = lib.types.str;
       default = "apathy";
-      description = "base16 scheme: a file name (without .yaml) in pkgs.base16-schemes.";
+      description = "base16 scheme: a file name (without .yaml) in the tinted-schemes input's base16/.";
     };
     wallpaper = lib.mkOption {
       type = lib.types.enum (builtins.attrNames wallpapers);
@@ -103,7 +104,23 @@ in
     enable = true;
     polarity = "dark";
     image = recolor theme.wallpaper;
-    base16Scheme = "${pkgs.base16-schemes}/share/themes/${theme.scheme}.yaml";
+    # Trailing comments are stripped first: base16.nix's YAML parser silently
+    # drops any line whose comment holds a colon (bogota's "# derived: ...").
+    base16Scheme =
+      let
+        stripComment =
+          line:
+          let
+            m = builtins.match ''(.*")[[:space:]]+#.*'' line;
+          in
+          if m == null then line else builtins.head m;
+        yaml = builtins.unsafeDiscardStringContext (
+          builtins.readFile "${inputs.tinted-schemes}/base16/${theme.scheme}.yaml"
+        );
+      in
+      builtins.toFile "${theme.scheme}.yaml" (
+        lib.concatMapStringsSep "\n" stripComment (lib.splitString "\n" yaml)
+      );
     
     cursor = {
      package = pkgs.bibata-cursors;

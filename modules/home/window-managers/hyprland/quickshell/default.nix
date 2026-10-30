@@ -28,7 +28,8 @@ let
     fontSizeBar = 15;
     fontSizePopups = stylix.fonts.sizes.popups;
     # Background alpha of the bar and of popups/panels (blurred, hyprland.lua).
-    barAlpha = 0.8;
+    # The bar shares the terminal's, so kitty's glass matches it.
+    barAlpha = stylix.opacity.terminal;
     popupAlpha = 0.85;
     radius = 10;
   };

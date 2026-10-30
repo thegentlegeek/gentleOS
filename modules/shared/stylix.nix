@@ -131,5 +131,10 @@ in
         popups = 10;
       };
     };
+
+    # Terminal background alpha, also the Quickshell bar's (barAlpha in
+    # quickshell/default.nix): the background is translucent and blurred, but
+    # text stays fully opaque.
+    opacity.terminal = 0.8;
   };
 }

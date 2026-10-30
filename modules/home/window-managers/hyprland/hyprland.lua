@@ -80,8 +80,10 @@ hl.config({
 
     decoration = {
         rounding         = 10,
-        active_opacity   = 0.95,
-        inactive_opacity = 0.8,
+        active_opacity   = 1.0,
+        inactive_opacity = 0.90,
+        dim_inactive     = true,
+        dim_strength     = 0.15,
         shadow = {
             enabled      = true,
             range        = 4,
@@ -90,10 +92,10 @@ hl.config({
         blur = {
             enabled           = true,
             size              = 12,
-            passes            = 2,
+            passes            = 3,
             new_optimizations = true,
             popups            = false,
-            vibrancy          = 0.1696,
+            vibrancy          = 0.5,
             ignore_opacity    = true,
             xray              = false,
             variant           = "kawase",
@@ -352,6 +354,11 @@ hl.window_rule({ name = "opaque-streaming",
 hl.window_rule({ name = "opaque-vlc",      match = { class = "^(vlc)$", initial_title = "^(VLC media player)$" }, opacity = opaque })
 hl.window_rule({ name = "opaque-inkscape", match = { class = "^(org.inkscape.Inkscape)$" }, opacity = opaque })
 hl.window_rule({ name = "opaque-freetube", match = { class = "^(FreeTube)$" }, opacity = opaque })
+
+-- kitty draws its own translucent background (stylix.opacity.terminal), the
+-- way the bar does, so its text stays solid. Fading the whole window on top
+-- would wash the text out again, and dimming would darken the glass.
+hl.window_rule({ name = "glass-kitty", match = { class = "^(kitty)$" }, opacity = opaque, no_dim = true })
 
 
 ---------------------

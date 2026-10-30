@@ -25,6 +25,7 @@ ShellRoot {
     Calendar {}
     Launcher {}
     Pinentry {}
+    Osd {}
 
     // Keybinds in hyprland.lua: quickshell ipc -c gentle call shell <function>
     IpcHandler {
@@ -61,6 +62,13 @@ ShellRoot {
 
         function closeLauncher(): void {
             LauncherState.close();
+        }
+
+        // kind: "volume", "brightness", "mic" or "output" (OsdState.qml).
+        function osd(kind: string): void {
+            if (kind === "brightness")
+                Brightness.refresh();
+            OsdState.show(kind);
         }
 
         function toggleDnd(): void {

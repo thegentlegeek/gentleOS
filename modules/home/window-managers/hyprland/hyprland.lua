@@ -367,6 +367,6 @@ hl.window_rule({ name = "opaque-freetube", match = { class = "^(FreeTube)$" }, o
 -- Blur behind the translucent overlays. ignore_alpha keeps fully transparent
 -- pixels (rounded corners, the launcher's unused area) from being blurred into a grey box.
 -- gentle-* are the Quickshell shell's layers (quickshell/shell).
-for _, ns in ipairs({ "gentle-bar", "gentle-panel", "gentle-notifications", "gentle-launcher" }) do
+for _, ns in ipairs({ "gentle-bar", "gentle-panel", "gentle-notifications", "gentle-launcher", "gentle-osd" }) do
     hl.layer_rule({ name = "blur-" .. ns, match = { namespace = "^(" .. ns .. ")$" }, blur = true, ignore_alpha = 0.5 })
 end

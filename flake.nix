@@ -121,7 +121,7 @@
       extraModules = [ { gentleOS.theme = theme; } ];
     }) {
       outrun-dark = { scheme = "outrun-dark"; wallpaper = "stripes-mirror"; };
-      lime = { scheme = "lime"; wallpaper = "stripes-mirror"; };
+      apathy = { scheme = "lime"; wallpaper = "stripes-mirror"; };
       tarot = { scheme = "tarot"; wallpaper = "stripes-mirror"; };
       gruvbox-dark = { scheme = "gruvbox-dark"; wallpaper = "stripes-mirror"; };
     };

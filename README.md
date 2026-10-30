@@ -54,8 +54,8 @@ Captured on the real desktop by `gentle-screenshots`, one set per theme in the f
 <td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/1-desktop.png"><img src="media/screenshots/gruvbox-dark/1-desktop.png" width="390" alt="gruvbox-dark: desktop"></a><br><sub><b>gruvbox-dark</b></sub></td>
 </tr>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/1-desktop.png"><img src="media/screenshots/outrun-dark/1-desktop.png" width="390" alt="outrun-dark: desktop"></a><br><sub><b>outrun-dark</b></sub></td>
-<td align="center" valign="top"><a href="media/screenshots/tarot/1-desktop.png"><img src="media/screenshots/tarot/1-desktop.png" width="390" alt="tarot: desktop"></a><br><sub><b>tarot</b></sub></td>
+<td align="center" valign="top"><a href="media/screenshots/nord/1-desktop.png"><img src="media/screenshots/nord/1-desktop.png" width="390" alt="nord: desktop"></a><br><sub><b>nord</b></sub></td>
+<td align="center" valign="top"><a href="media/screenshots/pastelon-de-amarillos-dark/1-desktop.png"><img src="media/screenshots/pastelon-de-amarillos-dark/1-desktop.png" width="390" alt="pastelon-de-amarillos-dark: desktop"></a><br><sub><b>pastelon-de-amarillos-dark</b></sub></td>
 </tr>
 </table>
 
@@ -94,34 +94,34 @@ Captured on the real desktop by `gentle-screenshots`, one set per theme in the f
 </details>
 
 <details>
-<summary><b>outrun-dark</b>: more screenshots</summary>
+<summary><b>nord</b>: more screenshots</summary>
 
 <table>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/2-launcher.png"><img src="media/screenshots/outrun-dark/2-launcher.png" width="250" alt="outrun-dark: launcher"></a><br><sub>launcher</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/3-tiled.png"><img src="media/screenshots/outrun-dark/3-tiled.png" width="250" alt="outrun-dark: tiled"></a><br><sub>tiled</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/4-quick-settings.png"><img src="media/screenshots/outrun-dark/4-quick-settings.png" width="250" alt="outrun-dark: quick settings"></a><br><sub>quick settings</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/nord/2-launcher.png"><img src="media/screenshots/nord/2-launcher.png" width="250" alt="nord: launcher"></a><br><sub>launcher</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/nord/3-tiled.png"><img src="media/screenshots/nord/3-tiled.png" width="250" alt="nord: tiled"></a><br><sub>tiled</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/nord/4-quick-settings.png"><img src="media/screenshots/nord/4-quick-settings.png" width="250" alt="nord: quick settings"></a><br><sub>quick settings</sub></td>
 </tr>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/5-notifications.png"><img src="media/screenshots/outrun-dark/5-notifications.png" width="250" alt="outrun-dark: notifications"></a><br><sub>notifications</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/6-cheatsheet.png"><img src="media/screenshots/outrun-dark/6-cheatsheet.png" width="250" alt="outrun-dark: cheatsheet"></a><br><sub>cheatsheet</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/nord/5-notifications.png"><img src="media/screenshots/nord/5-notifications.png" width="250" alt="nord: notifications"></a><br><sub>notifications</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/nord/6-cheatsheet.png"><img src="media/screenshots/nord/6-cheatsheet.png" width="250" alt="nord: cheatsheet"></a><br><sub>cheatsheet</sub></td>
 </tr>
 </table>
 
 </details>
 
 <details>
-<summary><b>tarot</b>: more screenshots</summary>
+<summary><b>pastelon-de-amarillos-dark</b>: more screenshots</summary>
 
 <table>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/tarot/2-launcher.png"><img src="media/screenshots/tarot/2-launcher.png" width="250" alt="tarot: launcher"></a><br><sub>launcher</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/tarot/3-tiled.png"><img src="media/screenshots/tarot/3-tiled.png" width="250" alt="tarot: tiled"></a><br><sub>tiled</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/tarot/4-quick-settings.png"><img src="media/screenshots/tarot/4-quick-settings.png" width="250" alt="tarot: quick settings"></a><br><sub>quick settings</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/pastelon-de-amarillos-dark/2-launcher.png"><img src="media/screenshots/pastelon-de-amarillos-dark/2-launcher.png" width="250" alt="pastelon-de-amarillos-dark: launcher"></a><br><sub>launcher</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/pastelon-de-amarillos-dark/3-tiled.png"><img src="media/screenshots/pastelon-de-amarillos-dark/3-tiled.png" width="250" alt="pastelon-de-amarillos-dark: tiled"></a><br><sub>tiled</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/pastelon-de-amarillos-dark/4-quick-settings.png"><img src="media/screenshots/pastelon-de-amarillos-dark/4-quick-settings.png" width="250" alt="pastelon-de-amarillos-dark: quick settings"></a><br><sub>quick settings</sub></td>
 </tr>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/tarot/5-notifications.png"><img src="media/screenshots/tarot/5-notifications.png" width="250" alt="tarot: notifications"></a><br><sub>notifications</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/tarot/6-cheatsheet.png"><img src="media/screenshots/tarot/6-cheatsheet.png" width="250" alt="tarot: cheatsheet"></a><br><sub>cheatsheet</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/pastelon-de-amarillos-dark/5-notifications.png"><img src="media/screenshots/pastelon-de-amarillos-dark/5-notifications.png" width="250" alt="pastelon-de-amarillos-dark: notifications"></a><br><sub>notifications</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/pastelon-de-amarillos-dark/6-cheatsheet.png"><img src="media/screenshots/pastelon-de-amarillos-dark/6-cheatsheet.png" width="250" alt="pastelon-de-amarillos-dark: cheatsheet"></a><br><sub>cheatsheet</sub></td>
 </tr>
 </table>
 

@@ -37,6 +37,37 @@ let
   # of living (and dying) in quickshell's cgroup.
   app = cmd: [ (exe pkgs.uwsm) "app" "--" ] ++ cmd;
 
+  # Emoji, Nerd Font glyphs and symbols for the launcher's "." mode
+  # (LauncherEmoji.qml), built from Unicode, CLDR and Nerd Fonts data.
+  nerdFontsVersion = lib.head (lib.splitString "+" pkgs.nerd-fonts.jetbrains-mono.version);
+  glyphNames = pkgs.fetchurl {
+    url = "https://raw.githubusercontent.com/ryanoasis/nerd-fonts/v${nerdFontsVersion}/glyphnames.json";
+    hash = "sha256-4tENI/W/8L1vBnbpsB2XifzcZW3ntJiilVwncW6kQ5w=";
+  };
+  cldr = "${pkgs.cldr-annotations}/share/unicode/cldr/common";
+  emojiData = pkgs.runCommandLocal "gentle-emoji.json" { nativeBuildInputs = [ pkgs.python3 ]; } ''
+    python3 -I ${./emoji.py} \
+      ${pkgs.unicode-emoji}/share/unicode/emoji/emoji-test.txt \
+      ${cldr}/annotations/en.xml ${cldr}/annotationsDerived/en.xml \
+      ${glyphNames} > $out
+  '';
+
+  # pinentry for rbw/gpg: the shell's prompt (shell/Pinentry.qml) through its
+  # socket, or pinentry-tty without a graphical session or a running shell.
+  # socat exits before reading stdin if it can't connect, so the fallback still
+  # gets the whole conversation.
+  pinentry = pkgs.writeShellApplication {
+    name = "pinentry-gentle";
+    runtimeInputs = [ pkgs.socat pkgs.pinentry-tty ];
+    text = ''
+      sock="''${XDG_RUNTIME_DIR:-}/gentle-pinentry.sock"
+      if [ -n "''${WAYLAND_DISPLAY:-}" ] && [ -S "$sock" ] && socat STDIO UNIX-CONNECT:"$sock" 2>/dev/null; then
+        exit 0
+      fi
+      exec pinentry-tty "$@"
+    '';
+  };
+
   settings = {
     lock = [ "loginctl" "lock-session" ];
     logout = [ (exe pkgs.uwsm) "stop" ];
@@ -62,6 +93,20 @@ let
     # (case-insensitive). blueman-applet keeps running as the pairing agent;
     # Bluetooth is managed from quick settings.
     trayHidden = [ "blueman" ];
+
+    # Launcher (LauncherState.qml). Apps start as `uwsm app -- <id>.desktop`.
+    uwsm = exe pkgs.uwsm;
+    cliphist = exe pkgs.cliphist;
+    wlCopy = "${pkgs.wl-clipboard}/bin/wl-copy";
+    qalc = "${pkgs.libqalculate}/bin/qalc";
+    # Run mode reads its history and runs commands in it.
+    fish = exe config.programs.fish.package;
+    emojiData = "${emojiData}";
+    terminal = [ (exe pkgs.kitty) ];
+    browserPersonal = app config.gentleOS.browser.personal;
+    browserWork = app config.gentleOS.browser.work;
+    # %s is the URL-encoded query.
+    searchUrl = "https://www.google.com/search?q=%s";
   };
 
   shellConfig = pkgs.runCommandLocal "quickshell-gentle" { } ''
@@ -72,7 +117,7 @@ let
   '';
 in
 {
-  config = lib.mkIf (config.gentleOS.desktopShell == "quickshell") {
+  config = {
     programs.quickshell = {
       enable = true;
       configs.gentle = shellConfig;
@@ -84,7 +129,15 @@ in
       };
     };
 
-    # Stop with the session (UWSM stops graphical-session.target on logout).
-    systemd.user.services.quickshell.Unit.PartOf = [ "graphical-session.target" ];
+    home.packages = [ pinentry ];
+    programs.rbw.settings.pinentry = pinentry;
+
+    systemd.user.services.quickshell.Unit = {
+      # Stop with the session (UWSM stops graphical-session.target on logout).
+      PartOf = [ "graphical-session.target" ];
+      # Restart on `home-manager switch` when the config changes: the running
+      # shell keeps watching the old store path and never reloads by itself.
+      X-Restart-Triggers = [ "${shellConfig}" ];
+    };
   };
 }

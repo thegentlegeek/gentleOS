@@ -140,12 +140,9 @@ to its path.
 - **Quickshell.** `modules/home/window-managers/hyprland/quickshell/default.nix`
   writes base00–base0F and the fonts into `Theme.qml.json`, which the shell
   reads.
-- **Custom configs.** Starship, Rofi, Dunst and Waybar read
-  `config.lib.stylix.colors` directly.
-- **Exceptions.** In `users/justin/home.nix`, the Waybar, Rofi and Dunst
-  targets are off, because those modules style themselves from the colors.
-  The OpenCode target is off too, since Stylix generates OpenCode 1 themes and
-  v2 uses its "system" theme. The Qt target is turned on explicitly, because
+- **Custom configs.** Starship reads `config.lib.stylix.colors` directly.
+- **Exceptions.** In `users/justin/home.nix`, the OpenCode target is off,
+  since Stylix generates OpenCode 1 themes and v2 uses its "system" theme. The Qt target is turned on explicitly, because
   it isn't automatic under standalone Home Manager.
 
 Fonts (JetBrains Mono Nerd Font, Liberation Sans, DejaVu Serif), the cursor

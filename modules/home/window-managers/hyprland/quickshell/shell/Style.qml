@@ -42,8 +42,17 @@ Singleton {
     // Bar modules share one surface; color is reserved for state.
     readonly property color pillBg: base02
     readonly property color muted: base04
+    // Secondary text in the launcher: base04/base05 are too dim to read on the
+    // panel background in some schemes (Lime's base05 is 4.2:1).
+    readonly property color subtle: mix(base05, base06, 0.3)
+    // Launcher search matches, the selected row's icon and the active mode.
+    readonly property color accent: base0B
 
     function alpha(c, a) {
         return Qt.rgba(c.r, c.g, c.b, a);
+    }
+
+    function mix(a, b, t) {
+        return Qt.rgba(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t, 1);
     }
 }

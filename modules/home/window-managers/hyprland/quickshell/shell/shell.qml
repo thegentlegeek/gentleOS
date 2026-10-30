@@ -23,6 +23,8 @@ ShellRoot {
     QuickSettings {}
     SessionMenu {}
     Calendar {}
+    Launcher {}
+    Pinentry {}
 
     // Keybinds in hyprland.lua: quickshell ipc -c gentle call shell <function>
     IpcHandler {
@@ -46,6 +48,19 @@ ShellRoot {
 
         function toggleCalendar(): void {
             ShellState.toggle("calendar");
+        }
+
+        function toggleLauncher(): void {
+            LauncherState.toggle();
+        }
+
+        // mode: "all" or a LauncherState.modes mode ("clipboard", "keybinds"…).
+        function openLauncher(mode: string): void {
+            LauncherState.show(mode);
+        }
+
+        function closeLauncher(): void {
+            LauncherState.close();
         }
 
         function toggleDnd(): void {

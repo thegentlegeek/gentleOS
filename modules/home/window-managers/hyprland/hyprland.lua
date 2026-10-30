@@ -357,8 +357,8 @@ hl.window_rule({ name = "opaque-freetube", match = { class = "^(FreeTube)$" }, o
 
 -- kitty draws its own translucent background (stylix.opacity.terminal), the
 -- way the bar does, so its text stays solid. Fading the whole window on top
--- would wash the text out again, and dimming would darken the glass.
-hl.window_rule({ name = "glass-kitty", match = { class = "^(kitty)$" }, opacity = opaque, no_dim = true })
+-- would wash the text out, so it's only faded (and dimmed) when inactive.
+hl.window_rule({ name = "glass-kitty", match = { class = "^(kitty)$" }, opacity = "1.0 override 0.9 override" })
 
 
 ---------------------

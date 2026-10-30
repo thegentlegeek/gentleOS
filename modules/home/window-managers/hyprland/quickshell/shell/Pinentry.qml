@@ -27,6 +27,10 @@ Scope {
             // SET* values by lowercase name (desc, prompt, title, error, ok…).
             property var fields: ({})
             property bool greeted: false
+            // Like pinentry, commands run one at a time: lines that arrive
+            // while a prompt is open wait here.
+            property bool busy: false
+            property var backlog: []
 
             function reply(text) {
                 write(text);
@@ -69,6 +73,10 @@ Scope {
     }
 
     function command(socket, line) {
+        if (socket.busy) {
+            socket.backlog = socket.backlog.concat([line]);
+            return;
+        }
         const space = line.indexOf(" ");
         const cmd = (space < 0 ? line : line.slice(0, space)).toUpperCase();
         const arg = space < 0 ? "" : decode(line.slice(space + 1));
@@ -113,6 +121,7 @@ Scope {
     }
 
     function enqueue(request) {
+        request.socket.busy = true;
         if (current)
             queue = queue.concat([request]);
         else
@@ -148,6 +157,17 @@ Scope {
         delete fields.error;
         r.socket.fields = fields;
         next();
+        resume(r.socket);
+    }
+
+    // Run the lines that waited for the answered prompt, up to the next one.
+    function resume(socket) {
+        socket.busy = false;
+        while (!socket.busy && socket.backlog.length > 0) {
+            const line = socket.backlog[0];
+            socket.backlog = socket.backlog.slice(1);
+            command(socket, line);
+        }
     }
 
     PanelWindow {

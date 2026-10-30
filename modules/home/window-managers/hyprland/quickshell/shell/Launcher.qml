@@ -5,7 +5,7 @@ import Quickshell.Widgets
 import QtQuick
 
 // The launcher: a command palette in the upper third of the focused monitor.
-// SUPER+A (hyprland.lua) toggles it; typing a mode prefix (LauncherState.modes)
+// SUPER+Space (hyprland.lua) toggles it; typing a mode prefix (LauncherState.modes)
 // switches mode. Esc or a click outside closes it.
 PanelWindow {
     id: root

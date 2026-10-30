@@ -342,12 +342,6 @@ hl.window_rule({ name = "float-bluetooth",     match = { class = "^(\\.?blueman-
 hl.window_rule({ name = "float-saml-tracer",   match = { initial_title = "^(_crx_mpdajninpobndbfcldcmbpnnbhibjmch)$" }, float = true })
 hl.window_rule({ name = "float-ssh-askpass",   match = { title = "^(OpenSSH Authentication Passphrase request)$" },     float = true })
 
--- Polkit password prompt: never hidden behind windows or on another workspace.
--- Matched by title: its class is empty (Qt derives it from the NixOS wrapper
--- name ".hyprpolkitagent-wrapped", whose basename before the dot is "").
-hl.window_rule({ name = "polkit-prompt", match = { title = "^(Hyprland Polkit Agent)$" },
-                 float = true, center = true, pin = true, dim_around = true })
-
 -- Windows that should not be transparent
 local opaque = "1.0 override 1.0 override"
 -- Streaming tabs (window title of the active tab) in Firefox / Chromium.

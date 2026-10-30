@@ -121,7 +121,5 @@ in
   # active MPRIS player.
   services.playerctld.enable = true;
 
-  # Polkit agent (Hyprland's own). User service on graphical-session.target, which
-  # UWSM provides; finds the session via logind, so no XDG_SESSION_ID needed.
-  services.hyprpolkitagent.enable = true;
+  # No separate polkit agent: the Quickshell shell is one (quickshell/shell/Polkit.qml).
 }

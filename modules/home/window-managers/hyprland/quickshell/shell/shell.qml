@@ -25,6 +25,7 @@ ShellRoot {
     Calendar {}
     Launcher {}
     Pinentry {}
+    Polkit {}
     Osd {}
 
     // Keybinds in hyprland.lua: quickshell ipc -c gentle call shell <function>

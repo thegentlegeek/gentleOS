@@ -92,7 +92,7 @@ in
   options.gentleOS.theme = {
     scheme = lib.mkOption {
       type = lib.types.str;
-      default = "nord";
+      default = "apathy";
       description = "Scheme: a file name (without .yaml) in the tinted-schemes input's base16/ or base24/ (see system).";
     };
     system = lib.mkOption {

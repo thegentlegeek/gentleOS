@@ -129,9 +129,9 @@
       username = "justin";
       extraModules = [ { gentleOS.theme = theme; } ];
     }) {
-      outrun-dark = { scheme = "outrun-dark"; wallpaper = "stripes-mirror"; };
+      pastelon-de-amarillos-dark = { scheme = "pastelon-de-amarillos-dark"; wallpaper = "stripes-mirror"; };
       apathy = { scheme = "apathy"; wallpaper = "stripes-mirror"; };
-      tarot = { scheme = "tarot"; wallpaper = "stripes-mirror"; };
+      nord = { scheme = "tarot"; wallpaper = "stripes-mirror"; };
       gruvbox-dark = { scheme = "gruvbox-dark"; wallpaper = "stripes-mirror"; };
     };
 

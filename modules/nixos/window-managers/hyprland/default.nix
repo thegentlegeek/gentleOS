@@ -38,6 +38,12 @@ in
   };
 
   programs.ssh.askPassword = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
+  # Icon theme caches for the system profile. Off by default without X11, and
+  # without them every first lookup of an icon by name searches hicolor and
+  # breeze directory by directory: 30-300 ms each in Qt (the launcher, tray,
+  # notifications). modules/home/window-managers/hyprland does the same for
+  # the home-manager profile.
+  gtk.iconCache.enable = true;
   services.gvfs.enable = true;      # virtual filesystem support for Thunar to manage mounts etc.
   security.pam.services.hyprlock = {};    # required for hyprlock to use PAM for authentication
 

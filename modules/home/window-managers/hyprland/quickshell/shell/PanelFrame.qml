@@ -43,7 +43,7 @@ PanelWindow {
         radius: Style.radius
         color: Style.panelBg
         border.width: 2
-        border.color: Style.base0E
+        border.color: Style.base0D
         focus: true
         Keys.onEscapePressed: ShellState.close(root.name)
 

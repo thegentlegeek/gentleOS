@@ -56,18 +56,20 @@ let
         "4b2054" = c.base0A;
       };
     };
-    # Diagonal stripes, scheme colors only, mirrored: base0E, then a dip
-    # through base04 to base03 in the middle, and back out to base0E.
+    # Diagonal stripes, scheme colors only, mirrored: base0D, then a dip
+    # through base04 to base03 in the middle, and back out to base0D. base0D
+    # (blue/cyan in most schemes) matches the bar; base0E is pink or purple in
+    # nearly two thirds of dark schemes.
     stripes-mirror = {
       src = ./wallpapers/nixos-wallpaper-custom.png;
       bg = "0e091d";
       colors = {
-        "74316b" = c.base0E;
+        "74316b" = c.base0D;
         "8c406f" = c.base04;
         "aa556f" = c.base03;
         "c4686d" = c.base04;
-        "ff6565" = c.base0E;
-        "4b2054" = c.base0E;
+        "ff6565" = c.base0D;
+        "4b2054" = c.base0D;
       };
     };
   };

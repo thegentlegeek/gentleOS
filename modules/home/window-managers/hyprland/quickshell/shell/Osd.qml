@@ -37,7 +37,7 @@ PanelWindow {
         radius: Style.radius
         color: Style.panelBg
         border.width: 2
-        border.color: Style.base0E
+        border.color: Style.base0D
 
         Behavior on opacity {
             NumberAnimation { duration: 150 }

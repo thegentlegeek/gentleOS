@@ -997,7 +997,7 @@ PanelWindow {
             radius: Style.radius
             color: "transparent"
             border.width: 2
-            border.color: Style.base0E
+            border.color: Style.base0D
         }
 
         // Dragging anywhere moves the card up or down. On top of everything,

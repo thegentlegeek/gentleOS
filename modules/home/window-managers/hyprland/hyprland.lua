@@ -342,12 +342,6 @@ hl.window_rule({ name = "float-bluetooth",     match = { class = "^(\\.?blueman-
 hl.window_rule({ name = "float-saml-tracer",   match = { initial_title = "^(_crx_mpdajninpobndbfcldcmbpnnbhibjmch)$" }, float = true })
 hl.window_rule({ name = "float-ssh-askpass",   match = { title = "^(OpenSSH Authentication Passphrase request)$" },     float = true })
 
--- Polkit password prompt: never hidden behind windows or on another workspace.
--- Matched by title: its class is empty (Qt derives it from the NixOS wrapper
--- name ".hyprpolkitagent-wrapped", whose basename before the dot is "").
-hl.window_rule({ name = "polkit-prompt", match = { title = "^(Hyprland Polkit Agent)$" },
-                 float = true, center = true, pin = true, dim_around = true })
-
 -- Windows that should not be transparent
 local opaque = "1.0 override 1.0 override"
 -- Streaming tabs (window title of the active tab) in Firefox / Chromium.
@@ -367,6 +361,6 @@ hl.window_rule({ name = "opaque-freetube", match = { class = "^(FreeTube)$" }, o
 -- Blur behind the translucent overlays. ignore_alpha keeps fully transparent
 -- pixels (rounded corners, the launcher's unused area) from being blurred into a grey box.
 -- gentle-* are the Quickshell shell's layers (quickshell/shell).
-for _, ns in ipairs({ "gentle-bar", "gentle-panel", "gentle-notifications", "gentle-launcher" }) do
+for _, ns in ipairs({ "gentle-bar", "gentle-panel", "gentle-notifications", "gentle-launcher", "gentle-osd" }) do
     hl.layer_rule({ name = "blur-" .. ns, match = { namespace = "^(" .. ns .. ")$" }, blur = true, ignore_alpha = 0.5 })
 end

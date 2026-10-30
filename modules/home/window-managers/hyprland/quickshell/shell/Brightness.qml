@@ -23,6 +23,11 @@ Singleton {
         Quickshell.execDetached([Settings.brightnessctl, "--device=" + device, "set", pct + "%"]);
     }
 
+    // Read the level now (after the brightness keys), not at the next poll.
+    function refresh() {
+        brightnessFile.reload();
+    }
+
     // `brightnessctl -m -c backlight info` -> "amdgpu_bl1,backlight,123,48%,255"
     Process {
         running: true

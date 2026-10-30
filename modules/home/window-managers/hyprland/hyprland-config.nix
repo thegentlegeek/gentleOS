@@ -35,15 +35,17 @@ let
     shotEdit = "${hyprshot} -m region --raw | ${exe pkgs.swappy} -f -";
     shotSave = "${hyprshot} -m region -o ${shotDir}";
     shotScreen = "${hyprshot} -m output -m active -o ${shotDir}";
-    volUp = "${wpctl} set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+";
+    # The shell's OSD follows Pipewire by itself; the nudge shows it at 100%
+    # too, and for brightness, which it only polls (shell.qml `osd`).
+    volUp = "${wpctl} set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+; ${shell "osd volume"}";
     volDown = "${wpctl} set-volume @DEFAULT_AUDIO_SINK@ 5%-";
     volMute = "${wpctl} set-mute @DEFAULT_AUDIO_SINK@ toggle";
     micMute = "${wpctl} set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
     playPause = "${playerctl} play-pause";
     next = "${playerctl} next";
     prev = "${playerctl} previous";
-    brightUp = "${brightnessctl} s 10%+";
-    brightDown = "${brightnessctl} s 10%-";
+    brightUp = "${brightnessctl} s 10%+; ${shell "osd brightness"}";
+    brightDown = "${brightnessctl} s 10%-; ${shell "osd brightness"}";
     # The Quickshell shell's launcher and panels (quickshell/shell/shell.qml IpcHandler).
     menu = shell "toggleLauncher";
     clipboard = shell "openLauncher clipboard";
@@ -119,7 +121,5 @@ in
   # active MPRIS player.
   services.playerctld.enable = true;
 
-  # Polkit agent (Hyprland's own). User service on graphical-session.target, which
-  # UWSM provides; finds the session via logind, so no XDG_SESSION_ID needed.
-  services.hyprpolkitagent.enable = true;
+  # No separate polkit agent: the Quickshell shell is one (quickshell/shell/Polkit.qml).
 }

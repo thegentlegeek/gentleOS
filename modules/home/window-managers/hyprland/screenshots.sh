@@ -47,10 +47,12 @@ mapfile -t allThemes < <(nix eval --json "$flake#screenshotHomes" --apply builti
 caption() { local name=${1#*-}; echo "${name//-/ }"; }
 
 # A linked thumbnail in a table cell, captioned below; the link opens the
-# full-size shot.
+# full-size shot. Widths are in pixels: GitHub sizes table columns to their
+# content, so percentage widths come out uneven. 390 (2 columns) and 250
+# (3 columns) fill its ~840px README column, cell padding included.
 cell() {
   local png=media/screenshots/$1/$2.png
-  echo "<td align=\"center\" valign=\"top\"><a href=\"$png\"><img src=\"$png\" width=\"100%\" alt=\"$1: $(caption "$2")\"></a><br><sub>$3</sub></td>"
+  echo "<td align=\"center\" valign=\"top\"><a href=\"$png\"><img src=\"$png\" width=\"$4\" alt=\"$1: $(caption "$2")\"></a><br><sub>$3</sub></td>"
 }
 
 # Regenerate the README section between the screenshot markers from every
@@ -72,7 +74,7 @@ write_readme() {
     echo '<table>'
     for i in "${!shown[@]}"; do
       (( i % 2 == 0 )) && echo '<tr>'
-      cell "${shown[i]}" 1-desktop "<b>${shown[i]}</b>"
+      cell "${shown[i]}" 1-desktop "<b>${shown[i]}</b>" 390
       (( i % 2 == 1 || i == ${#shown[@]} - 1 )) && echo '</tr>'
     done
     echo '</table>'
@@ -87,7 +89,7 @@ write_readme() {
         name=$(basename "$png" .png)
         [[ $name == 1-desktop ]] && continue
         (( i % 3 == 0 )) && echo '<tr>'
-        cell "$theme" "$name" "$(caption "$name")"
+        cell "$theme" "$name" "$(caption "$name")" 250
         (( i % 3 == 2 )) && echo '</tr>'
         i=$((i + 1))
       done

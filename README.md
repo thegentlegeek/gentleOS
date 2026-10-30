@@ -50,12 +50,12 @@ Captured on the real desktop by `gentle-screenshots`, one set per theme in the f
 
 <table>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/1-desktop.png"><img src="media/screenshots/gruvbox-dark/1-desktop.png" width="100%" alt="gruvbox-dark: desktop"></a><br><sub><b>gruvbox-dark</b></sub></td>
-<td align="center" valign="top"><a href="media/screenshots/lime/1-desktop.png"><img src="media/screenshots/lime/1-desktop.png" width="100%" alt="lime: desktop"></a><br><sub><b>lime</b></sub></td>
+<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/1-desktop.png"><img src="media/screenshots/gruvbox-dark/1-desktop.png" width="390" alt="gruvbox-dark: desktop"></a><br><sub><b>gruvbox-dark</b></sub></td>
+<td align="center" valign="top"><a href="media/screenshots/lime/1-desktop.png"><img src="media/screenshots/lime/1-desktop.png" width="390" alt="lime: desktop"></a><br><sub><b>lime</b></sub></td>
 </tr>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/1-desktop.png"><img src="media/screenshots/outrun-dark/1-desktop.png" width="100%" alt="outrun-dark: desktop"></a><br><sub><b>outrun-dark</b></sub></td>
-<td align="center" valign="top"><a href="media/screenshots/tarot/1-desktop.png"><img src="media/screenshots/tarot/1-desktop.png" width="100%" alt="tarot: desktop"></a><br><sub><b>tarot</b></sub></td>
+<td align="center" valign="top"><a href="media/screenshots/outrun-dark/1-desktop.png"><img src="media/screenshots/outrun-dark/1-desktop.png" width="390" alt="outrun-dark: desktop"></a><br><sub><b>outrun-dark</b></sub></td>
+<td align="center" valign="top"><a href="media/screenshots/tarot/1-desktop.png"><img src="media/screenshots/tarot/1-desktop.png" width="390" alt="tarot: desktop"></a><br><sub><b>tarot</b></sub></td>
 </tr>
 </table>
 
@@ -64,13 +64,13 @@ Captured on the real desktop by `gentle-screenshots`, one set per theme in the f
 
 <table>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/2-launcher.png"><img src="media/screenshots/gruvbox-dark/2-launcher.png" width="100%" alt="gruvbox-dark: launcher"></a><br><sub>launcher</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/3-tiled.png"><img src="media/screenshots/gruvbox-dark/3-tiled.png" width="100%" alt="gruvbox-dark: tiled"></a><br><sub>tiled</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/4-quick-settings.png"><img src="media/screenshots/gruvbox-dark/4-quick-settings.png" width="100%" alt="gruvbox-dark: quick settings"></a><br><sub>quick settings</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/2-launcher.png"><img src="media/screenshots/gruvbox-dark/2-launcher.png" width="250" alt="gruvbox-dark: launcher"></a><br><sub>launcher</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/3-tiled.png"><img src="media/screenshots/gruvbox-dark/3-tiled.png" width="250" alt="gruvbox-dark: tiled"></a><br><sub>tiled</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/4-quick-settings.png"><img src="media/screenshots/gruvbox-dark/4-quick-settings.png" width="250" alt="gruvbox-dark: quick settings"></a><br><sub>quick settings</sub></td>
 </tr>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/5-notifications.png"><img src="media/screenshots/gruvbox-dark/5-notifications.png" width="100%" alt="gruvbox-dark: notifications"></a><br><sub>notifications</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/6-cheatsheet.png"><img src="media/screenshots/gruvbox-dark/6-cheatsheet.png" width="100%" alt="gruvbox-dark: cheatsheet"></a><br><sub>cheatsheet</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/5-notifications.png"><img src="media/screenshots/gruvbox-dark/5-notifications.png" width="250" alt="gruvbox-dark: notifications"></a><br><sub>notifications</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/gruvbox-dark/6-cheatsheet.png"><img src="media/screenshots/gruvbox-dark/6-cheatsheet.png" width="250" alt="gruvbox-dark: cheatsheet"></a><br><sub>cheatsheet</sub></td>
 </tr>
 </table>
 
@@ -81,13 +81,13 @@ Captured on the real desktop by `gentle-screenshots`, one set per theme in the f
 
 <table>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/lime/2-launcher.png"><img src="media/screenshots/lime/2-launcher.png" width="100%" alt="lime: launcher"></a><br><sub>launcher</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/lime/3-tiled.png"><img src="media/screenshots/lime/3-tiled.png" width="100%" alt="lime: tiled"></a><br><sub>tiled</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/lime/4-quick-settings.png"><img src="media/screenshots/lime/4-quick-settings.png" width="100%" alt="lime: quick settings"></a><br><sub>quick settings</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/lime/2-launcher.png"><img src="media/screenshots/lime/2-launcher.png" width="250" alt="lime: launcher"></a><br><sub>launcher</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/lime/3-tiled.png"><img src="media/screenshots/lime/3-tiled.png" width="250" alt="lime: tiled"></a><br><sub>tiled</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/lime/4-quick-settings.png"><img src="media/screenshots/lime/4-quick-settings.png" width="250" alt="lime: quick settings"></a><br><sub>quick settings</sub></td>
 </tr>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/lime/5-notifications.png"><img src="media/screenshots/lime/5-notifications.png" width="100%" alt="lime: notifications"></a><br><sub>notifications</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/lime/6-cheatsheet.png"><img src="media/screenshots/lime/6-cheatsheet.png" width="100%" alt="lime: cheatsheet"></a><br><sub>cheatsheet</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/lime/5-notifications.png"><img src="media/screenshots/lime/5-notifications.png" width="250" alt="lime: notifications"></a><br><sub>notifications</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/lime/6-cheatsheet.png"><img src="media/screenshots/lime/6-cheatsheet.png" width="250" alt="lime: cheatsheet"></a><br><sub>cheatsheet</sub></td>
 </tr>
 </table>
 
@@ -98,13 +98,13 @@ Captured on the real desktop by `gentle-screenshots`, one set per theme in the f
 
 <table>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/2-launcher.png"><img src="media/screenshots/outrun-dark/2-launcher.png" width="100%" alt="outrun-dark: launcher"></a><br><sub>launcher</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/3-tiled.png"><img src="media/screenshots/outrun-dark/3-tiled.png" width="100%" alt="outrun-dark: tiled"></a><br><sub>tiled</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/4-quick-settings.png"><img src="media/screenshots/outrun-dark/4-quick-settings.png" width="100%" alt="outrun-dark: quick settings"></a><br><sub>quick settings</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/outrun-dark/2-launcher.png"><img src="media/screenshots/outrun-dark/2-launcher.png" width="250" alt="outrun-dark: launcher"></a><br><sub>launcher</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/outrun-dark/3-tiled.png"><img src="media/screenshots/outrun-dark/3-tiled.png" width="250" alt="outrun-dark: tiled"></a><br><sub>tiled</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/outrun-dark/4-quick-settings.png"><img src="media/screenshots/outrun-dark/4-quick-settings.png" width="250" alt="outrun-dark: quick settings"></a><br><sub>quick settings</sub></td>
 </tr>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/5-notifications.png"><img src="media/screenshots/outrun-dark/5-notifications.png" width="100%" alt="outrun-dark: notifications"></a><br><sub>notifications</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/outrun-dark/6-cheatsheet.png"><img src="media/screenshots/outrun-dark/6-cheatsheet.png" width="100%" alt="outrun-dark: cheatsheet"></a><br><sub>cheatsheet</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/outrun-dark/5-notifications.png"><img src="media/screenshots/outrun-dark/5-notifications.png" width="250" alt="outrun-dark: notifications"></a><br><sub>notifications</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/outrun-dark/6-cheatsheet.png"><img src="media/screenshots/outrun-dark/6-cheatsheet.png" width="250" alt="outrun-dark: cheatsheet"></a><br><sub>cheatsheet</sub></td>
 </tr>
 </table>
 
@@ -115,13 +115,13 @@ Captured on the real desktop by `gentle-screenshots`, one set per theme in the f
 
 <table>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/tarot/2-launcher.png"><img src="media/screenshots/tarot/2-launcher.png" width="100%" alt="tarot: launcher"></a><br><sub>launcher</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/tarot/3-tiled.png"><img src="media/screenshots/tarot/3-tiled.png" width="100%" alt="tarot: tiled"></a><br><sub>tiled</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/tarot/4-quick-settings.png"><img src="media/screenshots/tarot/4-quick-settings.png" width="100%" alt="tarot: quick settings"></a><br><sub>quick settings</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/tarot/2-launcher.png"><img src="media/screenshots/tarot/2-launcher.png" width="250" alt="tarot: launcher"></a><br><sub>launcher</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/tarot/3-tiled.png"><img src="media/screenshots/tarot/3-tiled.png" width="250" alt="tarot: tiled"></a><br><sub>tiled</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/tarot/4-quick-settings.png"><img src="media/screenshots/tarot/4-quick-settings.png" width="250" alt="tarot: quick settings"></a><br><sub>quick settings</sub></td>
 </tr>
 <tr>
-<td align="center" valign="top"><a href="media/screenshots/tarot/5-notifications.png"><img src="media/screenshots/tarot/5-notifications.png" width="100%" alt="tarot: notifications"></a><br><sub>notifications</sub></td>
-<td align="center" valign="top"><a href="media/screenshots/tarot/6-cheatsheet.png"><img src="media/screenshots/tarot/6-cheatsheet.png" width="100%" alt="tarot: cheatsheet"></a><br><sub>cheatsheet</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/tarot/5-notifications.png"><img src="media/screenshots/tarot/5-notifications.png" width="250" alt="tarot: notifications"></a><br><sub>notifications</sub></td>
+<td align="center" valign="top"><a href="media/screenshots/tarot/6-cheatsheet.png"><img src="media/screenshots/tarot/6-cheatsheet.png" width="250" alt="tarot: cheatsheet"></a><br><sub>cheatsheet</sub></td>
 </tr>
 </table>
 

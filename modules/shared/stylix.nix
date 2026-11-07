@@ -62,7 +62,7 @@ in
       };
       sansSerif = {
         package = pkgs.liberation_ttf;
-        name = "Liberation Sans Regular";
+        name = "Liberation Sans";
       };
       serif = {
         package = pkgs.dejavu_fonts;

@@ -1,7 +1,10 @@
 {
   description = "My gentleOS configuration";
 
-  # Prebuilt Hyprland. Accept this when asked, or Hyprland compiles locally.
+  # Prebuilt Hyprland for your first build. Accept this when asked, or Hyprland
+  # compiles locally. Once that system is running, gentleOS adds the same cache
+  # to nix.conf itself, so you can delete this block if its "untrusted flake
+  # configuration" warnings bother you.
   nixConfig = {
     extra-substituters = [ "https://hyprland.cachix.org" ];
     extra-trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];

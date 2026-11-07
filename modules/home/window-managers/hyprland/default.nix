@@ -47,6 +47,57 @@
         example = "spotify";
         description = "Command for SUPER+M.";
       };
+      terminal = lib.mkOption {
+        type = lib.types.str;
+        default = "${lib.getExe pkgs.kitty} fish";
+        defaultText = lib.literalExpression ''"''${lib.getExe pkgs.kitty} fish"'';
+        example = "foot";
+        description = "Command for SUPER+C. The launcher still opens terminal apps in kitty.";
+      };
+      fileManager = lib.mkOption {
+        type = lib.types.str;
+        default = "${lib.getExe pkgs.kitty} yazi";
+        defaultText = lib.literalExpression ''"''${lib.getExe pkgs.kitty} yazi"'';
+        example = "thunar";
+        description = "Command for SUPER+F.";
+      };
+    };
+
+    binds = lib.mkOption {
+      type = lib.types.listOf (lib.types.submodule {
+        options = {
+          keys = lib.mkOption {
+            type = lib.types.str;
+            example = "SUPER + G";
+            description = "Keys, spelled as in the cheat sheet (SUPER + /). A bind on the same keys is replaced.";
+          };
+          command = lib.mkOption {
+            type = lib.types.str;
+            example = "gimp";
+            description = "Command to run.";
+          };
+          description = lib.mkOption {
+            type = lib.types.str;
+            example = "Apps: GIMP";
+            description = "Cheat sheet entry, as \"Category: text\".";
+          };
+        };
+      });
+      default = [ ];
+      description = "Your own key binds. For anything but running a command, use hl.bind in wayland.windowManager.hyprland.extraConfig.";
+    };
+
+    autostart = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      example = [ "discord --start-minimized" ];
+      description = "Commands to run once at login, each in its own systemd scope.";
+    };
+
+    clock24Hour = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Show the bar's clock in 24-hour time.";
     };
 
     # Its own option, not stylix.fonts: the bar and panels mix text with Nerd Font
@@ -89,6 +140,38 @@
       type = lib.types.str;
       default = "us";
       description = "XKB layout on the desktop. The console and greeter are set on the NixOS side.";
+    };
+
+    keyboardVariant = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      example = "dvorak";
+      description = "XKB variant on the desktop.";
+    };
+
+    keyboardOptions = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      example = "caps:escape";
+      description = "XKB options on the desktop, separated by commas.";
+    };
+
+    idleDimSeconds = lib.mkOption {
+      type = lib.types.nullOr lib.types.ints.positive;
+      default = 150;
+      description = "Idle time before the screen dims. Null never dims.";
+    };
+
+    idleLockSeconds = lib.mkOption {
+      type = lib.types.nullOr lib.types.ints.positive;
+      default = 300;
+      description = "Idle time before the screen locks. Null never locks when idle, though it still locks before sleeping.";
+    };
+
+    idleScreenOffSeconds = lib.mkOption {
+      type = lib.types.nullOr lib.types.ints.positive;
+      default = 330;
+      description = "Idle time before the screen turns off. Null leaves it on.";
     };
 
     idleSuspendSeconds = lib.mkOption {

@@ -40,8 +40,10 @@ PanelWindow {
         Pill {
             color: Style.highlight
             fg: Style.highlightText
-            // 12-hour without AM/PM, as before.
-            text: Qt.formatDateTime(time.date, "ddd MMM d") + "  " + Qt.formatDateTime(time.date, "h:mm AP").replace(/\s*[AP]M$/i, "")
+            // 12-hour without AM/PM, unless gentleOS.clock24Hour is set.
+            text: Qt.formatDateTime(time.date, "ddd MMM d") + "  " + (Settings.clock24Hour
+                ? Qt.formatDateTime(time.date, "HH:mm")
+                : Qt.formatDateTime(time.date, "h:mm AP").replace(/\s*[AP]M$/i, ""))
             tooltip: Qt.formatDateTime(time.date, "dddd, MMMM d, yyyy")
             onClicked: ShellState.toggle("calendar")
 

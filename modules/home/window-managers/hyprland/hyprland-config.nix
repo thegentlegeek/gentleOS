@@ -20,11 +20,9 @@ let
   # Commands used by binds in hyprland.lua (prepended as `local cmd = {...}`).
   # Tools binds depend on use store paths; user apps are left to PATH.
   cmd = {
-    terminal = "${exe pkgs.kitty} fish";
-    fileManager = "${exe pkgs.kitty} yazi";
     browserPersonal = lib.mapNullable lib.escapeShellArgs config.gentleOS.browser.personal;
     browserWork = lib.mapNullable lib.escapeShellArgs config.gentleOS.browser.work;
-    inherit (config.gentleOS.apps) editor music;
+    inherit (config.gentleOS.apps) editor music terminal fileManager;
     calculator = "gnome-calculator";
     # Through logind so it goes via hypridle's lock_cmd (no stacked lock screens).
     lock = "loginctl lock-session";
@@ -59,7 +57,9 @@ let
   # The rest of the settings hyprland.lua reads (prepended as `local gentle = {...}`).
   gentle = {
     monitors = lib.mapAttrs (_: map (m: { inherit (m) output mode position scale; })) config.gentleOS.monitors;
-    inherit (config.gentleOS) monitorScale keyboardLayout;
+    inherit (config.gentleOS) monitorScale keyboardLayout keyboardVariant keyboardOptions binds;
+    # In their own scope, so they don't live and die with the compositor's.
+    autostart = map (command: "${exe pkgs.uwsm} app -- ${command}") config.gentleOS.autostart;
   };
 in
 

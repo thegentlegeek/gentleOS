@@ -40,9 +40,15 @@ hl.monitor({ output = "", mode = "preferred", position = "auto", scale = gentle.
 ---- AUTOSTART ----
 -------------------
 
--- Nothing is started from here: session daemons run as systemd user units under
--- UWSM so they're restarted on crash and log to the journal. The desktop shell
--- is programs.quickshell.systemd (quickshell/); cliphist is services.cliphist.
+-- Only your apps (gentleOS.autostart) are started from here: session daemons run
+-- as systemd user units under UWSM so they're restarted on crash and log to the
+-- journal. The desktop shell is programs.quickshell.systemd (quickshell/); cliphist
+-- is services.cliphist.
+hl.on("hyprland.start", function()
+    for _, command in ipairs(gentle.autostart) do
+        hl.exec_cmd(command)
+    end
+end)
 
 
 -------------------------------
@@ -104,6 +110,8 @@ hl.config({
 
     input = {
         kb_layout    = gentle.keyboardLayout,
+        kb_variant   = gentle.keyboardVariant,
+        kb_options   = gentle.keyboardOptions,
         follow_mouse = 1,
         sensitivity  = 0,
         touchpad = {
@@ -190,7 +198,7 @@ end
 -- Apps
 bind(key("C"),         hl.dsp.exec_cmd(cmd.terminal),        "Apps: Terminal")
 bind(key("space"),     hl.dsp.exec_cmd(cmd.menu),            "Apps: App launcher")
-bind(key("F"),         hl.dsp.exec_cmd(cmd.fileManager),     "Apps: File manager (yazi)")
+bind(key("F"),         hl.dsp.exec_cmd(cmd.fileManager),     "Apps: File manager")
 -- Only bound when set (gentleOS.browser, gentleOS.apps).
 if cmd.browserPersonal then bind(key("B"), hl.dsp.exec_cmd(cmd.browserPersonal), "Apps: Browser") end
 if cmd.browserWork then bind(key("SHIFT + B"), hl.dsp.exec_cmd(cmd.browserWork), "Apps: Browser (work)") end
@@ -271,6 +279,16 @@ bind("XF86AudioNext",         hl.dsp.exec_cmd(cmd.next),       "Media: Next trac
 bind("XF86AudioPrev",         hl.dsp.exec_cmd(cmd.prev),       "Media: Previous track",   locked)
 bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd(cmd.brightUp),   "Media: Brightness up",    held)
 bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(cmd.brightDown), "Media: Brightness down",  held)
+
+-- Your own binds (gentleOS.binds). One on keys already in use replaces that bind,
+-- here and in the cheat sheet.
+for _, b in ipairs(gentle.binds) do
+    hl.unbind(b.keys)
+    for i = #registry, 1, -1 do
+        if registry[i].keys == b.keys then table.remove(registry, i) end
+    end
+    bind(b.keys, hl.dsp.exec_cmd(b.command), b.description)
+end
 
 -- Write the bind registry (see bind() above) for the launcher. Skipped when
 -- there's no runtime dir (the flake check's --verify-config).

@@ -23,6 +23,7 @@ FloatingWindow {
     property bool rendering: true
     property bool showSample: true
     property bool stateSeen: false
+    readonly property string image: Style.generation.image ?? ""
 
     // Whatever the wallpaper is doing, the selection's colors are at hand. A theme
     // set by hand might not be in the catalog.
@@ -45,6 +46,12 @@ FloatingWindow {
 
     function label(id) {
         return id.slice(id.indexOf("/") + 1);
+    }
+
+    // With your own wallpaper (gentleOS.theme.image), the name in the theme file
+    // isn't what's on the desktop.
+    function themeName(theme, separator) {
+        return root.image ? label(theme.scheme) : label(theme.scheme) + separator + theme.wallpaper;
     }
 
     function run(...args) {
@@ -87,7 +94,7 @@ FloatingWindow {
             showSample = !showSample;
         } else if (vertical && matches.length) {
             select(matches[Math.max(0, Math.min(matches.length - 1, indexOf(scheme) + vertical))].id);
-        } else if (horizontal && search.activeFocus && !search.text) {
+        } else if (horizontal && search.activeFocus && !search.text && Settings.themeWallpapers.length) {
             const wallpapers = Settings.themeWallpapers;
             wallpaper = wallpapers[Math.max(0, Math.min(wallpapers.length - 1, wallpapers.indexOf(wallpaper) + horizontal))];
         } else {
@@ -133,7 +140,7 @@ FloatingWindow {
         SectionHeader {
             id: header
             title: "Theme"
-            detail: `${root.label(root.live.scheme)} · ${root.live.wallpaper}`
+            detail: root.themeName(root.live, " · ")
         }
 
         Row {
@@ -361,7 +368,7 @@ FloatingWindow {
                     anchors.verticalCenter: parent.verticalCenter
                     color: Style.subtle
                     text: root.busy ? `${job.message}…`
-                        : job.status === "previewing" ? `Trying ${root.label(job.scheme)} with ${job.wallpaper}`
+                        : job.status === "previewing" ? `Trying ${root.themeName(job, " with ")}`
                         : job.status === "kept" && job.ahead > 0 ? `Kept; ${job.ahead} commit(s) not pushed`
                         : job.status === "kept" && job.ahead < 0 ? "Kept; this branch has no upstream to push to"
                         : job.status === "kept" ? "Kept"
@@ -406,7 +413,7 @@ FloatingWindow {
 
             PanelText {
                 width: parent.width
-                text: "↑↓ scheme · ←→ wallpaper · Tab filters · Enter try · Ctrl+Enter keep · Ctrl+R revert · Ctrl+S sample · Esc close"
+                text: (Settings.themeWallpapers.length ? "↑↓ scheme · ←→ wallpaper" : "↑↓ scheme") + " · Tab filters · Enter try · Ctrl+Enter keep · Ctrl+R revert · Ctrl+S sample · Esc close"
                 color: Style.muted
                 font.pointSize: Style.fontSizeSmall
             }
@@ -685,6 +692,11 @@ FloatingWindow {
     // running is stopped and the new one starts when it exits; the output
     // starts with the selection it's for, so a stale result can't land.
     function startThumb() {
+        if (image) {
+            rendering = false;
+            thumb = image;
+            return;
+        }
         if (thumbProcess.running) {
             thumbProcess.pending = true;
             thumbProcess.running = false;

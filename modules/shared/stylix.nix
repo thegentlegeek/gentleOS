@@ -35,18 +35,25 @@ in
       default = defaults.wallpaper;
       description = "Wallpaper drawn in the scheme's colors by generate.py: a style from pkgs/wallpapers/styles.nix.";
     };
+    image = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      example = lib.literalExpression "./wallpaper.png";
+      description = "Your own wallpaper in place of a generated one. The theme picker then only picks schemes. Set it on both the NixOS and Home Manager sides.";
+    };
   };
 
   config.stylix = {
     enable = true;
     # Light or dark as the scheme declares it (every tinted scheme has a variant).
-    polarity = config.lib.stylix.colors.variant;
+    polarity = lib.mkDefault config.lib.stylix.colors.variant;
     # Stylix overlays patch gtksourceview (and nixos-icons) with the scheme, which
     # forces local source builds of everything depending on it (inkscape, bottles,
     # gnome-calculator) on every theme change. The gtksourceview target still
     # themes via ~/.local/share, and no app here asks for the overlay's scheme.
     overlays.enable = false;
-    image = wallpapers.render { name = theme.wallpaper; palette = config.lib.stylix.colors; };
+    image = if theme.image != null then theme.image
+      else wallpapers.render { name = theme.wallpaper; palette = config.lib.stylix.colors; };
     base16Scheme = "${gentleInputs.tinted-schemes}/${theme.scheme}.yaml";
 
     cursor = mkDefaults {

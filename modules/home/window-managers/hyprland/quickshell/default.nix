@@ -17,6 +17,7 @@ let
   # generation: the theme picker and gentle-theme read gentle-theme/current.json.
   theme = {
     inherit (config.gentleOS.theme) scheme wallpaper;
+    image = lib.mapNullable toString config.gentleOS.theme.image;
     # base00..base0F from the Stylix scheme.
     colors = lib.genAttrs (map (i: "base0${i}") [
       "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "A" "B" "C" "D" "E" "F"
@@ -155,11 +156,13 @@ let
     terminal = [ (exe pkgs.kitty) ];
     browserPersonal = app browser;
     browserWork = app (if config.gentleOS.browser.work != null then config.gentleOS.browser.work else browser);
-    inherit (config.gentleOS) searchUrl;
+    inherit (config.gentleOS) searchUrl clock24Hour;
 
     # Theme picker (ThemePicker.qml): the wallpapers, the active generation's
     # theme, and gentle-theme and the state file it reports through.
-    themeWallpapers = (import ../../../../../pkgs/wallpapers { inherit pkgs; }).names;
+    # None to pick from when you've set your own (gentleOS.theme.image).
+    themeWallpapers = lib.optionals (config.gentleOS.theme.image == null)
+      (import ../../../../../pkgs/wallpapers { inherit pkgs; }).names;
     themeFile = "${config.xdg.configHome}/gentle-theme/current.json";
     gentleTheme = exe gentleTheme;
     themeState = "${config.xdg.stateHome}/gentle-theme.json";
@@ -169,7 +172,7 @@ let
 
   shellConfig = pkgs.runCommandLocal "quickshell-gentle" { nativeBuildInputs = [ pkgs.fontconfig ]; } ''
     # A wrong name would otherwise fall back to some other font without a word.
-    families=$(fc-scan --format '%{family}\n' ${shellFont.package}/share | tr , '\n' | sort -u)
+    families=$(HOME=$TMPDIR fc-scan --format '%{family}\n' ${shellFont.package}/share | tr , '\n' | sort -u)
     if ! grep -qxF ${lib.escapeShellArg shellFont.name} <<<"$families"; then
       # Last, since Nix only shows the end of a failed build's log.
       echo "Families in ${shellFont.package.name}:" >&2

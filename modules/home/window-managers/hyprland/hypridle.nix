@@ -37,22 +37,18 @@ in
         after_sleep_cmd = dpms "on";
       };
 
-      listener = [
-        {
-          timeout = 150;
-          on-timeout = "${brightnessctl} -s set 10";
-          on-resume = "${brightnessctl} -r";
-        }
-        {
-          timeout = 300;
-          on-timeout = "loginctl lock-session";
-        }
-        {
-          timeout = 330;
-          on-timeout = dpms "off";
-          on-resume = dpms "on";
-        }
-      ] ++ lib.optional (config.gentleOS.idleSuspendSeconds != null) {
+      listener = lib.optional (config.gentleOS.idleDimSeconds != null) {
+        timeout = config.gentleOS.idleDimSeconds;
+        on-timeout = "${brightnessctl} -s set 10";
+        on-resume = "${brightnessctl} -r";
+      } ++ lib.optional (config.gentleOS.idleLockSeconds != null) {
+        timeout = config.gentleOS.idleLockSeconds;
+        on-timeout = "loginctl lock-session";
+      } ++ lib.optional (config.gentleOS.idleScreenOffSeconds != null) {
+        timeout = config.gentleOS.idleScreenOffSeconds;
+        on-timeout = dpms "off";
+        on-resume = dpms "on";
+      } ++ lib.optional (config.gentleOS.idleSuspendSeconds != null) {
         # Same action as closing the lid (logind HandleLidSwitch).
         timeout = config.gentleOS.idleSuspendSeconds;
         on-timeout = suspend;

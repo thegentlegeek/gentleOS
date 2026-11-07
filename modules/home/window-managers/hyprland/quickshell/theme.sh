@@ -108,6 +108,16 @@ check_clean() {
   [[ -z $dirty ]] || fail "$1" "commit or stash these first: $(awk '{print $2}' <<<"$dirty" | paste -sd ' ')"
 }
 
+# A scheme (first argument) and wallpaper (second), in words. With your own
+# wallpaper (gentleOS.theme.image), the name in the theme file isn't what's shown.
+theme_name() {
+  if jq -e .image "$generationTheme" >/dev/null 2>&1; then
+    echo "$1"
+  else
+    echo "$1 with $2 wallpaper"
+  fi
+}
+
 # The flake attribute of a wallpaper (first argument) in a scheme (second).
 wallpaper_attr() { echo "$flake#wallpapers.\"$1\".${2%%/*}.\"${2#*/}\""; }
 
@@ -135,7 +145,7 @@ case $cmd in
     fi
     oldTheme=$(<"$themeFile")
     generationScheme=$(jq -r .scheme "$generationTheme" 2>/dev/null) || generationScheme=''
-    status=building message="Building $1 with $2" error=''
+    status=building message="Building $(theme_name "$1" "$2")" error=''
     [[ $1 != "$generationScheme" ]] || message="Switching to $2"
     save
     jq -n --arg scheme "$1" --arg wallpaper "$2" '{$scheme, $wallpaper}' >"$themeFile"
@@ -149,7 +159,7 @@ case $cmd in
     fi || {
       printf '%s\n' "$oldTheme" >"$themeFile"
       [[ $before == previewing ]] || { original=null previous=''; }
-      fail "$before" "building $1 with $2 failed" 8
+      fail "$before" "building $(theme_name "$1" "$2") failed" 8
     }
     status=previewing scheme=$1 wallpaper=$2 message=''
     save
@@ -174,7 +184,7 @@ case $cmd in
     [[ $status == previewing ]] || die "no preview to keep"
     check_clean previewing
     git -C "$flake" diff --quiet HEAD -- "$rel" \
-      || git -C "$flake" commit --quiet --only "$rel" -m "theme: $scheme with $wallpaper wallpaper" 2> >(tee "$log" >&2) \
+      || git -C "$flake" commit --quiet --only "$rel" -m "theme: $(theme_name "$scheme" "$wallpaper")" 2> >(tee "$log" >&2) \
       || fail previewing "committing the theme failed" 5
     status=keeping message="Rebuilding the system" error=''
     save
@@ -195,7 +205,7 @@ case $cmd in
     ahead=$(git -C "$flake" rev-list --count '@{u}..HEAD' 2>/dev/null || echo -1)
     original=null previous='' status=kept message=''
     save
-    notify-send -a gentleOS "Theme kept" "$scheme with $wallpaper is committed and applied."
+    notify-send -a gentleOS "Theme kept" "$(theme_name "$scheme" "$wallpaper") is committed and applied."
     ;;
 
   push)

@@ -1,20 +1,28 @@
 # A new user's first login on a fresh machine, in a VM: the greeter starts the
 # desktop, Home Manager's first activation works after Hyprland has already
 # written its own config, and then the shell, binds and lock screen work.
-{ self, pkgs }:
+{
+  self,
+  pkgs,
+  # For customized-vm.nix: what's different from the demo, and more checks.
+  name ? "gentleos-first-login",
+  homeConfig ? self.homeConfigurations.demo,
+  machineModule ? { },
+  extraScript ? "",
+}:
 
 let
-  home = self.homeConfigurations.demo.activationPackage;
+  home = homeConfig.activationPackage;
 in
 pkgs.testers.runNixOSTest {
-  name = "gentleos-first-login";
+  inherit name;
   skipTypeCheck = true;
   skipLint = true;
   node.pkgsReadOnly = false;
   node.specialArgs.gentleInputs = self.inputs;
 
   nodes.machine = { lib, ... }: {
-    imports = [ ../hosts/demo ];
+    imports = [ ../hosts/demo machineModule ];
     boot.loader.systemd-boot.enable = lib.mkForce false;
     users.users.demo.initialPassword = "demo";
     system.extraDependencies = [ home ];
@@ -89,6 +97,8 @@ pkgs.testers.runNixOSTest {
     with subtest("the theme picker opens as a floating window at its own size"):
         machine.send_key("meta_l-w")
         machine.wait_until_succeeds(hyprctl("-j clients") + " | jq -e 'any(.[]; .title == \"Theme Picker\" and .floating and .size == [860, 600])'", timeout=60)
+
+    ${extraScript}
 
     with subtest("the lock screen locks, and stays locked"):
         machine.send_key("meta_l-l")

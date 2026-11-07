@@ -1,9 +1,10 @@
 { 
+  lib,
   ... 
 }:
 
 {
   programs.nix-index = {
-    enable = true;
+    enable = lib.mkDefault true;
   };
 }

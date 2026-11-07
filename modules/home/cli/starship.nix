@@ -9,8 +9,9 @@
   in
 {
   programs.starship = {
-    enable = true;
-    settings = {
+    enable = lib.mkDefault true;
+    # Each leaf a default of its own, so setting one value keeps the others.
+    settings = lib.mapAttrsRecursive (_: lib.mkDefault) {
       format = lib.concatStrings [
         "[](${colors.base02})$username"
         "[](bg:${colors.base0A} fg:${colors.base02})"

@@ -11,6 +11,8 @@ let
   wallpapers = import ../../pkgs/wallpapers { inherit pkgs; };
   # The chosen theme. gentle-theme (the theme picker) writes and commits it.
   defaults = lib.importJSON config.gentleOS.themeFile;
+  # Each leaf a default of its own, so setting one value keeps the others.
+  mkDefaults = lib.mapAttrsRecursiveCond (value: !lib.isDerivation value) (_: lib.mkDefault);
 in
 {
   # The active theme. Its defaults come from theme.json; capturing
@@ -47,13 +49,13 @@ in
     image = wallpapers.render { name = theme.wallpaper; palette = config.lib.stylix.colors; };
     base16Scheme = "${gentleInputs.tinted-schemes}/${theme.scheme}.yaml";
 
-    cursor = {
+    cursor = mkDefaults {
      package = pkgs.bibata-cursors;
      name = "Bibata-Modern-Ice";
      size = 24;
     };
 
-    fonts = {
+    fonts = mkDefaults {
       monospace = {
         package = pkgs.nerd-fonts.jetbrains-mono;
         name = "JetBrainsMono Nerd Font Mono";
@@ -77,6 +79,6 @@ in
     # Terminal background alpha, also the Quickshell bar's (barAlpha in
     # quickshell/default.nix): the background is translucent and blurred, but
     # text stays fully opaque.
-    opacity.terminal = 0.8;
+    opacity.terminal = lib.mkDefault 0.8;
   };
 }

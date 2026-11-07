@@ -1,4 +1,5 @@
 { 
+  lib,
   pkgs,
   ... 
 }:
@@ -9,7 +10,7 @@
   ];
 
   programs.fzf = {
-    keybindings = true;
-    fuzzyCompletion = true;
+    keybindings = lib.mkDefault true;
+    fuzzyCompletion = lib.mkDefault true;
   };
 }

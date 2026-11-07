@@ -57,14 +57,14 @@ in
   };
 
   programs.thunar = {
-    enable = true;
+    enable = lib.mkDefault true;
     plugins = with pkgs; [
       thunar-archive-plugin
       thunar-volman
     ];
   };
 
-  programs.ssh.askPassword = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
+  programs.ssh.askPassword = lib.mkDefault "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
   # Icon theme caches for the system profile. Off by default without X11, and
   # without them every first lookup of an icon by name searches hicolor and
   # breeze directory by directory: 30-300 ms each in Qt (the launcher, tray,

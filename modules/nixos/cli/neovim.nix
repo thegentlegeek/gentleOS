@@ -1,12 +1,13 @@
 { 
+  lib,
   ... 
 }:
 
 {
   programs.neovim = {
-    enable = true;
-    defaultEditor = true;
-    vimAlias = true;
-    viAlias = true;
+    enable = lib.mkDefault true;
+    defaultEditor = lib.mkDefault true;
+    vimAlias = lib.mkDefault true;
+    viAlias = lib.mkDefault true;
   };
 }

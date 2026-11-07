@@ -1,10 +1,11 @@
 { 
+  lib,
   ... 
 }:
 
 {
   programs.tmux = {
-    enable = true;
-    keyMode = "vi";
+    enable = lib.mkDefault true;
+    keyMode = lib.mkDefault "vi";
     };
 }

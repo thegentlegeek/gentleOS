@@ -1,9 +1,10 @@
 { 
+  lib,
   ... 
 }:
 
 {
   programs.yazi = {
-    enable = true;
+    enable = lib.mkDefault true;
   };
 }

@@ -174,6 +174,101 @@ To do it by hand, edit your `theme.json` and rebuild both, as in [Day to day](#d
 
 `wallpaper` is one of `layered-ridges`, `contours`, `windlines`, `flow-engraving`, `prism-shards`, `woven-ribbons` or `sunburst`, all drawn from scratch in the scheme's colors. To preview one without switching, run `nix build .#wallpapers.<name>.base16.<scheme>`.
 
+### Growing your config
+
+The template is one machine in a few flat files. That's only a starting point, so change the layout once it stops fitting. Remember to `git add` new files before you rebuild.
+
+**A second machine.** Give each machine its own folder under `hosts/`:
+
+```text
+nix-config/
+├── flake.nix
+├── home.nix                            # Shared by both machines
+├── theme.json                          # Shared by both machines
+└── hosts/
+    ├── laptop/
+    │   ├── default.nix                 # Was host.nix
+    │   └── hardware-configuration.nix
+    └── desktop/
+        ├── default.nix
+        └── hardware-configuration.nix
+```
+
+In each `default.nix`, the theme is now two folders up: `gentleOS.themeFile = ../../theme.json;`. Then replace `outputs` in `flake.nix`, so that each machine is one line:
+
+```nix
+  outputs = { gentleOS, ... } @ inputs:
+    let
+      username = "me";
+      specialArgs = { inherit inputs username; };
+      mkHost = hostname: gpu: gentleOS.lib.mkSystem {
+        specialArgs = specialArgs // { inherit hostname; };
+        modules = [
+          gentleOS.nixosModules.desktop
+          gpu
+          ./hosts/${hostname}
+          ./hosts/${hostname}/hardware-configuration.nix
+        ];
+      };
+    in
+    {
+      nixosConfigurations = {
+        laptop = mkHost "laptop" gentleOS.nixosModules.amd;
+        desktop = mkHost "desktop" gentleOS.nixosModules.intel;
+      };
+
+      homeConfigurations.${username} = gentleOS.lib.mkHomeConfig {
+        inherit specialArgs;
+        modules = [
+          gentleOS.homeModules.desktop
+          ./home.nix
+        ];
+      };
+
+      legacyPackages = gentleOS.legacyPackages;
+    };
+```
+
+- **Names:** each name under `nixosConfigurations` has to be that machine's hostname, because the theme picker builds the one matching the machine it's on.
+- **Setting up the new machine:** follow [Install](#install), but `git clone` your config to the same path in place of `nix flake init`. Write its hardware configuration to its folder under `hosts/`, set `system.stateVersion` from that machine's `/etc/nixos/configuration.nix`, and `git add` both. Then build with `.#desktop`.
+- **What's shared:** monitors go in `gentleOS.monitors.<hostname>` in `home.nix`. A theme you keep on one machine reaches the other when you `git pull` and rebuild.
+
+**Your own modules.** When a file gets long, move part of it into its own file and import it. Home Manager and NixOS have different options, so keep their modules apart:
+
+```nix
+# home.nix: every machine gets this
+imports = [ ./modules/home/media.nix ];
+
+# hosts/desktop/default.nix: only this machine gets this
+imports = [ ../../modules/nixos/gaming.nix ];
+```
+
+**Another flake input.** `pkgs` already comes from the nixpkgs gentleOS pins, so you don't need a nixpkgs input of your own, and `nix flake update gentleOS` moves it for you. For a project that isn't in nixpkgs, add it and point its nixpkgs at gentleOS's:
+
+```nix
+  inputs = {
+    gentleOS.url = "github:thegentlegeek/gentleOS";
+    some-tool = {
+      url = "github:someone/some-tool";
+      inputs.nixpkgs.follows = "gentleOS/nixpkgs";
+    };
+  };
+```
+
+The `outputs` above already pass `inputs` to your modules, so a module can use it:
+
+```nix
+{ pkgs, inputs, ... }:
+
+{
+  home.packages = [
+    inputs.some-tool.packages.${pkgs.stdenv.hostPlatform.system}.default
+  ];
+}
+```
+
+`nix flake update some-tool` updates just that input. Leave out `follows` if the project has a binary cache built against its own nixpkgs, because following would make you compile it locally.
+
 ## Contributing
 
 Suggestions and contributions are welcome! Please open an issue or pull request. Don't update the screenshots in a pull request: the maintainer regenerates them.

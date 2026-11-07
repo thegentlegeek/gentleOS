@@ -3,7 +3,14 @@ name: Check
 on:
   push:
     branches: [main]
+    # Nothing `nix flake check` evaluates or builds reads these.
+    paths-ignore: &not-checked
+      - '**.md'
+      - 'media/**'
+      - LICENSE
+      - .gitignore
   pull_request:
+    paths-ignore: *not-checked
 
 jobs:
   check:

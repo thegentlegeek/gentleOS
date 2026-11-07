@@ -104,6 +104,9 @@ A theme change only rebuilds the small generated files that contain colors
 
 ## Wallpapers
 
+Setting `gentleOS.theme.image` to your own file replaces what's described here,
+and the theme picker then only picks schemes.
+
 The wallpaper isn't a fixed image: `stylix.image` is a derivation that draws it
 from scratch in the active scheme's colors (`generate.py`), so it changes with
 `scheme`. It lives in `pkgs/wallpapers/`, whose `render` function builds the

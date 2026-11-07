@@ -16,8 +16,8 @@ let
 in
 {
   # The active theme. Its defaults come from theme.json; capturing
-  # screenshots also sets it per theme, so change
-  # theme.json rather than stylix.* below.
+  # screenshots also sets it per theme, so change theme.json rather than
+  # stylix.base16Scheme or stylix.image below.
   options.gentleOS.themeFile = lib.mkOption {
     type = lib.types.path;
     default = ./theme.json;

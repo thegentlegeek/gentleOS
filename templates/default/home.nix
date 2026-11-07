@@ -14,7 +14,8 @@
     # Where you keep this flake, for the theme picker.
     flakePath = "/home/${username}/nix-config";
     browser.personal = [ "firefox" ];
-    # See the README's Options section for monitors, keyboard layout and more.
+    # See the README's Options section for monitors, keyboard layout and more,
+    # and Fonts and appearance for fonts, your own wallpaper and Hyprland's settings.
   };
 
   programs.firefox.enable = true;

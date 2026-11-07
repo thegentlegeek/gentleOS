@@ -146,16 +146,23 @@ Set these in your `home.nix`. Hardware that can be detected is, so the lid, CPU 
 |---|---|---|
 | `gentleOS.browser.personal`, `.work` | unset | Browser commands for `SUPER + B` and `SUPER + SHIFT + B`. Unset, there's no bind and web search uses `xdg-open` |
 | `gentleOS.apps.editor`, `.music` | unset | Commands for `SUPER + E` and `SUPER + M`. Unset, there's no bind |
+| `gentleOS.apps.terminal`, `.fileManager` | kitty with fish, kitty with yazi | Commands for `SUPER + C` and `SUPER + F`. The launcher still opens terminal apps in kitty |
+| `gentleOS.binds` | none | Your own binds, such as `{ keys = "SUPER + G"; command = "gimp"; description = "Apps: GIMP"; }`. Spell `keys` as the cheat sheet does. A bind on the same keys replaces the old one |
+| `gentleOS.autostart` | none | Commands to run once at login, such as `[ "discord --start-minimized" ]` |
+| `gentleOS.clock24Hour` | `false` | 24-hour time in the bar |
 | `gentleOS.monitors.<hostname>` | none | Monitor layouts by hostname |
 | `gentleOS.monitorScale` | Hyprland's choice | Scale of monitors not listed there |
 | `gentleOS.keyboardLayout` | `us` | XKB layout on the desktop only. The login screen and console are set on the NixOS side |
+| `gentleOS.keyboardVariant`, `.keyboardOptions` | none | XKB variant and options on the desktop, such as `dvorak` or `caps:escape` |
+| `gentleOS.idleDimSeconds`, `.idleLockSeconds`, `.idleScreenOffSeconds` | `150`, `300`, `330` | Idle time before each step. `null` skips it, though the screen still locks before sleeping |
 | `gentleOS.idleSuspendSeconds` | `1800` | Idle time before sleeping. `null` never sleeps when idle |
 | `gentleOS.searchUrl` | Google | The launcher's web search |
 | `gentleOS.flakePath` | `~/nix-config` | Where your flake is checked out, for the theme picker |
 | `gentleOS.themeFile` | gentleOS's own | Your `theme.json`. Set it on both the NixOS and Home Manager sides, as the template does |
 | `gentleOS.theme.scheme`, `.wallpaper` | `theme.json` | See below |
+| `gentleOS.theme.image`, `gentleOS.shellFont` | unset, JetBrains Mono | See [Fonts and appearance](#fonts-and-appearance) |
 
-Settings in the NixOS modules are defaults, so setting your own in your host just works. The time zone has no default, so set it there.
+Nearly everything else gentleOS sets on either side is a default, so setting your own just works, with no `lib.mkForce`. The exceptions are what the desktop needs to run, such as PipeWire and NetworkManager. The time zone has no default, so set it in your host.
 
 ### Customizing Your Theme
 
@@ -173,6 +180,55 @@ To do it by hand, edit your `theme.json` and rebuild both, as in [Day to day](#d
 `scheme` is `<system>/<name>` without `.yaml`. Use `"base24/<name>"` for schemes that only exist as base24, such as `one-dark` or `cobalt2`. You can browse them in the [Tinted Theming gallery](https://tinted-theming.github.io/tinted-gallery/). New schemes arrive when you update gentleOS.
 
 `wallpaper` is one of `layered-ridges`, `contours`, `windlines`, `flow-engraving`, `prism-shards`, `woven-ribbons` or `sunburst`, all drawn from scratch in the scheme's colors. To preview one without switching, run `nix build .#wallpapers.<name>.base16.<scheme>`.
+
+### Fonts and appearance
+
+**Fonts, cursor and terminal opacity** are [Stylix options](https://nix-community.github.io/stylix/options/platforms/nixos.html). The login screen and console read the system's copy, so put them in a file that both sides import:
+
+```nix
+# style.nix
+{ pkgs, ... }:
+
+{
+  stylix = {
+    fonts = {
+      monospace = {
+        package = pkgs.nerd-fonts.fira-code;
+        name = "FiraCode Nerd Font Mono";
+      };
+      sizes.desktop = 12; # The bar and panels. Also: applications, terminal, popups
+    };
+    cursor.size = 32;
+    opacity.terminal = 1.0; # Also the bar's background
+  };
+}
+```
+
+Add `imports = [ ./style.nix ];` to both `host.nix` and `home.nix`, `git add style.nix`, and rebuild both, as in [Day to day](#day-to-day). Set a font's `package` and `name` together, and find the name with `fc-list`.
+
+**The bar and panels' font** is separate, because they mix text with icons that a terminal font may not have. It needs Nerd Font glyphs, or the icons show as boxes. Set it in `home.nix`:
+
+```nix
+gentleOS.shellFont = {
+  package = pkgs.nerd-fonts.fira-code;
+  name = "FiraCode Nerd Font Propo";
+};
+```
+
+**Your own wallpaper:** add `gentleOS.theme.image = ./wallpaper.png;` to `style.nix`, and `git add` the image. The theme picker then only picks schemes.
+
+**Hyprland's own settings** are in Hyprland's Lua, added after [gentleOS's](modules/home/window-managers/hyprland/hyprland.lua), so yours win. See the [Hyprland wiki](https://wiki.hypr.land/) for what's there. In `home.nix`, with `lib` added to the arguments at the top:
+
+```nix
+wayland.windowManager.hyprland.extraConfig = lib.mkAfter ''
+  hl.config({
+    general = { gaps_out = 20 },
+    decoration = { rounding = 3, active_opacity = 1.0, inactive_opacity = 1.0 },
+    input = { touchpad = { natural_scroll = false } },
+  })
+  hl.window_rule({ name = "float-vlc", match = { class = "^(vlc)$" }, float = true })
+'';
+```
 
 ### Growing your config
 
@@ -281,6 +337,15 @@ Suggestions and contributions are welcome! Please open an issue or pull request.
 | `nix build .#checks.x86_64-linux.hyprland-config` | Parses the generated `hyprland.lua` with the pinned Hyprland |
 | `nix build .#checks.x86_64-linux.quickshell-config` | Loads the shell and theme picker in a headless compositor, and fails on any QML error |
 | `nix fmt` | Formats Nix files with nixfmt |
+
+**Adding a setting.** People should be able to change gentleOS from their own flake without `lib.mkForce`:
+
+- An opinion on an upstream option is `lib.mkDefault`, on each value rather than on a whole attrset, where one key of someone's own would discard the rest.
+- Something the shell reads or several modules share is a `gentleOS.*` option.
+- Hyprland's look and feel stays in `hyprland.lua`, since `hl.config` can override it.
+- What the desktop needs to run stays plain.
+
+Add what you can change to `checks/customized.nix`, and run `checks/customized-vm.nix` if it should be seen to work on a desktop.
 
 **Where things are:**
 

@@ -49,6 +49,22 @@
       };
     };
 
+    # Its own option, not stylix.fonts: the bar and panels mix text with Nerd Font
+    # icons, which a terminal font may well not have.
+    shellFont = {
+      package = lib.mkOption {
+        type = lib.types.package;
+        default = pkgs.nerd-fonts.jetbrains-mono;
+        defaultText = lib.literalExpression "pkgs.nerd-fonts.jetbrains-mono";
+        description = "Package with the bar and panels' font.";
+      };
+      name = lib.mkOption {
+        type = lib.types.str;
+        default = "JetBrainsMono Nerd Font Propo";
+        description = "Font family of the bar and panels, and in `shellFont.package`, or the build fails. Without Nerd Font glyphs, the icons show as boxes. Of a Nerd Font's variants, Propo keeps icons at their natural size.";
+      };
+    };
+
     monitors = lib.mkOption {
       type = lib.types.attrsOf (lib.types.listOf (lib.types.submodule {
         options = {

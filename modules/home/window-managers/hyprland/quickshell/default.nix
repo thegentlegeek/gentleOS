@@ -22,14 +22,13 @@ let
       "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "A" "B" "C" "D" "E" "F"
     ]) (name: colors.${name});
     fontMono = stylix.fonts.monospace.name;
-    # The "Propo" variant of the same Nerd Font: text glyphs are identical, but
+    # Used for all shell text. The default is the "Propo" variant of a Nerd Font:
     # icons keep their natural size and advance width ("Mono" squeezes them to
     # one cell; plain "Nerd Font" draws them wide but overlaps the next glyph).
-    # Used for all shell text.
-    fontShell = lib.removeSuffix " Mono" stylix.fonts.monospace.name + " Propo";
+    fontShell = config.gentleOS.shellFont.name;
     fontSans = stylix.fonts.sansSerif.name;
-    # Stylix sizes are points; the bar keeps Waybar's 15px.
-    fontSizeBar = 15;
+    # In pixels, where Stylix's sizes are points: 15px at its default of 10.
+    fontSizeBar = builtins.ceil (1.5 * stylix.fonts.sizes.desktop);
     fontSizePopups = stylix.fonts.sizes.popups;
     # Background alpha of the bar and of popups/panels (blurred, hyprland.lua).
     # The bar shares the terminal's, so kitty's glass matches it.
@@ -166,7 +165,18 @@ let
     themeState = "${config.xdg.stateHome}/gentle-theme.json";
   };
 
-  shellConfig = pkgs.runCommandLocal "quickshell-gentle" { } ''
+  shellFont = config.gentleOS.shellFont;
+
+  shellConfig = pkgs.runCommandLocal "quickshell-gentle" { nativeBuildInputs = [ pkgs.fontconfig ]; } ''
+    # A wrong name would otherwise fall back to some other font without a word.
+    families=$(fc-scan --format '%{family}\n' ${shellFont.package}/share | tr , '\n' | sort -u)
+    if ! grep -qxF ${lib.escapeShellArg shellFont.name} <<<"$families"; then
+      # Last, since Nix only shows the end of a failed build's log.
+      echo "Families in ${shellFont.package.name}:" >&2
+      echo "$families" >&2
+      echo "gentleOS.shellFont.name: no family ${lib.escapeShellArg shellFont.name} in ${shellFont.package.name}. It has the ones above." >&2
+      exit 1
+    fi
     cp -r ${./shell} $out
     chmod u+w $out
     cp ${pkgs.writeText "Theme.qml.json" (builtins.toJSON theme)} $out/Theme.qml.json
@@ -187,7 +197,7 @@ in
       };
     };
 
-    home.packages = [ pinentry gentleTheme ];
+    home.packages = [ pinentry gentleTheme shellFont.package ];
     xdg.configFile."gentle-theme/current.json".text = builtins.toJSON theme;
     programs.rbw.settings.pinentry = lib.mkIf config.programs.rbw.enable pinentry;
 

@@ -65,10 +65,13 @@ You keep your own small flake, which pulls in gentleOS as an input. These steps 
 
 1. **Install NixOS** with the [official guide](https://nixos.org/manual/nixos/stable/#sec-installation).
 
-2. **Create your flake.** Stay in this terminal until you restart in step 6: the first line turns on flakes until your new system is running, and `nix-shell` provides git.
+2. **Create your flake.** Stay in this terminal until you restart in step 6. First, turn on flakes until your new system is running, and open a shell with git:
    ```bash
    export NIX_CONFIG="experimental-features = nix-command flakes"
    nix-shell -p git
+   ```
+   Then, inside that shell, copy a small starter config into `~/nix-config`. That folder is yours, and gentleOS stays a dependency you update, not something you edit.
+   ```bash
    mkdir ~/nix-config && cd ~/nix-config
    nix flake init -t github:thegentlegeek/gentleOS
    ```

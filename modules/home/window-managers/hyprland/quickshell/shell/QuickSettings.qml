@@ -8,7 +8,8 @@ import QtQuick
 PanelFrame {
     id: root
 
-    // Expanded detail list under the tiles: "", "wifi" or "bluetooth".
+    // Expanded detail list: "", "wifi" or "bluetooth" (under the tiles), or
+    // "output" (under the sound sliders).
     property string section: ""
 
     readonly property BluetoothAdapter btAdapter: Bluetooth.defaultAdapter
@@ -121,6 +122,19 @@ PanelFrame {
             dimmed: Audio.micMuted
             onMoved: v => Audio.source.audio.volume = v
             onIconClicked: Audio.toggleMic()
+        }
+
+        ListRow {
+            visible: Audio.sinks.length > 1
+            icon: Audio.headphones ? Icons.headphones : Icons.volume[2]
+            text: "Output"
+            detail: root.section === "output" ? "" : Audio.label(Audio.sink)
+            onClicked: root.toggleSection("output")
+        }
+
+        OutputList {
+            width: parent.width
+            visible: root.section === "output" && Audio.sinks.length > 1
         }
 
         ListRow {

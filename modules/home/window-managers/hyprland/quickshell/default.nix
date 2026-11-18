@@ -134,6 +134,8 @@ let
     bluetoothSettings = app [ "${pkgs.blueman}/bin/blueman-manager" ];
     networkSettings = app [ "${pkgs.networkmanagerapplet}/bin/nm-connection-editor" ];
     brightnessctl = exe pkgs.brightnessctl;
+    # Un-pins playback streams when an output is picked (Audio.qml).
+    pwMetadata = "${pkgs.pipewire}/bin/pw-metadata";
     # For the few sysfs globs QML can't do itself (hwmonN, keyboard LEDs).
     sh = pkgs.runtimeShell;
     tempCritical = 90;
